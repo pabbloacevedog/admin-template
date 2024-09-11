@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+    db:
+        image: mysql:8.0
+        restart: always
+        environment:
+            MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+            MYSQL_DATABASE: ${DB_NAME}
+            MYSQL_USER: ${DB_USER}
+            MYSQL_PASSWORD: ${DB_PASSWORD}
+        networks:
+            - auth-network
+
+    auth-service:
+        build: .
+        restart: always
+        ports:
+            - "4000:4000" # Exponer solo el puerto de la aplicación
+        environment:
+            - NODE_ENV=production
+            - JWT_SECRET=${JWT_SECRET}
+            - JWT_EXPIRES=${JWT_EXPIRES}
+            - RESET_PASSWORD_URL=${RESET_PASSWORD_URL}
+            - DB_HOST=db
+            - DB_PORT=3306
+            - DB_USER=${DB_USER}
+            - DB_PASSWORD=${DB_PASSWORD}
+            - DB_NAME=${DB_NAME}
+        depends_on:
+            - db
+        networks:
+            - auth-network
+
+networks:
+    auth-network:
+        driver: bridge

@@ -1,0 +1,16 @@
+ENV = 'development'
+NODE_ENV = 'development'
+PORT = 5001
+JWT_SECRET= "desktop deflate judgingly engaging"
+JWT_EXPIRES = "15m"
+PASSPHRASE = "connected private spectator blunt"
+SALT_ROUNDS = 10
+CLIENT= "http://localhost:9000"
+BASE_URL = "http://localhost:5001/"
+use_env_variable = true
+DB_HOST=127.0.0.1
+DB_USER=root
+DB_PASS=Pablo0312
+DB_NAME=glidpa_bd
+# (Development) Remove all tables and create with seeds each time the server is restarted
+DB_FORCE_RESTART = true
