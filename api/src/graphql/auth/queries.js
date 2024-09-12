@@ -19,3 +19,11 @@ export const userSettings = {
     },
     resolve: authResolver.Query.userSettings,
 };
+export const isAuth = {
+    type: AuthType,
+    resolve: authResolver.Query.isAuth, // Resolver que manejará la autenticación
+};
+export const logout = {
+    type: AuthType,
+    resolve: authResolver.Query.logout, // Resolver que manejará la autenticación
+};

@@ -32,6 +32,14 @@ export const ErrorTypes = {
         errorCode: 'UNAUTHENTICATED',
         errorStatus: 401,
     },
+    UNAUTHORIZED: {
+        errorCode: 'UNAUTHORIZED',
+        errorStatus: 401,
+    },
+    TOKEN_EXPIRED: {
+        errorCode: 'TOKEN_EXPIRED',
+        errorStatus: 401,
+    },
     ALREADY_EXISTS: {
         errorCode: 'ALREADY_EXISTS',
         errorStatus: 400,

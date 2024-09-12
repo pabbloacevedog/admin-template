@@ -44,7 +44,7 @@ const onSubmit = async () => {
             type: 'positive',
             message: 'Registro exitoso'
         });
-        router.push('/protected');
+        router.push('/login');
     } catch (error) {
         // Error handling is already done in the store, no need to do anything here
     }

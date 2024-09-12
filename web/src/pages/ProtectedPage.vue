@@ -1,66 +1,89 @@
 <template>
-    <q-page class="protected-page">
-        <div class="overlay"></div>
-        <div class="content-container row justify-center items-center">
-            <div class="text-center q-pa-xl">
-                <h1 class="text-white">{{ user }}</h1> <!-- Muestra el nombre del usuario -->
-                <p class="text-white">You are logged in and can see this page.</p>
-            </div>
-        </div>
-    </q-page>
+    <div>
+        <!-- Formulario para actualizar el perfil -->
+        <form @submit.prevent="updateProfile">
+            <input v-model="name" placeholder="Name">
+            <input v-model="email" placeholder="Email">
+            <input v-model="personal_phone" placeholder="Phone">
+            <input v-model="avatar" placeholder="Avatar URL">
+            <button type="submit">Save Changes</button>
+        </form>
+
+        <!-- Formulario para cambiar la contraseña -->
+        <form @submit.prevent="updatePassword">
+            <input type="password" v-model="currentPassword" placeholder="Current Password">
+            <input type="password" v-model="newPassword" placeholder="New Password">
+            <button type="submit">Change Password</button>
+        </form>
+    </div>
 </template>
 
-<script setup>
-import { ref, onMounted } from 'vue';
-import { useAuthStore } from '../stores/auth';
+<script>
+import { gql } from '@apollo/client';
 
-const authStore = useAuthStore();
-const user = ref(null);  // Hacemos 'user' reactivo
+export default {
+    data() {
+        return {
+            name: '',
+            email: '',
+            personal_phone: '',
+            avatar: '',
+            currentPassword: '',
+            newPassword: ''
+        };
+    },
+    methods: {
+        async updateProfile() {
+            const mutation = gql`
+          mutation EditUserProfile($name: String, $email: String, $personal_phone: String, $avatar: String) {
+            editUserProfile(name: $name, email: $email, personal_phone: $personal_phone, avatar: $avatar) {
+              id
+              name
+              email
+              personal_phone
+              avatar
+            }
+          }
+        `;
 
-onMounted(async () => {
-    try {
-        authStore.clearError();
-        const fetchedUser = await authStore.userSettings("9623d813-04a2-4886-a4c3-7a669ff36a22");
-        user.value = fetchedUser;  // Asignamos el valor a 'user'
-    } catch (error) {
-        console.error("Error fetching user:", error);
+            try {
+                const response = await this.$apollo.mutate({
+                    mutation,
+                    variables: {
+                        name: this.name,
+                        email: this.email,
+                        personal_phone: this.personal_phone,
+                        avatar: this.avatar
+                    }
+                });
+                console.log('Profile updated:', response.data.editUserProfile);
+            } catch (error) {
+                console.error('Error updating profile:', error);
+            }
+        },
+
+        async updatePassword() {
+            const mutation = gql`
+          mutation ChangePassword($currentPassword: String!, $newPassword: String!) {
+            changePassword(currentPassword: $currentPassword, newPassword: $newPassword)
+          }
+        `;
+
+            try {
+                const response = await this.$apollo.mutate({
+                    mutation,
+                    variables: {
+                        currentPassword: this.currentPassword,
+                        newPassword: this.newPassword
+                    }
+                });
+                if (response.data.changePassword) {
+                    console.log('Password changed successfully');
+                }
+            } catch (error) {
+                console.error('Error changing password:', error);
+            }
+        }
     }
-});
+};
 </script>
-
-
-<style scoped>
-.protected-page {
-    display: flex;
-    height: 100vh;
-    justify-content: center;
-    align-items: center;
-    background: url('https://picsum.photos/1920/1080') no-repeat center center;
-    background-size: cover;
-    position: relative;
-}
-
-.overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.5);
-    /* Optional: Adds a dark overlay to the background image */
-}
-
-.content-container {
-    position: relative;
-    /* To ensure it sits above the overlay */
-    z-index: 1;
-}
-
-.text-center {
-    text-align: center;
-}
-
-.text-white {
-    color: white;
-}
-</style>

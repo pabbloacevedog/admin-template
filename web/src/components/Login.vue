@@ -49,12 +49,12 @@ const $q = useQuasar();
 
 const onSubmit = async () => {
 	try {
-		const username = await authStore.login({ email: email.value, password: password.value });
+		const user = await authStore.login({ email: email.value, password: password.value });
 		$q.notify({
 			type: 'positive',
-			message: `Bienvenido ${username}`
+			message: `Bienvenido ${user.email}`
 		});
-		router.push('/protected');
+		router.push('/settings');
 	} catch (error) {
 		// Error handling is already done in the store, no need to do anything here
 		$q.notify({

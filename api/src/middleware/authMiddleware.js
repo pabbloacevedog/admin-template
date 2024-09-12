@@ -8,11 +8,11 @@ const authMiddleware = (req, res, next) => {
     }
 
     try {
-        const decoded = jwt.verify(JWT_SECRET);
-        req.user = decoded.userId;
-        next();
+        const decoded = jwt.verify(token, JWT_SECRET); // Verificamos el token
+        req.user = decoded; // Guardamos la información del usuario en el objeto `req`
+        next(); // Pasamos al siguiente middleware
     } catch (err) {
-        res.status(401).json({ message: 'Token is not valid' });
+        return res.status(401).json({ message: 'Token expired or invalid. Please log in again.' });
     }
 };
 

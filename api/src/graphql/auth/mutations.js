@@ -31,16 +31,16 @@ export const resetPassword = {
     resolve: authResolver.Mutation.resetPassword,
 };
 
-export const updateUser = {
-    type: AuthType,
-    args: {
-        user_id: { type: GraphQLID },
-        name: { type: GraphQLString },
-        email: { type: GraphQLString },
-        password: { type: GraphQLString },
-        personal_phone: { type: GraphQLString },
-        avatar: { type: GraphQLString },
-        state: { type: GraphQLString },
-    },
-    resolve: authResolver.Mutation.updateUser,
-};
+// export const updateUser = {
+//     type: AuthType,
+//     args: {
+//         user_id: { type: GraphQLID },
+//         name: { type: GraphQLString },
+//         email: { type: GraphQLString },
+//         password: { type: GraphQLString },
+//         personal_phone: { type: GraphQLString },
+//         avatar: { type: GraphQLString },
+//         state: { type: GraphQLString },
+//     },
+//     resolve: authResolver.Mutation.updateUser,
+// };

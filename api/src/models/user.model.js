@@ -74,9 +74,13 @@ const initializeUser = (sequelize) => {
                     user.password = await hashPassword(user.password);
                 }
             },
-            beforeUpdate: async (user) => {
-                if (user.password) {
-                    user.password = await hashPassword(user.password);
+            // Hook para hashear la contraseña solo si ha cambiado
+            beforeUpdate: async (user, options) => {
+                // Verificar si la contraseña ha cambiado
+                if (user.password !== user.previous('password')) {
+                    if (user.password) {
+                        user.password = await hashPassword(user.password);
+                    }
                 }
             },
         },
