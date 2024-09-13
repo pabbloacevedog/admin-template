@@ -8,6 +8,7 @@ import { sendEmail } from '../../utils/emailService.js';
 import { JWT_EXPIRES, JWT_SECRET, RESET_PASSWORD_URL } from '../../config/config.js';
 import throwCustomError, { ErrorTypes } from '../../helpers/error-handler.helper.js';
 import { Op } from 'sequelize';
+import { ValidationContext } from 'graphql';
 
 export const authResolver = {
     Mutation: {
@@ -60,20 +61,61 @@ export const authResolver = {
 
             return { message: 'Contraseña restablecida con éxito' };
         },
+        async changePassword(_, args, { user }) {
+            try {
+                const userId = user.user_id;
+                console.log('Change Password',user)
+                console.log('Change Password args',args)
+                const us = await models.User.findByPk(userId);
+                if (!us) throwCustomError(ErrorTypes.BAD_USER_INPUT);
 
-        // Actualizar usuario
-        // updateUser: async (_, { user_id, name, email, password, personal_phone, avatar, state }, { user }) => {
-        //     if (!user || user.user_id !== user_id) throw new Error('Unauthorized');
+                // Verificamos si la contraseña actual es correcta
+                const validPassword = await bcrypt.compare(args.currentPassword, us.password);
+                if (!validPassword) {
+                    throw new Error("Current password is incorrect");
+                }
 
-        //     const updateData = { name, email, personal_phone, avatar, state };
-        //     if (password) updateData.password = await bcrypt.hash(password, 10);
+                // Encriptamos la nueva contraseña
+                const hashedPassword = args.newPassword
 
-        //     const existingUser = await models.User.findByPk(user_id);
-        //     if (!existingUser) throw new Error('User not found');
-        //     await existingUser.update(updateData);
+                // Actualizamos la contraseña
+                await us.update({
+                    password: hashedPassword
+                });
 
-        //     return existingUser;
-        // },
+                return true;  // Indicar que la contraseña se actualizó con éxito
+            } catch (error) {
+                console.error(error);
+                throw new Error("Error changing password: " + error.message);
+            }
+        },
+        async updateUser(_, { userId, input }) {
+            try {
+                const user = await models.User.findByPk(userId);
+                if (!user) {
+                    throw new Error("User not found");
+                }
+
+                // Actualizamos los campos proporcionados
+                await user.update({
+                    rut_user: input.rut_user || user.rut_user,
+                    name: input.name || user.name,
+                    username: input.username || user.username,
+                    email: input.email || user.email,
+                    personal_phone: input.personal_phone || user.personal_phone,
+                    verification_code: input.verification_code || user.verification_code,
+                    verified: input.verified !== undefined ? input.verified : user.verified,
+                    state: input.state || user.state,
+                    avatar: input.avatar || user.avatar,
+                    role_id: input.role_id !== undefined ? input.role_id : user.role_id
+                });
+
+                return user;
+            } catch (error) {
+                throw new Error("Error updating user: " + error.message);
+            }
+        },
+
     },
 
     Query: {

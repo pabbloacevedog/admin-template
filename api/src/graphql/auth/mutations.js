@@ -1,7 +1,8 @@
 // auth/fields/mutations.js
 
-import { GraphQLString, GraphQLID } from 'graphql';
+import { GraphQLString, GraphQLBoolean, GraphQLNonNull, GraphQLInputObjectType, GraphQLInt } from 'graphql';
 import AuthType from './type.js';
+import UserType from '../user/type.js';
 import { authResolver } from './resolvers.js';
 
 export const register = {
@@ -31,16 +32,36 @@ export const resetPassword = {
     resolve: authResolver.Mutation.resetPassword,
 };
 
-// export const updateUser = {
-//     type: AuthType,
-//     args: {
-//         user_id: { type: GraphQLID },
-//         name: { type: GraphQLString },
-//         email: { type: GraphQLString },
-//         password: { type: GraphQLString },
-//         personal_phone: { type: GraphQLString },
-//         avatar: { type: GraphQLString },
-//         state: { type: GraphQLString },
-//     },
-//     resolve: authResolver.Mutation.updateUser,
-// };
+export const changePassword = {
+    type: GraphQLBoolean,  // Devuelve true si la contraseña se actualizó correctamente
+    args: {
+        currentPassword: { type: new GraphQLNonNull(GraphQLString) },
+        newPassword: { type: new GraphQLNonNull(GraphQLString) }
+    },
+    resolve: authResolver.Mutation.changePassword
+};
+
+const UserUpdateInputType = new GraphQLInputObjectType({
+    name: 'UserUpdateInput',
+    fields: {
+        rut_user: { type: GraphQLString },
+        name: { type: GraphQLString },
+        username: { type: GraphQLString },
+        email: { type: GraphQLString },
+        personal_phone: { type: GraphQLString },
+        verification_code: { type: GraphQLString },
+        verified: { type: GraphQLBoolean },
+        state: { type: GraphQLString },
+        avatar: { type: GraphQLString },
+        role_id: { type: GraphQLInt }
+    }
+});
+export const updateUser = {
+    type: UserType,
+    args: {
+        userId: { type: new GraphQLNonNull(GraphQLString) },
+        input: { type: new GraphQLNonNull(UserUpdateInputType) }
+    },
+    resolve: authResolver.Mutation.updateUser
+};
+

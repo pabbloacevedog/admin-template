@@ -9,15 +9,15 @@
 			</div>
 			<div class="right-section col-6 q-px-xl">
 				<div class="form-container">
-					<h2>Welcome back!</h2>
-					<p>Start managing your finance faster and better</p>
+					<h3>{{ $t('login.title') }}</h3>
+					<p>{{ $t('login.description') }}</p>
 					<q-form @submit="onSubmit">
-						<q-input v-model="email" label="Email" type="email" outlined class="q-mb-md" />
-						<q-input v-model="password" label="Password" type="password" outlined class="q-mb-md" />
+						<q-input v-model="email" required :label="$t('login.email')" type="email" outlined class="q-mb-md" />
+						<q-input v-model="password" required :label="$t('login.pass')" type="password" outlined class="q-mb-md" />
 						<div class="row justify-end q-mb-md">
-							<q-btn flat label="Forgot password?" class="text-primary" />
+							<q-btn flat :label="$t('login.forgot_password')"  class="text-primary" />
 						</div>
-						<q-btn label="Login" type="submit" color="primary" class="full-width q-mb-md" />
+						<q-btn :label="$t('login.btn_login')" type="submit" color="primary" class="full-width q-mb-md" />
 					</q-form>
 					<!-- <div class="separator">
                         <span>or</span>
@@ -26,7 +26,7 @@
                         <q-btn flat round label="Google" icon="fa-brands fa-google" class="q-mb-md" />
                         <q-btn flat round label="Facebook" icon="fa-brands fa-facebook" class="q-mb-md" />
                     </q-btn-group> -->
-					<p>Don't you have an account? <q-btn flat label="Sign Up" class="text-primary"
+					<p>{{ $t('login.new_user') }} <q-btn flat :label="$t('login.sign_up')" class="text-primary"
 							@click="router.push('/register')" /></p>
 				</div>
 			</div>

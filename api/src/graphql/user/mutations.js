@@ -1,5 +1,5 @@
 // schema/user/mutations.js
-import { GraphQLNonNull, GraphQLString, GraphQLBoolean, GraphQLInt,GraphQLInputObjectType } from 'graphql';
+import { GraphQLNonNull, GraphQLString, GraphQLBoolean, GraphQLInt } from 'graphql';
 import UserType from './type.js';
 import { userResolver } from './resolvers.js';
 
@@ -45,46 +45,4 @@ export const removeUser = {
     },
     resolve: userResolver.Mutation.removeUser
 };
-export const editUserProfile = {
-    type: UserType,
-    args: {
-        name: { type: GraphQLString },
-        email: { type: GraphQLString },
-        personal_phone: { type: GraphQLString },
-        avatar: { type: GraphQLString }
-    },
-    resolve: userResolver.Mutation.editUserProfile
-};
 
-export const changePassword = {
-    type: GraphQLBoolean,  // Devuelve true si la contraseña se actualizó correctamente
-    args: {
-        currentPassword: { type: new GraphQLNonNull(GraphQLString) },
-        newPassword: { type: new GraphQLNonNull(GraphQLString) }
-    },
-    resolve: userResolver.Mutation.changePassword
-};
-
-const UserUpdateInputType = new GraphQLInputObjectType({
-    name: 'UserUpdateInput',
-    fields: {
-        rut_user: { type: GraphQLString },
-        name: { type: GraphQLString },
-        username: { type: GraphQLString },
-        email: { type: GraphQLString },
-        personal_phone: { type: GraphQLString },
-        verification_code: { type: GraphQLString },
-        verified: { type: GraphQLBoolean },
-        state: { type: GraphQLString },
-        avatar: { type: GraphQLString },
-        role_id: { type: GraphQLInt }
-    }
-});
-export const updateUser = {
-    type: UserType,
-    args: {
-        userId: { type: new GraphQLNonNull(GraphQLString) },
-        input: { type: new GraphQLNonNull(UserUpdateInputType) }
-    },
-    resolve: userResolver.Mutation.updateUser
-};

@@ -3,20 +3,21 @@
     <q-page class="register-page">
         <div class="register-container row no-wrap justify-center items-center q-mt-xl">
             <div class="left-section col-6 q-px-xl">
-                <div class="content">
-                    <q-img src="https://picsum.photos/800/500" contain />
+                <div class="form-container">
+					<h3>{{ $t('register.title') }}</h3>
+					<p>{{ $t('register.description') }}</p>
+                    <q-form @submit="onSubmit">
+                        <q-input v-model="email" :label="$t('register.email')" type="email" outlined class="q-mb-md" />
+                        <q-input v-model="password" :label="$t('register.pass')" type="password" outlined class="q-mb-md" />
+                        <q-btn :label="$t('register.btn_signup')" type="submit" color="primary" class="full-width q-mb-md" />
+                    </q-form>
+                    <p>{{$t('register.old_user')}} <q-btn flat :label="$t('register.login')" class="text-primary" @click="router.push('/login')"/></p>
                 </div>
+
             </div>
             <div class="right-section col-6 q-px-xl">
-                <div class="form-container">
-                    <h2>Create your account</h2>
-                    <p>Start managing your finance faster and better</p>
-                    <q-form @submit="onSubmit">
-                        <q-input v-model="email" label="Email" type="email" outlined class="q-mb-md" />
-                        <q-input v-model="password" label="Password" type="password" outlined class="q-mb-md" />
-                        <q-btn label="Register" type="submit" color="primary" class="full-width q-mb-md" />
-                    </q-form>
-                    <p>Already have an account? <q-btn flat label="Login" class="text-primary" @click="router.push('/login')"/></p>
+                <div class="content">
+                    <q-img src="https://picsum.photos/800/500" contain />
                 </div>
             </div>
         </div>
