@@ -19,6 +19,9 @@ const AuthType = new GraphQLObjectType({
         message: {
             type: GraphQLString
         },
+        verification_code: {
+            type: GraphQLString
+        },
         actions: { type: new GraphQLList(GraphQLString) },
         user: { type: UserType },
     })

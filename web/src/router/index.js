@@ -34,70 +34,35 @@ export default route(function (/* { store, ssrContext } */) {
         history: createHistory(process.env.VUE_ROUTER_BASE),
     });
     initializeRouter(Router);
-    // Router.beforeEach(async (to, from, next) => {
-    //     const authStore = useAuthStore();
-    //     // Intenta obtener al usuario autenticado
-    //     await authStore.fetchUser();
-
-    //     // Verifica si la ruta requiere autenticación
-    //     if (to.matched.some((record) => record.meta.requiresAuth)) {
-    //         if (!authStore.user) {
-    //             // Si el usuario no está autenticado, redirige a /login
-    //             return next({ path: "/login" });
-    //         } else {
-    //             // Si el usuario está autenticado, deja continuar
-    //             return next();
-    //         }
-    //     } else {
-    //         // Si no requiere autenticación
-    //         if (authStore.user && to.path === "/login") {
-    //             // Si el usuario está autenticado y trata de ir a /login, redirige a /settings
-    //             return next({ path: "/settings" });
-    //         } else {
-    //             // Si no está autenticado o está yendo a una ruta pública, deja continuar
-    //             return next();
-    //         }
-    //     }
-    // });
     Router.beforeEach(async (to, from, next) => {
         const authStore = useAuthStore();
 
-
-
+        // Rutas que solo se deben permitir sin autenticación
+        const onlyWithoutAuth = to.matched.some(
+            (record) => record.meta.onlyWithoutAuth,
+        );
+        
         // Verifica si la ruta requiere autenticación
         if (to.matched.some((record) => record.meta.requiresAuth)) {
             // Intenta obtener al usuario autenticado
-
             await authStore.fetchUser();
-            console.log('if 1')
+            // Si la ruta requiere autenticación
             if (!authStore.user) {
-                console.log('if 1.1')
-                // Si el usuario no está autenticado y no está en /login
-                console.log(to,'to authrequired');
-                if (to.path !== "/login") {
-                    console.log('if 1.1.1')
-                    return next({ path: "/login" });
-                }
+                // Si no está autenticado, redirige a /login
+                return next({ path: "/login" });
             } else {
-                // Si el usuario está autenticado, deja continuar
+                // Si está autenticado, permite continuar a la ruta protegida
                 return next();
             }
+        } else if (onlyWithoutAuth && authStore.user) {
+            // Si el usuario está autenticado y trata de acceder a una ruta que solo es accesible sin autenticación
+            // Evita redirigir a la ruta solicitada y quédate en la ruta actual
+            return next(false); // Evita que cambie de ruta
         } else {
-            console.log('else 1')
-            // Si no requiere autenticación
-            console.log(to,'to no authrequired');
-            if (authStore.user && to.path === "/login") {
-                console.log('else 1 if 1')
-                // Si el usuario está autenticado y trata de ir a /login, redirige a /settings
-                return next({ path: "/settings" });
-            } else {
-                console.log('else 1.1')
-                // Si no está autenticado o está yendo a una ruta pública, deja continuar
-                return next();
-            }
+            // Si no requiere autenticación o no cae en las condiciones previas, permite continuar
+            return next();
         }
     });
-
 
     return Router;
 });

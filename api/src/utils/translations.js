@@ -4,6 +4,7 @@ const translations = {
     en: {
         BAD_USER_PASSWORD: 'The password you entered is incorrect. Please try again.',
         BAD_USER_INPUT: 'Invalid input provided.',
+        USER_NOT_FOUND: 'User not found.',
         INVALID_RESET_TOKEN: 'The reset token is invalid or has expired.',
         NO_ACTIONS_FOR_ROLE: 'No actions found for the specified role.',
         NOT_FOUND: 'The requested resource was not found.',

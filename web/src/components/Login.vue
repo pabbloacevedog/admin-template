@@ -11,11 +11,11 @@
 				<div class="form-container">
 					<h3>{{ $t('login.title') }}</h3>
 					<p>{{ $t('login.description') }}</p>
-					<q-form @submit="onSubmit">
-						<q-input v-model="email" required :label="$t('login.email')" type="email" outlined class="q-mb-md" />
-						<q-input v-model="password" required :label="$t('login.pass')" type="password" outlined class="q-mb-md" />
+					<q-form @submit="onSubmit" autocomplete="on">
+						<q-input v-model="email" required :label="$t('login.email')" type="email" outlined class="q-mb-md" autocomplete="email"/>
+						<q-input v-model="password" required :label="$t('login.pass')" type="password" outlined class="q-mb-md" autocomplete="current-password"/>
 						<div class="row justify-end q-mb-md">
-							<q-btn flat :label="$t('login.forgot_password')"  class="text-primary" />
+							<q-btn flat :label="$t('login.forgot_password')"  class="text-primary" @click="router.push('/forgot_password')"  />
 						</div>
 						<q-btn :label="$t('login.btn_login')" type="submit" color="primary" class="full-width q-mb-md" />
 					</q-form>
@@ -26,8 +26,7 @@
                         <q-btn flat round label="Google" icon="fa-brands fa-google" class="q-mb-md" />
                         <q-btn flat round label="Facebook" icon="fa-brands fa-facebook" class="q-mb-md" />
                     </q-btn-group> -->
-					<p>{{ $t('login.new_user') }} <q-btn flat :label="$t('login.sign_up')" class="text-primary"
-							@click="router.push('/register')" /></p>
+					<p>{{ $t('login.new_user') }} <q-btn flat :label="$t('login.sign_up')" class="text-primary" @click="router.push('/register')" /></p>
 				</div>
 			</div>
 		</div>

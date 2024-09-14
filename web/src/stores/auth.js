@@ -7,7 +7,10 @@ export const useAuthStore = defineStore("auth", {
         actions: null,
         error: null,
         user: null,
+        verification_code: null,
         isUserFetched: false,
+        userId: null,
+        message: null,
     }),
     actions: {
         async login(credentials) {
@@ -170,7 +173,89 @@ export const useAuthStore = defineStore("auth", {
                 throw error;
             }
         },
+        async forgotPassword(email) {
+            const FORGOT_PASSWORD_MUTATION = gql`
+                mutation ForgotPassword($email: String!) {
+                    forgotPassword(email: $email){
+                        message
+                    }
+                }
+            `;
+            try {
+                const response = await apolloClient.mutate({
+                    mutation: FORGOT_PASSWORD_MUTATION,
+                    variables: { email },
+                });
+                console.log(response,'forgot password')
+                const { message } = response.data.forgotPassword;
+                return message
+            } catch (error) {
+                this.error = error.message;
+                throw error;
+            }
+        },
+        async verifyCode(verification_code) {
+            const VERIFY_CODE_MUTATION = gql`
+                mutation VerifyCode($verification_code: String!) {
+                    verifyCode(verification_code: $verification_code){
+                        user_id,
+                        message
+                    }
+                }
+            `;
+            try {
+                const response = await apolloClient.mutate({
+                    mutation: VERIFY_CODE_MUTATION,
+                    variables: { verification_code },
+                });
+                console.log(response,'verifyCode')
+                const { user_id, message } = response.data.verifyCode;
+                this.userId = user_id;
+                localStorage.setItem("userId",user_id);
+                this.message = message;
+            } catch (error) {
+                this.error = error.message;
+                throw error;
+            }
+        },
+        // Método para restablecer la contraseña
+        async resetPassword(newPassword) {
+            const RESET_PASSWORD_MUTATION = gql`
+                mutation ResetPassword($userId: String!, $newPassword: String!) {
+                    resetPassword(userId: $userId, newPassword: $newPassword) {
+                        message
+                    }
+                }
+            `;
 
+            const userId = this.userId || localStorage.getItem("userId");
+
+            if (!userId) {
+                this.error = "Error al identificar al usuario";
+                return;
+            }
+
+            try {
+                const { data } = await apolloClient.mutate({
+                    mutation: RESET_PASSWORD_MUTATION,
+                    variables: { userId, newPassword },
+                });
+
+                this.message = data.resetPassword.message;
+                this.error = null; // Limpiar errores si la operación fue exitosa
+                this.userId = null
+                localStorage.removeItem("userId");
+            } catch (error) {
+                this.error = error.message;
+                throw error;
+            }
+        },
+
+        // Método para guardar el userId después de verificar el código
+        setUserId(userId) {
+            this.userId = userId;
+            localStorage.setItem("userId", userId);
+        },
         async fetchUser() {
             const ISAUTH_QUERY = gql`
                 query isAuth {
@@ -214,15 +299,15 @@ export const useAuthStore = defineStore("auth", {
                 });
 
                 if (response.data) {
-                    console.log(response.data,'logout');
+                    console.log(response.data, "logout");
                     // Limpia el estado del usuario
                     this.user = null;
                     navigateTo("/login");
-                    return true
+                    return true;
                 }
             } catch (error) {
                 console.error("Error during logout:", error);
-                return false
+                return false;
             }
         },
         clearError() {

@@ -19,6 +19,25 @@ export default {
         btn_login: 'Log in',
         btn_google: 'Sign in with Google'
     },
+    forgot_password: {
+        title: 'Forgot your password?',
+        description: 'Enter your email for instructions',
+        email: 'Email',
+        btn_send: 'SEND CODE',
+    },
+    verify_code: {
+        title: 'Verify Email',
+        description: 'Enter the verification code you received in your email',
+        code: 'Code',
+        btn_send: 'Verify code',
+    },
+    reset_password: {
+        title: 'Change Password',
+        description: 'Enter you new password',
+        new_password: 'New Password',
+        confirm_password: 'Confirm Password',
+        btn_send: 'Change password',
+    },
     register: {
         title: 'Create your account',
         description: 'Sign up',

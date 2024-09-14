@@ -27,47 +27,71 @@ export const authResolver = {
         },
 
         // Recuperar contraseña
-        forgotPassword: async (_, { email }) => {
+        async forgotPassword(_, { email }) {
+            // Verificar si el usuario existe
+            console.log('Recuperar contraseña', email);
             const user = await models.User.findOne({ where: { email } });
-            if (!user) throwCustomError(ErrorTypes.BAD_USER_INPUT);
+            if (!user) throwCustomError(ErrorTypes.USER_NOT_FOUND);
 
-            const verification_code = crypto.randomBytes(32).toString('hex');
-            const verification_expires = new Date(Date.now() + 3600000); // 1 hora
+            // Generar un código de verificación aleatorio
+            const verificationCode = crypto.randomBytes(3).toString('hex'); // 6 caracteres
 
-            user.verification_code = verification_code;
-            user.verification_expires = verification_expires;
-            await user.save();
-
-            const resetLink = `${RESET_PASSWORD_URL}${verification_code}`;
-            await sendEmail(email, 'Restablecimiento de Contraseña', `Usa este enlace para restablecer tu contraseña: ${resetLink}`);
-
-            return { message: 'Enlace de restablecimiento de contraseña enviado a tu email.' };
-        },
-
-        // Restablecer contraseña
-        resetPassword: async (_, { verification_code, newPassword }) => {
-            const user = await models.User.findOne({
-                where: {
-                verification_code,
-                verification_expires: { [Op.gt]: new Date() },
-                },
+            // Guardar el código en la base de datos (puedes agregar un campo verification_code al modelo User)
+            await user.update({
+                verification_code: verificationCode,
+                verification_code_expiry: Date.now() + 3600000, // El código expira en 1 hora
             });
-            if (!user) throwCustomError(ErrorTypes.INVALID_RESET_TOKEN);
 
-            user.password = newPassword;
-            user.verification_code = null;
-            user.verification_expires = null;
-            await user.save();
+            // Enviar el correo con el código
+            const message = `Tu código de verificación es: ${verificationCode}`;
+            await sendEmail({
+                to: email,
+                subject: 'Código de verificación para restablecer contraseña',
+                text: message,
+            });
+            const result = 'Código de verificación enviado al correo electrónico'
+            return { message: result} ;
+        },
+        async verifyCode(_, { verification_code }) {
+            // Buscar al usuario por el código de verificación
+            console.log('verification_code', verification_code);
+            const user = await models.User.findOne({ where: { verification_code } });
+
+            if (!user) {
+                throw new Error('Código de verificación inválido');
+            }
+
+            // Verificar si el código ha expirado
+            if (user.verification_code_expiry < Date.now()) {
+                throw new Error('El código de verificación ha expirado');
+            }
+
+            // Eliminar el código de verificación y permitir que el usuario pase al siguiente paso
+            await user.update({ verification_code: null, verification_code_expiry: null });
+
+            return { user_id: user.user_id, message: 'Código verificado con éxito. Procede al restablecimiento de la contraseña.' };
+        },
+        // Restablecer contraseña
+        async resetPassword(_, { userId, newPassword }) {
+            // Buscar al usuario por su ID
+            const user = await models.User.findByPk(userId);
+
+            if (!user) throwCustomError(ErrorTypes.USER_NOT_FOUND);
+
+            // Actualizar la contraseña del usuario
+            await user.update({
+                password: newPassword,
+            });
 
             return { message: 'Contraseña restablecida con éxito' };
         },
         async changePassword(_, args, { user }) {
             try {
                 const userId = user.user_id;
-                console.log('Change Password',user)
-                console.log('Change Password args',args)
+                console.log('Change Password', user)
+                console.log('Change Password args', args)
                 const us = await models.User.findByPk(userId);
-                if (!us) throwCustomError(ErrorTypes.BAD_USER_INPUT);
+                if (!user) throwCustomError(ErrorTypes.USER_NOT_FOUND);
 
                 // Verificamos si la contraseña actual es correcta
                 const validPassword = await bcrypt.compare(args.currentPassword, us.password);
@@ -92,9 +116,7 @@ export const authResolver = {
         async updateUser(_, { userId, input }) {
             try {
                 const user = await models.User.findByPk(userId);
-                if (!user) {
-                    throw new Error("User not found");
-                }
+                if (!user) throwCustomError(ErrorTypes.USER_NOT_FOUND);
 
                 // Actualizamos los campos proporcionados
                 await user.update({
@@ -144,13 +166,13 @@ export const authResolver = {
 
             if (res && res.cookie) {
                 res.cookie('token', token, {
-                httpOnly: true,
-                secure: process.env.NODE_ENV === 'production',
-                sameSite: 'Strict',
+                    httpOnly: true,
+                    secure: process.env.NODE_ENV === 'production',
+                    sameSite: 'Strict',
                 });
             }
             return {
-                user : result,
+                user: result,
                 actions
             };
         },
@@ -159,7 +181,7 @@ export const authResolver = {
         userSettings: async (_, { userId }, { user }) => {
             if (!user || user.user_id !== userId) throwCustomError(ErrorTypes.UNAUTHORIZED);
             const userSettings = await models.User.findByPk(userId);
-            if (!userSettings) throw new Error('User not found');
+            if (!user) throwCustomError(ErrorTypes.USER_NOT_FOUND);
             const result = {
                 user_id: userSettings.user_id,
                 rut_user: userSettings.rut_user,
@@ -174,11 +196,11 @@ export const authResolver = {
                 role_id: userSettings.role_id
             };
             return {
-                user : result,
+                user: result,
             };
         },
 
-            // Verificar autenticación
+        // Verificar autenticación
         isAuth: async (_, __, { user }) => {
             console.log('user is authenticated', user);
             if (!user) if (!user) throwCustomError(ErrorTypes.UNAUTHENTICATED);
@@ -190,7 +212,7 @@ export const authResolver = {
                 avatar: user.avatar
             };
             return {
-                user : result,
+                user: result,
             };
         },
 

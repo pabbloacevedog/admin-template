@@ -16,17 +16,23 @@ export const register = {
 };
 
 export const forgotPassword = {
-    type: GraphQLString,
+    type: AuthType,
     args: {
         email: { type: GraphQLString },
     },
     resolve: authResolver.Mutation.forgotPassword,
 };
-
-export const resetPassword = {
-    type: GraphQLString,
+export const verifyCode = {
+    type: AuthType,
     args: {
         verification_code: { type: GraphQLString },
+    },
+    resolve: authResolver.Mutation.verifyCode,
+};
+export const resetPassword = {
+    type: AuthType,
+    args: {
+        userId: { type: GraphQLString },
         newPassword: { type: GraphQLString },
     },
     resolve: authResolver.Mutation.resetPassword,

@@ -12,6 +12,10 @@ export const ErrorTypes = {
         errorCode: 'BAD_USER_PASSWORD',
         errorStatus: 400,
     },
+    USER_NOT_FOUND: {
+        errorCode: 'USER_NOT_FOUND',
+        errorStatus: 400,
+    },
     BAD_REQUEST: {
         errorCode: ApolloServerErrorCode.BAD_REQUEST,
         errorStatus: 400,

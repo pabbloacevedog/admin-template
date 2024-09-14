@@ -223,7 +223,7 @@ onMounted(async () => {
 </script>
 <script>
 export default {
-    name: 'SettingsUser',
+    name: 'SettingsUserTest',
 }
 </script>
 

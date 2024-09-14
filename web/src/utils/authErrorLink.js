@@ -36,18 +36,19 @@ export const authErrorLink = onError(({ graphQLErrors, networkError }) => {
             console.log(err,'err')
             if (errorCode === "UNAUTHENTICATED") {
                 // Asegúrate de que no redirija infinitamente a /login
-                console.log(window.location.hash,'authlinkerror')
-                console.log(window.location.hash,'authlinkerror')
+                // console.log(window.location.hash,'authlinkerror')
+                // console.log(window.location.hash,'authlinkerror')
                 // if (window.location.hash !== '#/login') {
                 //     navigateTo("/login");
                 // }
+                Notify.create({
+                    type: 'negative',
+                    message: err.message
+                });
             } else {
                 console.error(`[GraphQL error]: Message: ${err.message}, Code: ${errorCode}`);
             }
-            Notify.create({
-                type: 'negative',
-                message: err.message
-            });
+
         }
     }
 
