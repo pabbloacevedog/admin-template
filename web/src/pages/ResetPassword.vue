@@ -1,7 +1,7 @@
 <template>
     <q-page class="reset-password-page">
         <div class="login-container row no-wrap justify-center items-center q-mt-xl">
-            <div class="col-6 q-px-xl">
+            <div class="col-12 col-md-8 col-lg-6 q-px-md">
                 <div class="form-container">
                     <h3>{{ $t('reset_password.title') }}</h3>
                     <p>{{ $t('reset_password.description') }}</p>
@@ -9,8 +9,7 @@
                         <!-- Input para la nueva contraseña -->
                         <q-input v-model="newPassword" filled :type="isPwd ? 'password' : 'text'"
                             :label="$t('reset_password.new_password')" autocomplete="new-password"
-                            :error="errors.newPassword" :error-message="errors.newPasswordMsg"
-                            class="q-mb-md">
+                            :error="errors.newPassword" :error-message="errors.newPasswordMsg" class="q-mb-md">
                             <template v-slot:append>
                                 <q-icon :name="isPwd ? 'visibility_off' : 'visibility'" class="cursor-pointer"
                                     @click="isPwd = !isPwd" />
@@ -20,8 +19,7 @@
                         <!-- Input para confirmar la nueva contraseña -->
                         <q-input v-model="confirmPassword" filled :type="isPwd ? 'password' : 'text'"
                             :label="$t('reset_password.confirm_password')" autocomplete="new-password"
-                            :error="errors.confirmPassword" :error-message="errors.confirmPasswordMsg"
-                            class="q-mb-md">
+                            :error="errors.confirmPassword" :error-message="errors.confirmPasswordMsg" class="q-mb-md">
                             <template v-slot:append>
                                 <q-icon :name="isPwd ? 'visibility_off' : 'visibility'" class="cursor-pointer"
                                     @click="isPwd = !isPwd" />
@@ -43,7 +41,10 @@ import { ref } from 'vue';
 import { useAuthStore } from '../stores/auth';
 import { useQuasar } from 'quasar';
 import { useRouter } from 'vue-router';
+import { useI18n } from 'vue-i18n';  // Importar useI18n
 
+// Obtener $t desde useI18n
+const { t } = useI18n();
 const newPassword = ref('');
 const confirmPassword = ref('');
 const authStore = useAuthStore();
@@ -65,7 +66,7 @@ const validateForm = () => {
     // Verificar si la nueva contraseña está vacía
     if (!newPassword.value) {
         errors.value.newPassword = true;
-        errors.value.newPasswordMsg = 'New password is required.';
+        errors.value.newPasswordMsg = t('reset_password.errors.new_password_required');
         isValid = false;
     } else {
         errors.value.newPassword = false;
@@ -75,7 +76,7 @@ const validateForm = () => {
     // Verificar si las contraseñas coinciden
     if (newPassword.value !== confirmPassword.value) {
         errors.value.confirmPassword = true;
-        errors.value.confirmPasswordMsg = 'Passwords do not match.';
+        errors.value.confirmPasswordMsg = t('reset_password.errors.passwords_do_not_match');
         isValid = false;
     } else {
         errors.value.confirmPassword = false;
@@ -89,24 +90,23 @@ const onSubmit = async () => {
     if (!validateForm()) {
         $q.notify({
             type: 'negative',
-            message: 'Please fix the errors before proceeding.',
+            message: t('reset_password.errors.fix_errors'),
         });
         return;
     }
 
-    try {
-        await authStore.resetPassword(newPassword.value);
+    await authStore.resetPassword(newPassword.value).then(response => {
+        console.log('response: ' + response)
         $q.notify({
             type: 'positive',
-            message: 'Password reset successfully!',
+            message: response,
         });
         router.push('/login');
-    } catch (error) {
-        $q.notify({
-            type: 'negative',
-            message: 'Error: ' + (error.message || 'Failed to reset password'),
-        });
-    }
+
+    }).catch(error => {
+        console.log('error catch: ' + error)
+    });
+
 };
 </script>
 

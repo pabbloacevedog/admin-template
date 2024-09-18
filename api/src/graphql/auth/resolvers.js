@@ -5,25 +5,24 @@ import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 import models from '../../models/index.js';
 import { sendEmail } from '../../utils/emailService.js';
-import { JWT_EXPIRES, JWT_SECRET, RESET_PASSWORD_URL } from '../../config/config.js';
+import { JWT_EXPIRES, JWT_SECRET } from '../../config/config.js';
 import throwCustomError, { ErrorTypes } from '../../helpers/error-handler.helper.js';
-import { Op } from 'sequelize';
-import { ValidationContext } from 'graphql';
+import { getSuccessMessage } from '../../helpers/success-handler.helper.js';
 
 export const authResolver = {
     Mutation: {
         // Registrar nuevo usuario
         signup: async (_, { email, password }) => {
             const user = await models.User.findOne({ where: { email } });
-            if (user) throwCustomError(ErrorTypes.ALREADY_EXISTS);
+            if (user) throwCustomError(ErrorTypes.USER_ALREADY_EXISTS);
 
             const newUser = await models.User.create({
                 email,
                 password,
                 role_id: 1, // rol por defecto
             });
-
-            return { email: newUser.email, message: 'Usuario creado con éxito.' };
+            const successMessage = getSuccessMessage('USER_CREATED');
+            return { email: newUser.email, message: successMessage };
         },
 
         // Recuperar contraseña
@@ -43,47 +42,50 @@ export const authResolver = {
             });
 
             // Enviar el correo con el código
-            const message = `Tu código de verificación es: ${verificationCode}`;
+            const message = getSuccessMessage('MESSAGE_VERIFY_CODE_EMAIL') + verificationCode ;
+            const subject = getSuccessMessage('SUBJECT_VERIFY_CODE_EMAIL');
             await sendEmail({
                 to: email,
-                subject: 'Código de verificación para restablecer contraseña',
+                subject: subject,
                 text: message,
             });
-            const result = 'Código de verificación enviado al correo electrónico'
-            return { message: result} ;
+            const successMessage = getSuccessMessage('VERIFY_CODE_SENT');
+            return { message: successMessage} ;
         },
         async verifyCode(_, { verification_code }) {
             // Buscar al usuario por el código de verificación
             console.log('verification_code', verification_code);
             const user = await models.User.findOne({ where: { verification_code } });
 
-            if (!user) {
-                throw new Error('Código de verificación inválido');
-            }
+            if (!user) throwCustomError(ErrorTypes.INVALID_VERIFY_CODE);
 
             // Verificar si el código ha expirado
-            if (user.verification_code_expiry < Date.now()) {
-                throw new Error('El código de verificación ha expirado');
-            }
+            if (user.verification_code_expiry < Date.now()) throwCustomError(ErrorTypes.EXPIRED_VERIFY_CODE);
 
             // Eliminar el código de verificación y permitir que el usuario pase al siguiente paso
             await user.update({ verification_code: null, verification_code_expiry: null });
-
-            return { user_id: user.user_id, message: 'Código verificado con éxito. Procede al restablecimiento de la contraseña.' };
+            const successMessage = getSuccessMessage('SUCCESS_VERIFY_CODE');
+            return { user_id: user.user_id, message: successMessage };
         },
         // Restablecer contraseña
         async resetPassword(_, { userId, newPassword }) {
             // Buscar al usuario por su ID
+            console.log("new password", newPassword);
             const user = await models.User.findByPk(userId);
 
             if (!user) throwCustomError(ErrorTypes.USER_NOT_FOUND);
+
+            // Verificar si la nueva contraseña es la misma que la actual
+            const isSamePassword = await bcrypt.compare(newPassword, user.password); // user.password está cifrada
+
+            if (isSamePassword) throwCustomError(ErrorTypes.PASSWORD_SAME_AS_OLD);
 
             // Actualizar la contraseña del usuario
             await user.update({
                 password: newPassword,
             });
-
-            return { message: 'Contraseña restablecida con éxito' };
+            const successMessage = getSuccessMessage('PASSWORD_UPDATED');
+            return { message: successMessage };
         },
         async changePassword(_, args, { user }) {
             try {
@@ -95,9 +97,7 @@ export const authResolver = {
 
                 // Verificamos si la contraseña actual es correcta
                 const validPassword = await bcrypt.compare(args.currentPassword, us.password);
-                if (!validPassword) {
-                    throw new Error("Current password is incorrect");
-                }
+                if (!validPassword) throwCustomError(ErrorTypes.WRONG_CURRENT_PASSWORD);
 
                 // Encriptamos la nueva contraseña
                 const hashedPassword = args.newPassword
@@ -143,6 +143,7 @@ export const authResolver = {
     Query: {
         // Login
         login: async (_, { email, password }, { res }) => {
+            console.log('password', password)
             const user = await models.User.findOne({ where: { email } });
             if (!user) throwCustomError(ErrorTypes.BAD_USER_INPUT);
 
@@ -223,7 +224,8 @@ export const authResolver = {
                 secure: process.env.NODE_ENV === 'production',
                 sameSite: 'Strict',
             });
-            return { message: 'Logged out successfully' };
+            const successMessage = getSuccessMessage('SUCCESS_LOGOUT');
+            return { message: successMessage };
         },
     },
 };

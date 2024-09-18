@@ -1,6 +1,6 @@
-// src/utils/translations.js
+// src/utils/errorTranslations.js
 
-const translations = {
+const errorTranslations = {
     en: {
         BAD_USER_PASSWORD: 'The password you entered is incorrect. Please try again.',
         BAD_USER_INPUT: 'Invalid input provided.',
@@ -11,22 +11,31 @@ const translations = {
         UNAUTHENTICATED: 'You are not authenticated. Please log in.',
         UNAUTHORIZED: 'You do not have permissions for this action.',
         TOKEN_EXPIRED: 'Token expired, login again.',
-        ALREADY_EXISTS: 'The resource already exists.',
+        USER_ALREADY_EXISTS: 'The user already exists. Login with your credentials',
         INTERNAL_SERVER_ERROR: 'An internal server error occurred.',
+        PASSWORD_SAME_AS_OLD: 'The new password is the same as old.',
+        INVALID_VERIFY_CODE: 'The verify code was invalid.',
+        EXPIRED_VERIFY_CODE: 'The verify code has expired.',
+        WRONG_CURRENT_PASSWORD: 'Wrong current password',
     },
     es: {
         BAD_USER_PASSWORD: 'Lo sentimos, la contraseña que ingresaste es incorrecta. Inténtalo de nuevo.',
         BAD_USER_INPUT: 'Entrada no válida proporcionada.',
+        USER_NOT_FOUND: 'No hay usuarios registrados con ese email.',
         INVALID_RESET_TOKEN: 'El token de restablecimiento es inválido o ha expirado.',
         NO_ACTIONS_FOR_ROLE: 'No se encontraron acciones para el rol especificado.',
         NOT_FOUND: 'No se encontró el recurso solicitado.',
         UNAUTHENTICATED: 'No estás autenticado. Por favor, inicia sesión.',
         UNAUTHORIZED: 'No tienes permisos para esta acción.',
         TOKEN_EXPIRED: 'Token expirado, inicia sesión nuevamente.',
-        ALREADY_EXISTS: 'El recurso ya existe.',
+        USER_ALREADY_EXISTS: 'El usuario ya existe. Inicia sesión con tus credentiales',
         INTERNAL_SERVER_ERROR: 'Ocurrió un error interno en el servidor.',
+        PASSWORD_SAME_AS_OLD: 'La contraseña es igual que la anterior.',
+        INVALID_VERIFY_CODE: 'Código de verificación inválido',
+        EXPIRED_VERIFY_CODE: 'El código de verificación ha expirado',
+        WRONG_CURRENT_PASSWORD: 'contraseña actual incorrecta',
     },
     // Agrega más idiomas aquí
 };
 
-export default translations;
+export default errorTranslations;

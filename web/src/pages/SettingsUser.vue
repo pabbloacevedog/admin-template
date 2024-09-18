@@ -79,6 +79,11 @@ import { ref, onMounted } from 'vue';
 import { useAuthStore } from '../stores/auth';
 import { useQuasar } from 'quasar';
 import { useRouter } from 'vue-router';
+
+import { useI18n } from 'vue-i18n';  // Importar useI18n
+
+// Obtener $t desde useI18n
+const { t } = useI18n();
 const router = useRouter();
 const $q = useQuasar();
 const authStore = useAuthStore();
@@ -158,57 +163,55 @@ const saveChanges = async () => {
         if (!validatePasswordForm()) {
             $q.notify({
                 type: 'negative',
-                message: 'Please fix the errors before proceeding.'
+                message: t('settings.errors.please_fix_errors'),
             });
             return;
         }
 
-        try {
-            // Llama a la acción de Pinia para cambiar la contraseña
-            await authStore.changePassword({
-                currentPassword: form.value.currentPassword,
-                newPassword: form.value.newPassword
-            });
-
+        // Llama a la acción de Pinia para cambiar la contraseña
+        await authStore.changePassword({
+            currentPassword: form.value.currentPassword,
+            newPassword: form.value.newPassword
+        }).then(response => {
+            console.log('response: ' + response)
             $q.notify({
                 type: 'positive',
-                message: 'Password updated successfully!'
+                message: response,
             });
-        } catch (error) {
-            $q.notify({
-                type: 'negative',
-                message: 'Error updating password: ' + error.message
-            });
-        }
+            router.push('/login');
+
+        }).catch(error => {
+            console.log('error catch: ' + error)
+        });
+
     } else {
         // Guardar cambios generales
-        try {
-            await authStore.updateUserSettings(form.value);
+        await authStore.updateUserSettings(form.value).then(response => {
+            console.log('response: ' + response)
             $q.notify({
                 type: 'positive',
-                message: 'User settings updated successfully!'
+                message: response,
             });
-        } catch (error) {
-            $q.notify({
-                type: 'negative',
-                message: 'Error saving changes: ' + error
-            });
-        }
+            router.push('/login');
+
+        }).catch(error => {
+            console.log('error catch: ' + error)
+        });
+
     }
 };
 const logOut = async () => {
-        try {
-            if (await authStore.logOut()) {
-                router.push('/login');
-            }
+    await authStore.logOut().then(response => {
+        console.log('response: ' + response)
+        $q.notify({
+            type: 'positive',
+            message: response,
+        });
+        router.push('/login');
 
-        } catch (error) {
-            $q.notify({
-                type: 'negative',
-                message: 'Error doing logout: ' + error
-            });
-        }
-
+    }).catch(error => {
+        console.log('error catch: ' + error)
+    });
 };
 onMounted(async () => {
     try {

@@ -32,11 +32,13 @@ export const useAuthStore = defineStore("auth", {
                 const response = await apolloClient.query({
                     query: LOGIN_QUERY,
                     variables: credentials,
+                    fetchPolicy: 'network-only',  // Fuerza la consulta a la API, sin usar caché
                 });
-                const { actions, user } = response.data.login;
+                const { actions, user, error } = response.data.login;
                 this.actions = actions;
                 this.user = user;
                 this.error = null;
+                console.log('login',error)
                 return user;
             } catch (error) {
                 this.error = error.message;
@@ -57,9 +59,9 @@ export const useAuthStore = defineStore("auth", {
                     mutation: REGISTER_MUTATION,
                     variables: details,
                 });
-                const { email, message } = response.data.register;
+                const { email, error,  message } = response.data.register;
                 this.email = email;
-                this.error = null;
+                this.error = error;
                 return message;
             } catch (error) {
                 this.error = error.message;
@@ -91,7 +93,7 @@ export const useAuthStore = defineStore("auth", {
                     query: USERSETTINGS_QUERY,
                     variables: { userId: userId },
                 });
-                console.log(response.data.userSettings.user);
+                // console.log(response.data.userSettings.user);
                 const user = response.data.userSettings.user;
                 this.user = user;
                 // console.log(user, "userSettings ");
@@ -185,11 +187,16 @@ export const useAuthStore = defineStore("auth", {
                 const response = await apolloClient.mutate({
                     mutation: FORGOT_PASSWORD_MUTATION,
                     variables: { email },
+                    errorPolicy: "all"
                 });
+                localStorage.setItem("forgot",true);
                 console.log(response,'forgot password')
-                const { message } = response.data.forgotPassword;
+                const { message, error } = response.data.forgotPassword;
+                this.error = error;
                 return message
             } catch (error) {
+                debugger
+                console.log('error',error)
                 this.error = error.message;
                 throw error;
             }
@@ -211,8 +218,10 @@ export const useAuthStore = defineStore("auth", {
                 console.log(response,'verifyCode')
                 const { user_id, message } = response.data.verifyCode;
                 this.userId = user_id;
-                localStorage.setItem("userId",user_id);
+                localStorage.setItem("userIdForgot",user_id);
+                localStorage.removeItem("forgot");
                 this.message = message;
+                return message;
             } catch (error) {
                 this.error = error.message;
                 throw error;
@@ -228,7 +237,7 @@ export const useAuthStore = defineStore("auth", {
                 }
             `;
 
-            const userId = this.userId || localStorage.getItem("userId");
+            const userId = this.userId || localStorage.getItem("userIdForgot");
 
             if (!userId) {
                 this.error = "Error al identificar al usuario";
@@ -236,15 +245,17 @@ export const useAuthStore = defineStore("auth", {
             }
 
             try {
-                const { data } = await apolloClient.mutate({
+                const response = await apolloClient.mutate({
                     mutation: RESET_PASSWORD_MUTATION,
                     variables: { userId, newPassword },
                 });
-
-                this.message = data.resetPassword.message;
+                console.log("resetPassword",response);
+                const { message } = response.data.resetPassword;
+                this.message = message
                 this.error = null; // Limpiar errores si la operación fue exitosa
                 this.userId = null
-                localStorage.removeItem("userId");
+                localStorage.removeItem("userIdForgot");
+                return this.message
             } catch (error) {
                 this.error = error.message;
                 throw error;

@@ -1,6 +1,6 @@
 import { ApolloServerErrorCode } from '@apollo/server/errors';
 import { GraphQLError } from 'graphql';
-import translations from '../utils/translations.js';
+import errorTranslations from '../utils/errorTranslations.js';
 import { asyncLocalStorage } from '../middleware/languageMiddleware.js';
 
 export const ErrorTypes = {
@@ -38,20 +38,25 @@ export const ErrorTypes = {
     },
     UNAUTHORIZED: {
         errorCode: 'UNAUTHORIZED',
-        errorStatus: 401,
+        errorStatus: 403,
     },
     TOKEN_EXPIRED: {
         errorCode: 'TOKEN_EXPIRED',
         errorStatus: 401,
     },
-    ALREADY_EXISTS: {
-        errorCode: 'ALREADY_EXISTS',
+    USER_ALREADY_EXISTS: {
+        errorCode: 'USER_ALREADY_EXISTS',
         errorStatus: 400,
     },
     INTERNAL_SERVER_ERROR: {
         errorCode: ApolloServerErrorCode.INTERNAL_SERVER_ERROR,
         errorStatus: 500,
     },
+    PASSWORD_SAME_AS_OLD:{
+        errorCode: 'PASSWORD_SAME_AS_OLD',
+        errorStatus: 400,
+    }
+
 };
 const getCurrentLanguage = () => {
     const store = asyncLocalStorage.getStore();
@@ -65,7 +70,7 @@ export default (errorType) => {
     const lang = getCurrentLanguage();
     console.log(errorType.errorCode)
     console.log(lang)
-    const errorMessage = translations[lang][errorType.errorCode] || translations['en'][errorType.errorCode];
+    const errorMessage = errorTranslations[lang][errorType.errorCode] || errorTranslations['en'][errorType.errorCode];
     throw new GraphQLError(errorMessage, {
         extensions: {
             code: errorType.errorCode,
