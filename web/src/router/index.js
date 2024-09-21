@@ -12,6 +12,7 @@ import { initializeRouter } from "../services/navigationService";
 //routes
 import Auth from './auth'
 import notFound from './notFound'
+import Web from './web'
 /*
  * If not building with SSR mode, you can
  * directly export the Router instantiation;
@@ -24,6 +25,7 @@ const auxiliar = [];
 //concatenamos las rutas y asignamos la variable route que usara vue router
 const routes = auxiliar.concat(
     //aqui se agregan las rutas de los archivos o paginas del sistema
+    Web,
     Auth,
     notFound,
     //incluir siempre el router del empresa, al final, ya que al recibir el parametro, causa conflicto con los otros routers
@@ -70,7 +72,7 @@ export default route(function (/* { store, ssrContext } */) {
             // Evita redirigir a la ruta solicitada y quédate en la ruta actual
             return next(false); // Evita que cambie de ruta
         } else {
-            console.log("to",to);
+            // console.log("to",to);
             // debugger
             // if(to.fullPath === "/login"|| to.fullPath === "/register"|| to.fullPath === "/forgot_password"|| to.fullPath === "/verify_code" || to.fullPath === "/reset_password"){
             //     return next({ path: "/settings" });

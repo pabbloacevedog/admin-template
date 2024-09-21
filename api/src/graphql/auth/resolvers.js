@@ -5,26 +5,67 @@ import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 import models from '../../models/index.js';
 import { sendEmail } from '../../utils/emailService.js';
-import { JWT_EXPIRES, JWT_SECRET } from '../../config/config.js';
+import { JWT_EXPIRES, JWT_SECRET, CLIENT } from '../../config/config.js';
 import throwCustomError, { ErrorTypes } from '../../helpers/error-handler.helper.js';
 import { getSuccessMessage } from '../../helpers/success-handler.helper.js';
 
 export const authResolver = {
     Mutation: {
         // Registrar nuevo usuario
-        signup: async (_, { email, password }) => {
+        signup: async (_, { name,email, password }) => {
             const user = await models.User.findOne({ where: { email } });
             if (user) throwCustomError(ErrorTypes.USER_ALREADY_EXISTS);
 
+            // Generar un token de verificación
+            const verificationToken = crypto.randomBytes(32).toString('hex');
+
             const newUser = await models.User.create({
+                name,
                 email,
                 password,
                 role_id: 1, // rol por defecto
+                verification_email: verificationToken,  // Guardamos el token
+                verification_email_expires: Date.now() + 3600000, // Expira en 1 hora
+                verified: false, // Por defecto, el usuario no está verificado
             });
-            const successMessage = getSuccessMessage('USER_CREATED');
+
+            // Enviar el correo con el token de verificación
+            const verificationUrl = `${CLIENT}/#/verify_email?token=${verificationToken}`;
+            const subject = getSuccessMessage('SUBJECT_VERIFY_EMAIL');
+            const message = `Hi ${name}, ${getSuccessMessage('MESSAGE_VERIFY_EMAIL')} ${verificationUrl}`;
+
+            await sendEmail({
+                to: email,
+                subject: subject,
+                text: message,
+            });
+
+            const successMessage = getSuccessMessage('USER_CREATED_VERIFY_EMAIL');
             return { email: newUser.email, message: successMessage };
         },
 
+        // Verificar el token de correo electrónico
+        verifyEmailToken: async (_, { token }) => {
+            // Buscar el usuario con el token de verificación
+            console.log('Verificar el token de verificación', token);
+            const user = await models.User.findOne({ where: { verification_email: token } });
+            console.log('Verificar el user', user);
+            if (!user) throwCustomError(ErrorTypes.INVALID_VERIFY_CODE);
+
+            // Verificar si el token ha expirado
+            if (user.verification_email_expires < Date.now()) throwCustomError(ErrorTypes.EXPIRED_VERIFY_CODE);
+
+            // Actualizar el estado del usuario como verificado
+            await user.update({
+                verified: true,
+                verification_email: null, // Limpiamos el código
+                verification_email_expires: null,
+            });
+
+            const successMessage = getSuccessMessage('SUCCESS_VERIFY_EMAIL');
+            console.log('successMessage',successMessage);
+            return { email: user.email, message: successMessage };
+        },
         // Recuperar contraseña
         async forgotPassword(_, { email }) {
             // Verificar si el usuario existe
@@ -143,28 +184,39 @@ export const authResolver = {
     Query: {
         // Login
         login: async (_, { email, password }, { res }) => {
-            console.log('password', password)
+            console.log('password', password);
+
+            // Buscar el usuario por email
             const user = await models.User.findOne({ where: { email } });
             if (!user) throwCustomError(ErrorTypes.BAD_USER_INPUT);
 
+            // Verificar si el correo electrónico está verificado
+            if (!user.verified) throwCustomError(ErrorTypes.EMAIL_NOT_VERIFIED);
+
+            // Verificar si la contraseña es correcta
             const passwordMatch = await bcrypt.compare(password, user.password);
             if (!passwordMatch) throwCustomError(ErrorTypes.BAD_USER_PASSWORD);
 
+            // Buscar el rol y las acciones asociadas
             const role = await models.Role.findByPk(user.role_id, {
                 include: { model: models.Action, through: { attributes: [] } },
             });
             if (!role || !role.Actions) throwCustomError(ErrorTypes.NO_ACTIONS_FOR_ROLE);
 
+            // Mapear las acciones
             const actions = role.Actions.map(action => action.name);
+
+            // Crear el token JWT
             const result = {
                 user_id: user.user_id,
                 username: user.username,
                 email: user.email,
                 role_id: user.role_id,
-                avatar: user.avatar
+                avatar: user.avatar,
             };
             const token = jwt.sign(result, JWT_SECRET, { expiresIn: JWT_EXPIRES });
 
+            // Si hay respuesta y cookies, establecer la cookie
             if (res && res.cookie) {
                 res.cookie('token', token, {
                     httpOnly: true,
@@ -172,9 +224,10 @@ export const authResolver = {
                     sameSite: 'Strict',
                 });
             }
+
             return {
                 user: result,
-                actions
+                actions,
             };
         },
 

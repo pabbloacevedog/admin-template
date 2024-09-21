@@ -32,13 +32,13 @@ export const useAuthStore = defineStore("auth", {
                 const response = await apolloClient.query({
                     query: LOGIN_QUERY,
                     variables: credentials,
-                    fetchPolicy: 'network-only',  // Fuerza la consulta a la API, sin usar caché
+                    fetchPolicy: "network-only", // Fuerza la consulta a la API, sin usar caché
                 });
                 const { actions, user, error } = response.data.login;
                 this.actions = actions;
                 this.user = user;
                 this.error = null;
-                console.log('login',error)
+                console.log("login", error);
                 return user;
             } catch (error) {
                 this.error = error.message;
@@ -47,8 +47,8 @@ export const useAuthStore = defineStore("auth", {
         },
         async register(details) {
             const REGISTER_MUTATION = gql`
-                mutation Register($email: String!, $password: String!) {
-                    register(email: $email, password: $password) {
+                mutation Register($name:String!, $email: String!, $password: String!) {
+                    register(name: $name, email: $email, password: $password) {
                         email
                         message
                     }
@@ -59,9 +59,34 @@ export const useAuthStore = defineStore("auth", {
                     mutation: REGISTER_MUTATION,
                     variables: details,
                 });
-                const { email, error,  message } = response.data.register;
+                const { email, error, message } = response.data.register;
                 this.email = email;
                 this.error = error;
+                return message;
+            } catch (error) {
+                this.error = error.message;
+                throw error;
+            }
+        },
+        //verificar el email usando GraphQL
+        async verifyEmailToken(token) {
+            const VERIFY_EMAIL_MUTATION = gql`
+                mutation VerifyEmail($token: String!) {
+                    VerifyEmail(token: $token) {
+                        email,
+                        message
+                    }
+                }
+            `;
+            try {
+                const response = await apolloClient.mutate({
+                    mutation: VERIFY_EMAIL_MUTATION,
+                    variables: { token },
+                });
+                const { email, message } = response.data.VerifyEmail;
+                this.email = email;
+                this.message = message;
+                this.error = null;
                 return message;
             } catch (error) {
                 this.error = error.message;
@@ -178,7 +203,7 @@ export const useAuthStore = defineStore("auth", {
         async forgotPassword(email) {
             const FORGOT_PASSWORD_MUTATION = gql`
                 mutation ForgotPassword($email: String!) {
-                    forgotPassword(email: $email){
+                    forgotPassword(email: $email) {
                         message
                     }
                 }
@@ -187,16 +212,16 @@ export const useAuthStore = defineStore("auth", {
                 const response = await apolloClient.mutate({
                     mutation: FORGOT_PASSWORD_MUTATION,
                     variables: { email },
-                    errorPolicy: "all"
+                    errorPolicy: "all",
                 });
-                localStorage.setItem("forgot",true);
-                console.log(response,'forgot password')
+                localStorage.setItem("forgot", true);
+                console.log(response, "forgot password");
                 const { message, error } = response.data.forgotPassword;
                 this.error = error;
-                return message
+                return message;
             } catch (error) {
-                debugger
-                console.log('error',error)
+                debugger;
+                console.log("error", error);
                 this.error = error.message;
                 throw error;
             }
@@ -204,8 +229,8 @@ export const useAuthStore = defineStore("auth", {
         async verifyCode(verification_code) {
             const VERIFY_CODE_MUTATION = gql`
                 mutation VerifyCode($verification_code: String!) {
-                    verifyCode(verification_code: $verification_code){
-                        user_id,
+                    verifyCode(verification_code: $verification_code) {
+                        user_id
                         message
                     }
                 }
@@ -215,10 +240,10 @@ export const useAuthStore = defineStore("auth", {
                     mutation: VERIFY_CODE_MUTATION,
                     variables: { verification_code },
                 });
-                console.log(response,'verifyCode')
+                console.log(response, "verifyCode");
                 const { user_id, message } = response.data.verifyCode;
                 this.userId = user_id;
-                localStorage.setItem("userIdForgot",user_id);
+                localStorage.setItem("userIdForgot", user_id);
                 localStorage.removeItem("forgot");
                 this.message = message;
                 return message;
@@ -230,7 +255,10 @@ export const useAuthStore = defineStore("auth", {
         // Método para restablecer la contraseña
         async resetPassword(newPassword) {
             const RESET_PASSWORD_MUTATION = gql`
-                mutation ResetPassword($userId: String!, $newPassword: String!) {
+                mutation ResetPassword(
+                    $userId: String!
+                    $newPassword: String!
+                ) {
                     resetPassword(userId: $userId, newPassword: $newPassword) {
                         message
                     }
@@ -249,13 +277,13 @@ export const useAuthStore = defineStore("auth", {
                     mutation: RESET_PASSWORD_MUTATION,
                     variables: { userId, newPassword },
                 });
-                console.log("resetPassword",response);
-                const { message } = response.data.resetPassword;
-                this.message = message
+                console.log("resetPassword", response);
+                const { message } = response.data.resetPassword;
+                this.message = message;
                 this.error = null; // Limpiar errores si la operación fue exitosa
-                this.userId = null
+                this.userId = null;
                 localStorage.removeItem("userIdForgot");
-                return this.message
+                return this.message;
             } catch (error) {
                 this.error = error.message;
                 throw error;

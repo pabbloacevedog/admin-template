@@ -9,12 +9,19 @@ export const register = {
     type: AuthType,
     args: {
         email: { type: GraphQLString },
+        name: { type: GraphQLString },
         password: { type: GraphQLString },
         // ... otros campos necesarios
     },
     resolve: authResolver.Mutation.signup
 };
-
+export const VerifyEmail = {
+    type: AuthType,
+    args: {
+        token: { type: GraphQLString },
+    },
+    resolve: authResolver.Mutation.verifyEmailToken,
+};
 export const forgotPassword = {
     type: AuthType,
     args: {

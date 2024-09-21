@@ -17,6 +17,7 @@ const errorTranslations = {
         INVALID_VERIFY_CODE: 'The verify code was invalid.',
         EXPIRED_VERIFY_CODE: 'The verify code has expired.',
         WRONG_CURRENT_PASSWORD: 'Wrong current password',
+        EMAIL_NOT_VERIFIED:'Email not verified, please verify your email before logging in.'
     },
     es: {
         BAD_USER_PASSWORD: 'Lo sentimos, la contraseña que ingresaste es incorrecta. Inténtalo de nuevo.',
@@ -34,6 +35,7 @@ const errorTranslations = {
         INVALID_VERIFY_CODE: 'Código de verificación inválido',
         EXPIRED_VERIFY_CODE: 'El código de verificación ha expirado',
         WRONG_CURRENT_PASSWORD: 'contraseña actual incorrecta',
+        EMAIL_NOT_VERIFIED:'Email no verificado, verificalo desde tu correo para continuar.',
     },
     // Agrega más idiomas aquí
 };

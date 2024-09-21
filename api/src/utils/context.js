@@ -31,7 +31,7 @@ const context = async ({ req, res }) => {
     console.log('req.body.operationName:', operationName);
 
     // Lista de operaciones que no requieren autenticación
-    const publicOperations = ['PublicData', 'Register', 'Login', 'IntrospectionQuery', 'ForgotPassword','VerifyCode', 'ResetPassword'];
+    const publicOperations = ['PublicData', 'Register', 'Login', 'IntrospectionQuery', 'ForgotPassword','VerifyCode', 'ResetPassword','VerifyEmail'];
 
     // Permitir operaciones públicas sin verificar token
     if (publicOperations.includes(operationName)) {

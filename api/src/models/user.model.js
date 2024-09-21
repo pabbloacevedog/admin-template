@@ -46,11 +46,18 @@ const initializeUser = (sequelize) => {
             type: DataTypes.STRING,
             allowNull: true,
         },
-        verification_expires: {
+        verification_email: {
+            type: DataTypes.STRING,
+            allowNull: true,
+        },
+        verification_email_expires: {
             type: DataTypes.DATE,
             allowNull: true,
         },
-
+        verification_code_expiry: {
+            type: DataTypes.DATE,
+            allowNull: true,
+        },
         verified: {
             type: DataTypes.BOOLEAN
         },

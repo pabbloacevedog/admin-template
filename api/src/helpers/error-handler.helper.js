@@ -55,7 +55,23 @@ export const ErrorTypes = {
     PASSWORD_SAME_AS_OLD:{
         errorCode: 'PASSWORD_SAME_AS_OLD',
         errorStatus: 400,
-    }
+    },
+    INVALID_VERIFY_CODE: {
+        errorCode: 'INVALID_VERIFY_CODE',
+        errorStatus: 400,
+    },
+    EXPIRED_VERIFY_CODE: {
+        errorCode: 'EXPIRED_VERIFY_CODE',
+        errorStatus: 400,
+    },
+    WRONG_CURRENT_PASSWORD: {
+        errorCode: 'WRONG_CURRENT_PASSWORD',
+        errorStatus: 400,
+    },
+    EMAIL_NOT_VERIFIED: {
+        errorCode: 'EMAIL_NOT_VERIFIED',
+        statusCode: 403,
+    },
 
 };
 const getCurrentLanguage = () => {

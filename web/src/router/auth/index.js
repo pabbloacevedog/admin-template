@@ -22,14 +22,12 @@ export default [
                 meta: { requiresAuth: false, onlyWithoutAuth: true },
                 beforeEnter(to, from, next) {
                     if (localStorage.getItem("userIdForgot")) {
-                            next('reset_password');
-                    }
-                    else {
+                        next("reset_password");
+                    } else {
                         if (localStorage.getItem("forgot")) {
-                                next('verify_code');
-                        }
-                        else {
-                            next()
+                            next("verify_code");
+                        } else {
+                            next();
                         }
                     }
                 },
@@ -41,14 +39,12 @@ export default [
                 beforeEnter(to, from, next) {
                     if (!localStorage.getItem("forgot")) {
                         if (localStorage.getItem("userIdForgot")) {
-                            next('reset_password');
+                            next("reset_password");
+                        } else {
+                            next("forgot_password");
                         }
-                        else {
-                            next('forgot_password');
-                        }
-                    }
-                    else {
-                        next()
+                    } else {
+                        next();
                     }
                 },
             },
@@ -59,14 +55,12 @@ export default [
                 beforeEnter(to, from, next) {
                     if (!localStorage.getItem("userIdForgot")) {
                         if (localStorage.getItem("forgot")) {
-                            next('verify_code');
+                            next("verify_code");
+                        } else {
+                            next("forgot_password");
                         }
-                        else {
-                            next('forgot_password');
-                        }
-                    }
-                    else {
-                        next()
+                    } else {
+                        next();
                     }
                 },
             },
@@ -74,6 +68,12 @@ export default [
                 path: "settings",
                 component: async () => await import("pages/SettingsUser.vue"),
                 meta: { requiresAuth: true, onlyWithoutAuth: false },
+            },
+            {
+                path: "verify_email",
+                component: async () => await import("pages/EmailVerification.vue"),
+                name: "VerifyEmail",
+                meta: { requiresAuth: false, onlyWithoutAuth: true },
             },
         ],
     },

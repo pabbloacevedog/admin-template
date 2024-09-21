@@ -21,7 +21,7 @@ export default {
         errors: {
             password_required: "Password is required.",
             email_required: "Email is required.",
-            fix_errors: "Please correct the errors before continuing."
+            fix_errors: "Please correct the errors before continuing.",
         },
     },
     forgot_password: {
@@ -31,7 +31,7 @@ export default {
         btn_send: "SEND CODE",
         errors: {
             email_required: "Email is required.",
-            fix_errors: "Please correct the errors before continuing."
+            fix_errors: "Please correct the errors before continuing.",
         },
     },
     verify_code: {
@@ -41,9 +41,8 @@ export default {
         btn_send: "Verify code",
         errors: {
             code_required: "Code required.",
-            fix_errors: "Please correct the errors before continuing."
+            fix_errors: "Please correct the errors before continuing.",
         },
-
     },
     reset_password: {
         title: "Change Password",
@@ -54,21 +53,33 @@ export default {
         errors: {
             new_password_required: "Password is required.",
             passwords_do_not_match: "Passwords do not match.",
-            fix_errors: "Please correct the errors before continuing."
+            fix_errors: "Please correct the errors before continuing.",
         },
     },
     register: {
         title: "Create your account",
         description: "Sign up",
         email: "Email",
+        name: "Name",
         pass: "Password",
         login: "Log in",
         old_user: "Do you have an account?",
         btn_signup: "Sign up",
         errors: {
-            new_password_required: "La nueva contraseña es obligatoria.",
-            passwords_do_not_match: "Las contraseñas no coinciden.",
-            fix_errors: "Por favor, corrige los errores antes de continuar."
+            password_required: "Password is required.",
+            email_required: "Email is required.",
+            name_required: "Name is required.",
+            fix_errors: "Please correct the errors before continuing.",
+        },
+    },
+    verify_email: {
+        title: "Verify Your Email",
+        description: "Click the button below to verify your email address.",
+        btn_verify: "Verify Email",
+        success: "Your email has been verified successfully!",
+        errors: {
+            invalid_token: "The verification token is invalid or has expired.",
+            token_missing: "Verification token is missing.",
         },
     },
     notFound: {
@@ -117,7 +128,7 @@ export default {
         errors: {
             new_password_required: "La nueva contraseña es obligatoria.",
             passwords_do_not_match: "Las contraseñas no coinciden.",
-            fix_errors: "Por favor, corrige los errores antes de continuar."
+            fix_errors: "Por favor, corrige los errores antes de continuar.",
         },
     },
 };

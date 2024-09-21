@@ -8,6 +8,8 @@
                     <h3>{{ $t('register.title') }}</h3>
                     <p>{{ $t('register.description') }}</p>
                     <q-form @submit="onSubmit" autocomplete="on">
+                        <q-input v-model="name" :label="$t('register.name')" type="text" outlined class="q-mb-md"
+                            autocomplete="name" :error="errors.name" :error-message="errors.namelMsg"/>
                         <q-input v-model="email" :label="$t('register.email')" type="email" outlined class="q-mb-md"
                             autocomplete="email" :error="errors.email" :error-message="errors.emailMsg"/>
                         <q-input v-model="password" :label="$t('register.pass')" type="password" outlined
@@ -38,7 +40,7 @@ import { useI18n } from 'vue-i18n';  // Importar useI18n
 
 // Obtener $t desde useI18n
 const { t } = useI18n();
-const username = ref('');
+const name = ref('');
 const email = ref('');
 const password = ref('');
 
@@ -50,6 +52,8 @@ const errors = ref({
     passwordMsg: '',
     email: false,
     emailMsg: '',
+    name: false,
+    nameMsg: '',
 });
 // Validación de contraseñas
 const validateForm = () => {
@@ -58,7 +62,7 @@ const validateForm = () => {
     // Verificar si la nueva contraseña está vacía
     if (!password.value) {
         errors.value.password = true;
-        errors.value.passwordMsg = t('login.errors.password_required');
+        errors.value.passwordMsg = t('register.errors.password_required');
         isValid = false;
     } else {
         errors.value.password = false;
@@ -67,24 +71,32 @@ const validateForm = () => {
     // Verificar si la nueva contraseña está vacía
     if (!email.value) {
         errors.value.email = true;
-        errors.value.emailMsg = t('login.errors.email_required');
+        errors.value.emailMsg = t('register.errors.email_required');
         isValid = false;
     } else {
         errors.value.email = false;
         errors.value.emailMsg = '';
     }
-
+    // Verificar si la nueva contraseña está vacía
+    if (!name.value) {
+        errors.value.name = true;
+        errors.value.nameMsg = t('register.errors.name_required');
+        isValid = false;
+    } else {
+        errors.value.name = false;
+        errors.value.nameMsg = '';
+    }
     return isValid;
 };
 const onSubmit = async () => {
     if (!validateForm()) {
         $q.notify({
             type: 'negative',
-            message: t('login.errors.fix_errors'),
+            message: t('register.errors.fix_errors'),
         });
         return;
     }
-    await authStore.register({ email: email.value, password: password.value }).then(response => {
+    await authStore.register({ name: name.value, email: email.value, password: password.value }).then(response => {
         console.log('response: ' + response)
         $q.notify({
             type: 'positive',
