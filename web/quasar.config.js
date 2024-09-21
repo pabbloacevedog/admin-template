@@ -52,6 +52,7 @@ module.exports = configure(function (/* ctx */) {
 		boot: [
 			"i18n",
 			"axios",
+            "spinner",
 			// 'graphql',
 		],
 
@@ -130,7 +131,7 @@ module.exports = configure(function (/* ctx */) {
 			// directives: [],
 
 			// Quasar plugins
-			plugins: ["Notify"],
+			plugins: ["Notify","Loading"],
 		},
 
 		// animations: 'all', // --- includes all animations

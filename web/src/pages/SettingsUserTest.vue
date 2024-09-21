@@ -154,6 +154,7 @@ const validatePasswordForm = () => {
 
 // Función para guardar cambios
 const saveChanges = async () => {
+    $q.loading.show()
     if (activeTab.value === 'security') {
         if (!validatePasswordForm()) {
             $q.notify({
@@ -195,6 +196,7 @@ const saveChanges = async () => {
             });
         }
     }
+    $q.loading.hide()
 };
 const logOut = async () => {
         try {

@@ -42,7 +42,7 @@ const route = useRoute();
 const $q = useQuasar();
 console.log('route',route.query)
 const verifyEmail = async () => {
-
+    $q.loading.show()
     const token = route.query.token; // Obtener el token desde la URL
 
     if (!token) {
@@ -67,6 +67,7 @@ const verifyEmail = async () => {
             message: t('verify_email.errors.invalid_token'),
         });
     });
+    $q.loading.hide()
 };
 
 onMounted(() => {

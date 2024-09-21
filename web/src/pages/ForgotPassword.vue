@@ -1,18 +1,27 @@
 <!-- ForgotPassword.vue -->
 <template>
     <q-page class="forgot-password-page">
-        <div class="login-container row no-wrap justify-center items-center q-mt-xl q-px-md">
+        <div class="row no-wrap justify-center items-center q-mt-xl q-px-md">
             <!-- Ajustamos las clases de columna para hacer la página responsiva -->
             <div class="col-12 col-md-8 col-lg-6 q-px-md">
                 <div class="form-container">
-                    <h3>{{ $t('forgot_password.title') }}</h3>
-                    <p>{{ $t('forgot_password.description') }}</p>
+                    <!-- Icono de correo -->
+                    <div class="row justify-center">
+                        <q-icon name="fingerprint" size="56px" class="q-my-md text-center" color="primary" />
+                    </div>
+                    <h3 class="text-h4 text-center q-mb-lg">{{ $t('forgot_password.title') }}</h3>
+                    <p class="text-center q-mb-xl">{{ $t('forgot_password.description') }}</p>
                     <q-form @submit="onSubmit" autocomplete="on">
-                        <q-input v-model="email" :label="$t('forgot_password.email')" type="email" outlined
+                        <q-input v-model="email" :label="$t('forgot_password.email')" type="email" filled
                             class="q-mb-md" autocomplete="email" :error="errors.email"
                             :error-message="errors.emailMsg" />
-                        <q-btn :label="$t('forgot_password.btn_send')" type="submit" color="primary"
-                            class="full-width q-mb-md" />
+                        <q-btn :label="$t('forgot_password.btn_send')" type="submit" :loading="loadingBtn"
+                            color="primary" class="full-width q-mb-md btn-border-radius">
+                            <template v-slot:loading>
+                                <q-spinner-bars class="on-left"></q-spinner-bars>
+                                Loading...
+                            </template>
+                        </q-btn>
                     </q-form>
                 </div>
             </div>
@@ -27,7 +36,7 @@ import { useAuthStore } from '../stores/auth';
 import { useQuasar } from 'quasar';
 import { useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';  // Importar useI18n
-
+const loadingBtn = ref(false)
 // Obtener $t desde useI18n
 const { t } = useI18n();
 const email = ref('');
@@ -54,6 +63,7 @@ const validateForm = () => {
     return isValid;
 };
 const onSubmit = async () => {
+    loadingBtn.value = true
     if (!validateForm()) {
         $q.notify({
             type: 'negative',
@@ -72,6 +82,7 @@ const onSubmit = async () => {
     }).catch(error => {
         console.log('error catch: ' + error)
     });
+    loadingBtn.value = false
 };
 </script>
 <script>

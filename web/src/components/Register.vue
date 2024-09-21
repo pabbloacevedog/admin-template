@@ -3,22 +3,25 @@
     <q-page class="register-page">
         <div class="register-container row no-wrap justify-center items-center q-mt-xl">
             <!-- Columna izquierda: Formulario -->
-            <div class="left-section col-xl-6 col-md-6 q-px-xl">
+            <div class="left-section col-xl-6 col-md-6 q-px-md">
                 <div class="form-container">
-                    <h3>{{ $t('register.title') }}</h3>
-                    <p>{{ $t('register.description') }}</p>
+                    <h3 class="text-h text-center q-mb-lg">{{ $t('register.title') }}</h3>
+                    <p class="text-center q-mb-lg">{{ $t('register.description') }}</p>
                     <q-form @submit="onSubmit" autocomplete="on">
-                        <q-input v-model="name" :label="$t('register.name')" type="text" outlined class="q-mb-md"
-                            autocomplete="name" :error="errors.name" :error-message="errors.namelMsg"/>
-                        <q-input v-model="email" :label="$t('register.email')" type="email" outlined class="q-mb-md"
-                            autocomplete="email" :error="errors.email" :error-message="errors.emailMsg"/>
-                        <q-input v-model="password" :label="$t('register.pass')" type="password" outlined
-                            class="q-mb-md" :error="errors.password" :error-message="errors.passwordMsg"/>
+                        <q-input v-model="name" :label="$t('register.name')" type="text" filled class="q-mb-md"
+                            autocomplete="name" :error="errors.name" :error-message="errors.namelMsg" />
+                        <q-input v-model="email" :label="$t('register.email')" type="email" filled class="q-mb-md"
+                            autocomplete="email" :error="errors.email" :error-message="errors.emailMsg" />
+                        <q-input v-model="password" :label="$t('register.pass')" type="password" filled class="q-mb-md"
+                            :error="errors.password" :error-message="errors.passwordMsg" />
                         <q-btn :label="$t('register.btn_signup')" type="submit" color="primary"
-                            class="full-width q-mb-md" />
+                            class="full-width q-mb-md btn-border-radius" />
+                        <div class="row justify-center q-mb-md">
+                            <p>{{ $t('register.old_user') }} <q-btn flat :label="$t('register.login')"
+                                    class="text-primary " @click="router.push('/login')" /></p>
+                        </div>
                     </q-form>
-                    <p>{{ $t('register.old_user') }} <q-btn flat :label="$t('register.login')" class="text-primary"
-                            @click="router.push('/login')" /></p>
+
                 </div>
             </div>
             <!-- Columna derecha: Imagen -->
@@ -89,6 +92,7 @@ const validateForm = () => {
     return isValid;
 };
 const onSubmit = async () => {
+    $q.loading.show()
     if (!validateForm()) {
         $q.notify({
             type: 'negative',
@@ -107,7 +111,7 @@ const onSubmit = async () => {
     }).catch(error => {
         console.log('error catch: ' + error)
     });
-
+    $q.loading.hide()
 };
 
 onMounted(() => {

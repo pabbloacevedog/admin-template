@@ -15,7 +15,7 @@
 
 // src/css/quasar.variables.scss
 
-$primary   : #1806d6;
+$primary   : #155eee;
 $secondary : #7926a6;
 $accent    : #9C27B0;
 
@@ -33,4 +33,43 @@ $warning   : #F2C037;
     backdrop-filter: blur(5px);
     border: 1.5px solid rgba(209, 213, 219, 0.3);
     color: white;
+}
+.q-field--filled .q-field__control {
+    border-radius: 10px;
+    -webkit-border-radius: 10px;
+    -moz-border-radius: 10px;
+    -ms-border-radius: 10px;
+    -o-border-radius: 10px;
+}
+.q-field {
+    border-radius: 10px !important;
+    -webkit-border-radius: 10px !important;
+    -moz-border-radius: 10px !important;
+    -ms-border-radius: 10px !important;
+    -o-border-radius: 10px !important;
+}
+.q-field--filled .q-field__control:before {
+    border-bottom: 0px solid rgba(255, 0, 0, 0.24);
+    transition: border-color 0.36s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.q-field--filled .q-field__control:hover:before {
+    border-color: #00000000;
+}
+.q-field--filled .q-field__control:after {
+    height: 0px;
+    top: auto;
+    border-bottom-left-radius: inherit;
+    border-bottom-right-radius: inherit;
+    transform-origin: center bottom;
+    transform: scale3d(0, 1, 1);
+    background: currentColor;
+    transition: transform 0.36s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.btn-border-radius {
+    border-radius:8px !important;
+    -webkit-border-radius: 10px !important;
+    -moz-border-radius:8px !important;
+    -ms-border-radius:8px !important;
+    -o-border-radius:8px !important;
+    -webkit-border-radius:8px !important;
 }

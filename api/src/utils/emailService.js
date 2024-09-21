@@ -29,7 +29,8 @@ export async function sendEmail(obj) {
     console.log(subject,'subject')
     console.log(text,'text')
     const mailOptions = {
-        from: EMAIL_USER,
+        // from: EMAIL_USER,
+        form: testAccount.user,
         to,
         subject,
         text,

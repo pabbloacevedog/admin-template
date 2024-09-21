@@ -18,11 +18,12 @@ export const useAuthStore = defineStore("auth", {
                 query Login($email: String!, $password: String!) {
                     login(email: $email, password: $password) {
                         user {
-                            user_id
-                            username
-                            email
-                            role_id
-                            avatar
+                            user_id,
+                            username,
+                            email,
+                            role_id,
+                            avatar,
+                            name,
                         }
                         actions
                     }
@@ -58,6 +59,7 @@ export const useAuthStore = defineStore("auth", {
                 const response = await apolloClient.mutate({
                     mutation: REGISTER_MUTATION,
                     variables: details,
+                    fetchPolicy: "network-only",
                 });
                 const { email, error, message } = response.data.register;
                 this.email = email;
@@ -82,6 +84,7 @@ export const useAuthStore = defineStore("auth", {
                 const response = await apolloClient.mutate({
                     mutation: VERIFY_EMAIL_MUTATION,
                     variables: { token },
+                    fetchPolicy: "network-only",
                 });
                 const { email, message } = response.data.VerifyEmail;
                 this.email = email;
@@ -117,6 +120,7 @@ export const useAuthStore = defineStore("auth", {
                 const response = await apolloClient.query({
                     query: USERSETTINGS_QUERY,
                     variables: { userId: userId },
+                    fetchPolicy: "network-only",
                 });
                 // console.log(response.data.userSettings.user);
                 const user = response.data.userSettings.user;
@@ -194,6 +198,7 @@ export const useAuthStore = defineStore("auth", {
                         currentPassword,
                         newPassword,
                     },
+                    fetchPolicy: "network-only",
                 });
             } catch (error) {
                 this.error = error.message;
@@ -212,7 +217,7 @@ export const useAuthStore = defineStore("auth", {
                 const response = await apolloClient.mutate({
                     mutation: FORGOT_PASSWORD_MUTATION,
                     variables: { email },
-                    errorPolicy: "all",
+                    fetchPolicy: "network-only",
                 });
                 localStorage.setItem("forgot", true);
                 console.log(response, "forgot password");
@@ -239,6 +244,7 @@ export const useAuthStore = defineStore("auth", {
                 const response = await apolloClient.mutate({
                     mutation: VERIFY_CODE_MUTATION,
                     variables: { verification_code },
+                    fetchPolicy: "network-only",
                 });
                 console.log(response, "verifyCode");
                 const { user_id, message } = response.data.verifyCode;
@@ -276,6 +282,7 @@ export const useAuthStore = defineStore("auth", {
                 const response = await apolloClient.mutate({
                     mutation: RESET_PASSWORD_MUTATION,
                     variables: { userId, newPassword },
+                    fetchPolicy: "network-only",
                 });
                 console.log("resetPassword", response);
                 const { message } = response.data.resetPassword;
@@ -313,6 +320,7 @@ export const useAuthStore = defineStore("auth", {
                 const response = await apolloClient.query({
                     query: ISAUTH_QUERY,
                     operationName: "isAuth",
+                    fetchPolicy: "network-only",
                 });
                 const { user } = response.data.isAuth;
                 this.user = user;
@@ -335,14 +343,15 @@ export const useAuthStore = defineStore("auth", {
                 // Ejecuta la mutación para hacer logout
                 const response = await apolloClient.query({
                     query: LOGOUT_QUERY,
+                    fetchPolicy: "network-only",
                 });
-
+                const { message } = response.data.logout;
                 if (response.data) {
                     console.log(response.data, "logout");
                     // Limpia el estado del usuario
                     this.user = null;
                     navigateTo("/login");
-                    return true;
+                    return message;
                 }
             } catch (error) {
                 console.error("Error during logout:", error);

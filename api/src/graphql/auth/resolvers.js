@@ -18,11 +18,12 @@ export const authResolver = {
 
             // Generar un token de verificación
             const verificationToken = crypto.randomBytes(32).toString('hex');
-
+            const defaultAvatar = `https://cdn.quasar.dev/img/avatar${Math.floor(Math.random() * 5) + 1}.jpg`;
             const newUser = await models.User.create({
                 name,
                 email,
                 password,
+                avatar: defaultAvatar,
                 role_id: 1, // rol por defecto
                 verification_email: verificationToken,  // Guardamos el token
                 verification_email_expires: Date.now() + 3600000, // Expira en 1 hora
@@ -213,6 +214,7 @@ export const authResolver = {
                 email: user.email,
                 role_id: user.role_id,
                 avatar: user.avatar,
+                name: user.name,
             };
             const token = jwt.sign(result, JWT_SECRET, { expiresIn: JWT_EXPIRES });
 

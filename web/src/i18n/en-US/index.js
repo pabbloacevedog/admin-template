@@ -18,6 +18,7 @@ export default {
         forgot_password: "Did you forget your password?",
         btn_login: "Log in",
         btn_google: "Sign in with Google",
+        select_different_user: "Log in with another account",
         errors: {
             password_required: "Password is required.",
             email_required: "Email is required.",
@@ -45,11 +46,11 @@ export default {
         },
     },
     reset_password: {
-        title: "Change Password",
+        title: "Set new password",
         description: "Enter you new password",
         new_password: "New Password",
         confirm_password: "Confirm Password",
-        btn_send: "Change password",
+        btn_send: "Reset password",
         errors: {
             new_password_required: "Password is required.",
             passwords_do_not_match: "Passwords do not match.",

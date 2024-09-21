@@ -159,6 +159,7 @@ const validatePasswordForm = () => {
 
 // Función para guardar cambios
 const saveChanges = async () => {
+    $q.loading.show()
     if (activeTab.value === 'security') {
         if (!validatePasswordForm()) {
             $q.notify({
@@ -167,7 +168,6 @@ const saveChanges = async () => {
             });
             return;
         }
-
         // Llama a la acción de Pinia para cambiar la contraseña
         await authStore.changePassword({
             currentPassword: form.value.currentPassword,
@@ -188,6 +188,7 @@ const saveChanges = async () => {
         // Guardar cambios generales
         await authStore.updateUserSettings(form.value).then(response => {
             console.log('response: ' + response)
+
             $q.notify({
                 type: 'positive',
                 message: response,
@@ -199,8 +200,10 @@ const saveChanges = async () => {
         });
 
     }
+    $q.loading.hide()
 };
 const logOut = async () => {
+    $q.loading.show()
     await authStore.logOut().then(response => {
         console.log('response: ' + response)
         $q.notify({
@@ -212,6 +215,7 @@ const logOut = async () => {
     }).catch(error => {
         console.log('error catch: ' + error)
     });
+    $q.loading.hide()
 };
 onMounted(async () => {
     try {

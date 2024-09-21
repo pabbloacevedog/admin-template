@@ -1,10 +1,15 @@
 <template>
     <q-page class="reset-password-page">
-        <div class="login-container row no-wrap justify-center items-center q-mt-xl">
-            <div class="col-12 col-md-8 col-lg-6 q-px-md">
+        <div class="row no-wrap justify-center items-center q-mt-xl">
+            <div class="col-12 col-md-8 col-lg-4 q-px-md">
                 <div class="form-container">
-                    <h3>{{ $t('reset_password.title') }}</h3>
-                    <p>{{ $t('reset_password.description') }}</p>
+                    <!-- Icono de correo -->
+                    <div class="row justify-center">
+                        <q-icon name="lock_open" size="56px" class="q-my-md text-center" color="primary" />
+                    </div>
+
+                    <h3 class="text-h4 text-center q-mb-lg">{{ $t('reset_password.title') }}</h3>
+                    <p class="text-center q-mb-xl">{{ $t('reset_password.description') }}</p>
                     <q-form @submit="onSubmit" autocomplete="on">
                         <!-- Input para la nueva contraseña -->
                         <q-input v-model="newPassword" filled :type="isPwd ? 'password' : 'text'"
@@ -27,7 +32,7 @@
                         </q-input>
 
                         <q-btn :label="$t('reset_password.btn_send')" type="submit" color="primary"
-                            class="full-width q-mb-md" />
+                            class="full-width q-mb-md btn-border-radius" />
                     </q-form>
                 </div>
             </div>
@@ -51,7 +56,6 @@ const authStore = useAuthStore();
 const $q = useQuasar();
 const router = useRouter();
 const isPwd = ref(true);
-
 const errors = ref({
     newPassword: false,
     newPasswordMsg: '',
@@ -87,6 +91,7 @@ const validateForm = () => {
 };
 
 const onSubmit = async () => {
+    $q.loading.show()
     if (!validateForm()) {
         $q.notify({
             type: 'negative',
@@ -106,7 +111,7 @@ const onSubmit = async () => {
     }).catch(error => {
         console.log('error catch: ' + error)
     });
-
+    $q.loading.hide()
 };
 </script>
 
