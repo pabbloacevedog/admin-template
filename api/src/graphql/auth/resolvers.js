@@ -5,14 +5,16 @@ import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 import models from '../../models/index.js';
 import { sendEmail } from '../../utils/emailService.js';
-import { JWT_EXPIRES, JWT_SECRET, CLIENT } from '../../config/config.js';
+import { JWT_EXPIRES, JWT_SECRET, CLIENT, BASE_URL } from '../../config/config.js';
 import throwCustomError, { ErrorTypes } from '../../helpers/error-handler.helper.js';
 import { getSuccessMessage } from '../../helpers/success-handler.helper.js';
+import { createWriteStream, existsSync, mkdirSync } from 'fs';
+import path from 'path'; // Importa path para manejar rutas de manera segura
 
 export const authResolver = {
     Mutation: {
         // Registrar nuevo usuario
-        signup: async (_, { name,email, password }) => {
+        signup: async (_, { name, email, password }) => {
             const user = await models.User.findOne({ where: { email } });
             if (user) throwCustomError(ErrorTypes.USER_ALREADY_EXISTS);
 
@@ -64,7 +66,7 @@ export const authResolver = {
             });
 
             const successMessage = getSuccessMessage('SUCCESS_VERIFY_EMAIL');
-            console.log('successMessage',successMessage);
+            console.log('successMessage', successMessage);
             return { email: user.email, message: successMessage };
         },
         // Recuperar contraseña
@@ -84,7 +86,7 @@ export const authResolver = {
             });
 
             // Enviar el correo con el código
-            const message = getSuccessMessage('MESSAGE_VERIFY_CODE_EMAIL') + verificationCode ;
+            const message = getSuccessMessage('MESSAGE_VERIFY_CODE_EMAIL') + verificationCode;
             const subject = getSuccessMessage('SUBJECT_VERIFY_CODE_EMAIL');
             await sendEmail({
                 to: email,
@@ -92,7 +94,7 @@ export const authResolver = {
                 text: message,
             });
             const successMessage = getSuccessMessage('VERIFY_CODE_SENT');
-            return { message: successMessage} ;
+            return { message: successMessage };
         },
         async verifyCode(_, { verification_code }) {
             // Buscar al usuario por el código de verificación
@@ -173,13 +175,47 @@ export const authResolver = {
                     avatar: input.avatar || user.avatar,
                     role_id: input.role_id !== undefined ? input.role_id : user.role_id
                 });
+                const successMessage = getSuccessMessage('USER_DATA_UPDATE_SUCCESS');
+                return { user: user.get(), message: successMessage };
 
-                return user;
             } catch (error) {
                 throw new Error("Error updating user: " + error.message);
             }
         },
+        async uploadAvatar(_, { userId, avatar }) {
+            console.log("Uploading avatar", avatar);
+            const { createReadStream, filename, mimetype } = await avatar;
+            const stream = createReadStream();
 
+            // Define la ruta donde se guardará el archivo
+            const uploadDir = path.join(process.cwd(), 'public','uploads', 'users', userId, 'avatar');
+
+            // Verifica si la carpeta existe, si no, la crea
+            if (!existsSync(uploadDir)) {
+                mkdirSync(uploadDir, { recursive: true }); // Crea la carpeta de manera recursiva si no existe
+            }
+
+            // Define la ruta completa del archivo
+            const filePath = path.join(uploadDir, filename);
+            console.log(filePath);
+            console.log(uploadDir + '/' + filename);
+            // Crea el stream para escribir el archivo en el sistema
+            const out = createWriteStream(filePath);
+            stream.pipe(out);
+            const url_avatar = BASE_URL + 'uploads/users/' + userId + '/avatar/' + filename
+            // Espera a que el archivo se haya guardado completamente
+            await new Promise((resolve, reject) => {
+                out.on('finish', resolve);
+                out.on('error', reject);
+            });
+
+            // Actualiza la URL del avatar en la base de datos
+            const user = await models.User.findByPk(userId);
+            user.avatar = url_avatar; // Guarda la ruta del archivo en la base de datos
+            await user.save();
+
+            return { avatar: url_avatar }; // Devuelve la nueva URL del avatar
+        }
     },
 
     Query: {

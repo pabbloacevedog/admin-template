@@ -176,7 +176,7 @@ const onSubmit = async () => {
         saveUserInLocalStorage(userData);
         $q.notify({
             type: 'positive',
-            message: `Bienvenido ${user.email}`
+            message: `Bienvenido ${user.name}`
         });
         router.push('/settings');
     } catch (error) {

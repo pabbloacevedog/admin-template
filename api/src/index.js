@@ -11,11 +11,11 @@ dotenv.config();
 const app = express();
 const httpServer = createServer(app);
 
+// Configurar GraphQL
+setupGraphQL(app, httpServer);
 // Cargar módulos
 loadModules(app);
 
-// Configurar GraphQL
-setupGraphQL(app, httpServer);
 
 // Manejador de errores global
 app.use((err, req, res, next) => {

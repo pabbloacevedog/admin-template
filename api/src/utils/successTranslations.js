@@ -12,6 +12,7 @@ const successTranslations = {
         SUCCESS_LOGOUT: 'Logged out successfully',
         USER_CREATED_VERIFY_EMAIL:'Account created successfully, please validate your email to continue.',
         SUCCESS_VERIFY_EMAIL:'Account verified successfully, you can log in with your credentials.',
+        USER_DATA_UPDATE_SUCCESS:'User data update success.',
     },
     es: {
         USER_CREATED: 'Usuario creado con éxito.',
@@ -26,6 +27,7 @@ const successTranslations = {
         SUCCESS_LOGOUT: 'Cerró sesión exitosamente',
         USER_CREATED_VERIFY_EMAIL:'Cuenta creada con exito, valida tu email para continuar.',
         SUCCESS_VERIFY_EMAIL:'Cuenta verificada con exito, puede iniciar sesión con sus credenciales.',
+        USER_DATA_UPDATE_SUCCESS:'Datos actualizados correctamente.',
     },
     // Agrega más idiomas si es necesario
 };

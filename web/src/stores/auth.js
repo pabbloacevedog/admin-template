@@ -18,12 +18,12 @@ export const useAuthStore = defineStore("auth", {
                 query Login($email: String!, $password: String!) {
                     login(email: $email, password: $password) {
                         user {
-                            user_id,
-                            username,
-                            email,
-                            role_id,
-                            avatar,
-                            name,
+                            user_id
+                            username
+                            email
+                            role_id
+                            avatar
+                            name
                         }
                         actions
                     }
@@ -48,7 +48,11 @@ export const useAuthStore = defineStore("auth", {
         },
         async register(details) {
             const REGISTER_MUTATION = gql`
-                mutation Register($name:String!, $email: String!, $password: String!) {
+                mutation Register(
+                    $name: String!
+                    $email: String!
+                    $password: String!
+                ) {
                     register(name: $name, email: $email, password: $password) {
                         email
                         message
@@ -75,7 +79,7 @@ export const useAuthStore = defineStore("auth", {
             const VERIFY_EMAIL_MUTATION = gql`
                 mutation VerifyEmail($token: String!) {
                     VerifyEmail(token: $token) {
-                        email,
+                        email
                         message
                     }
                 }
@@ -139,17 +143,20 @@ export const useAuthStore = defineStore("auth", {
                     $input: UserUpdateInput!
                 ) {
                     updateUser(userId: $userId, input: $input) {
-                        user_id
-                        rut_user
-                        name
-                        username
-                        email
-                        personal_phone
-                        verification_code
-                        verified
-                        state
-                        avatar
-                        role_id
+                        user{
+                            user_id
+                            rut_user
+                            name
+                            username
+                            email
+                            personal_phone
+                            verification_code
+                            verified
+                            state
+                            avatar
+                            role_id
+                        }
+                        message
                     }
                 }
             `;
@@ -170,9 +177,9 @@ export const useAuthStore = defineStore("auth", {
                         },
                     },
                 });
-                const updatedData = response.data.updateUser;
-                this.user = updatedData; // Actualiza el estado con la respuesta
-                return updatedData;
+                const { user, message } =  response.data.updateUser;
+                this.user = user; // Actualiza el estado con la respuesta
+                return message;
             } catch (error) {
                 console.log(error);
                 this.error = error.message;
@@ -205,6 +212,62 @@ export const useAuthStore = defineStore("auth", {
                 throw error;
             }
         },
+        async uploadAvatar(avatarFile) {
+            try {
+                const response = await apolloClient.mutate({
+                    mutation: gql`
+                        mutation UploadAvatar(
+                            $userId: String!
+                            $avatar: Upload!
+                        ) {
+                            UploadAvatar(userId: $userId, avatar: $avatar) {
+                                avatar
+                            }
+                        }
+                    `,
+                    variables: {
+                        userId: this.user.user_id,
+                        avatar: await avatarFile,
+                    },
+                });
+                console.log(response);
+                const { avatar } = response.data.UploadAvatar;
+                // this.user.avatar = avatar; // Actualiza el avatar del usuario en el store
+                return avatar;
+            } catch (error) {
+                console.error("Error uploading avatar:", error);
+                throw error;
+            }
+        },
+        // async uploadAvatar(file) {
+        //     const formData = new FormData();
+        //     formData.append(
+        //         "operations",
+        //         JSON.stringify({
+        //             query: `
+        //         mutation ($userId: String!, $avatar: Upload!) {
+        //           uploadAvatar(userId: $userId, avatar: $avatar) {
+        //             avatar
+        //           }
+        //         }
+        //       `,
+        //             variables: { userId: this.user.user_id, avatar: null },
+        //         }),
+        //     );
+        //     formData.append("map", JSON.stringify({ 0: ["variables.avatar"] }));
+        //     formData.append("0", file);
+
+        //     try {
+        //         const response = await fetch("/graphql", {
+        //             method: "POST",
+        //             body: formData,
+        //         });
+        //         const result = await response.json();
+        //         console.log(result);
+        //     } catch (error) {
+        //         console.error("Error uploading avatar:", error);
+        //     }
+        // },
         async forgotPassword(email) {
             const FORGOT_PASSWORD_MUTATION = gql`
                 mutation ForgotPassword($email: String!) {
