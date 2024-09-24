@@ -1,12 +1,12 @@
 <!-- eslint-disable vue/multi-word-component-names -->
 <template>
     <q-page class="register-page">
-        <div class="register-container row no-wrap justify-center items-center q-mt-xl">
+        <div class="register-container row justify-center items-center q-mt-xl">
             <!-- Columna izquierda: Formulario -->
-            <div class="left-section col-xl-6 col-md-6 q-px-md">
+            <div class="col-xl-6 col-md-6 q-px-md">
                 <div class="form-container">
-                    <h3 class="text-h text-center q-mb-lg">{{ $t('register.title') }}</h3>
-                    <p class="text-center q-mb-lg">{{ $t('register.description') }}</p>
+                    <div class="text-h4 text-center q-my-lg">{{ $t('register.title') }}</div>
+                    <div class="text-h6 text-second text-center q-ma-lg">{{ $t('register.description') }}</div>
                     <q-form @submit="onSubmit" autocomplete="on">
                         <q-input v-model="name" :label="$t('register.name')" type="text" filled class="q-mb-md"
                             autocomplete="name" :error="errors.name" :error-message="errors.namelMsg" />
@@ -25,10 +25,9 @@
                 </div>
             </div>
             <!-- Columna derecha: Imagen -->
-            <div class="right-section col-xl-6 col-md-6 q-px-xl">
-                <div class="content">
-                    <q-img src="https://picsum.photos/800/500" :ratio="16 / 9" />
-                </div>
+            <div class="col-xl-6 col-md-6 col-xs-12 col-sm-12 q-pa-xs full-height">
+                <q-img src="https://picsum.photos/500/300" style="border-radius: 15px;" class="img-login full-height"
+                    fit="cover" />
             </div>
         </div>
     </q-page>
@@ -135,7 +134,7 @@ onMounted(() => {
     max-width: 1200px;
     background: #ffffff;
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
-    border-radius: 8px;
+    border-radius: 20px;
     overflow: hidden;
 }
 
@@ -164,6 +163,21 @@ onMounted(() => {
     .right-section {
         min-width: 100%;
         flex: none;
+    }
+}
+/* Estilo para pantallas grandes: ratio de 1 */
+@media (min-width: 856px) {
+    .img-login {
+        aspect-ratio: 1;
+        /* Mantiene una proporción 1:1 en pantallas grandes */
+    }
+}
+
+/* Estilo para pantallas pequeñas: ratio libre */
+@media (max-width: 855px) {
+    .img-login {
+        aspect-ratio: auto;
+        /* Ratio libre en pantallas móviles */
     }
 }
 </style>

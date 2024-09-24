@@ -1,28 +1,26 @@
 <!-- eslint-disable vue/multi-word-component-names -->
 <template>
     <q-page class="login-page">
-        <div class="login-container row no-wrap justify-center items-center q-mt-xl">
+        <div class="login-container row justify-center items-center">
             <!-- Columna izquierda: Imagen -->
-            <div class="left-section col-xl-6 col-md-6 q-px-xl">
-                <div class="content">
-                    <q-img src="https://picsum.photos/500/300" :ratio="16 / 9" />
-                </div>
+            <div class="col-xl-6 col-md-6 col-xs-12 col-sm-12 q-pa-xs full-height">
+                <q-img src="https://picsum.photos/500/300" style="border-radius: 15px;" class="img-login full-height"
+                    fit="cover" />
             </div>
-
             <!-- Columna derecha: Formulario -->
-            <div class="right-section col-xl-5 col-md-6 q-px-md">
+            <div class="col-xl-6 col-md-6 col-xs-12 col-sm-12 q-px-lg">
                 <div class="form-container">
                     <div v-if="!clickUserRemember">
-                        <h3 class="text-h3 text-center q-mb-lg">{{ $t('login.title') }}</h3>
-                        <p class="text-center q-ma-lg">{{ $t('login.description') }}</p>
+                        <div class="text-h4 text-center q-my-lg">{{ $t('login.title') }}</div>
+                        <div class="text-h6 text-second text-center q-ma-lg">{{ $t('login.description') }}</div>
                     </div>
-                    <div v-else>
+                    <div v-else class="q-pt-lg">
                         <div class="row justify-center items-center column">
                             <q-avatar size="100px">
                                 <img :src="reus_selected.avatar">
                             </q-avatar>
-                            <h3 class="text-h4 text-center q-mb-xs">{{ reus_selected.name }} </h3>
-                            <p class="text-center q-ma-md">{{ reus_selected.email }}</p>
+                            <div class="text-h4 text-center q-mt-md q-mb-xs">{{ reus_selected.name }}</div>
+                            <div class="text-h6 text-second text-center q-my-sm">{{ reus_selected.email }}</div>
                         </div>
                         <q-form @submit="onSubmit" autocomplete="on">
                             <q-input v-model="password" filled :type="isPwd ? 'password' : 'text'"
@@ -40,7 +38,8 @@
                     <div v-if="isRemember" class="justify-center q-mb-md q-px-xl">
                         <div v-if="!clickUserRemember">
                             <div v-for="(reus, index) in rememberedUsers" :key="index" class="q-mb-lg ">
-                                <q-card class="cursor-pointer card-remember-user" flat bordered @click="selectRememberUser(reus)">
+                                <q-card class="cursor-pointer card-remember-user" flat bordered
+                                    @click="selectRememberUser(reus)">
                                     <q-item>
                                         <q-item-section avatar>
                                             <q-avatar>
@@ -75,16 +74,17 @@
                                         @click="isPwd = !isPwd" />
                                 </template>
                             </q-input>
-                            <div class="q-pa-md q-gutter-sm col-6">
-                                <q-avatar v-for="(rs, n) in rememberedUsers" :key="n" size="40px" class="overlapping cursor-pointer" @click="selectRememberedUsers()" :style="`left: ${n * 25}px`">
+                            <div class="row justify-center" style="min-height: 40px;">
+                                <q-avatar v-for="(rs, n) in rememberedUsers" :key="n" size="40px"
+                                    class="overlapping cursor-pointer" @click="selectRememberedUsers()"
+                                    :style="`margin-left: ${n * 55}px`">
                                     <img :src="rs.avatar">
                                 </q-avatar>
                             </div>
-                            <div class="row justify-end q-mb-md col-6">
+                            <div class="q-pt-md q-pb-sm row justify-center">
                                 <q-btn flat :label="$t('login.forgot_password')" class="text-primary"
                                     @click="router.push('/forgot_password')" />
                             </div>
-
                             <q-btn :label="$t('login.btn_login')" type="submit" color="primary"
                                 class="full-width q-mb-md btn-border-radius" />
 
@@ -235,17 +235,16 @@ onMounted(() => {
 }
 
 .login-container {
-    width: 95%;
+    width: 80%;
     max-width: 1200px;
     background: #ffffff;
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
-    border-radius: 8px;
+    border-radius: 20px;
     overflow: hidden;
 }
 
 .left-section,
 .right-section {
-    padding: 2rem;
     min-width: 50%;
 }
 
@@ -287,6 +286,8 @@ onMounted(() => {
 @media (max-width: 768px) {
     .login-container {
         flex-direction: column;
+        margin-top: 0px;
+        width: 90%;
     }
 
     .left-section,
@@ -295,11 +296,69 @@ onMounted(() => {
         flex: none;
     }
 }
-.overlapping{
+
+.overlapping {
     border: 2px solid white;
     position: absolute;
 }
-.card-remember-user{
+
+.card-remember-user {
     border-radius: 10px;
+}
+
+.content {
+    position: relative;
+    /* Asegura que el contenedor tenga el contexto para los hijos */
+    width: 100%;
+    /* Ocupa el 100% del ancho del div padre */
+    height: 100%;
+    /* Ocupa el 100% de la altura del div padre */
+    overflow: hidden;
+    /* Esconde cualquier contenido que se desborde */
+}
+
+.full-size {
+    position: absolute;
+    /* Para que la imagen se posicione respecto a su contenedor */
+    top: 0;
+    /* Alinea al inicio del contenedor */
+    left: 0;
+    /* Alinea al inicio del contenedor */
+    width: 100%;
+    /* Ocupa el 100% del ancho */
+    height: 100%;
+    /* Ocupa el 100% de la altura */
+    object-fit: cover;
+    /* Mantiene la relación de aspecto y recorta si es necesario */
+}
+
+.full-height {
+    height: 100%;
+    /* Se asegura de que el div ocupe todo el alto disponible */
+}
+
+.img-login {
+    width: 100%;
+    /* La imagen se ajusta al ancho del contenedor */
+    height: 100%;
+    /* La imagen se ajusta al alto del contenedor */
+    object-fit: cover;
+    /* Mantiene la relación de aspecto y recorta si es necesario */
+}
+
+/* Estilo para pantallas grandes: ratio de 1 */
+@media (min-width: 856px) {
+    .img-login {
+        aspect-ratio: 1;
+        /* Mantiene una proporción 1:1 en pantallas grandes */
+    }
+}
+
+/* Estilo para pantallas pequeñas: ratio libre */
+@media (max-width: 855px) {
+    .img-login {
+        aspect-ratio: auto;
+        /* Ratio libre en pantallas móviles */
+    }
 }
 </style>

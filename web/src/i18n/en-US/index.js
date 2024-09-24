@@ -107,10 +107,13 @@ export default {
             new_password: "New Password",
             confirm_password: "Confirm Password",
         },
+        theme: {
+            dark_mode: "Dark mode",
+        },
         tabs: {
             general: "General",
             security: "Security",
-            company: "Company",
+            theme: "Theme",
         },
         appearance: {
             dark_mode: "Dark Mode",

@@ -5,7 +5,7 @@ export default [
         children: [
             {
                 path: "login",
-                component: async () => await import("pages/LoginPage.vue"),
+                component: async () => await import("components/Login.vue"),
                 meta: { requiresAuth: false, onlyWithoutAuth: true },
             },
             {
