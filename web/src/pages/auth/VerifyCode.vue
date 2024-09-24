@@ -71,7 +71,7 @@ import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useQuasar } from 'quasar';
 import { useI18n } from 'vue-i18n';
-import { useAuthStore } from '../stores/auth';
+import { useAuthStore } from '../../stores/auth';
 const authStore = useAuthStore();
 const { t } = useI18n();
 const $q = useQuasar();

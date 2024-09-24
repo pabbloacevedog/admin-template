@@ -2,15 +2,15 @@ export default [
     {
         path: "/",
         component: async () => await import("layouts/CleanLayout.vue"), //aqui va la webLayout
+        meta: { requiresAuth: false, onlyWithoutAuth: true },
         children: [
             {
                 path: "login",
                 component: async () => await import("components/Login.vue"),
-                meta: { requiresAuth: false, onlyWithoutAuth: true },
             },
             {
                 path: "register",
-                component: async () => await import("pages/RegisterPage.vue"),
+                component: async () => await import("src/pages/auth/RegisterPage.vue"),
                 meta: {
                     requiresAuth: false,
                     onlyWithoutAuth: true,
@@ -18,8 +18,8 @@ export default [
             },
             {
                 path: "forgot_password",
-                component: async () => await import("pages/ForgotPassword.vue"),
-                meta: { requiresAuth: false, onlyWithoutAuth: true },
+                component: async () => await import("src/pages/auth/ForgotPassword.vue"),
+
                 beforeEnter(to, from, next) {
                     if (localStorage.getItem("userIdForgot")) {
                         next("reset_password");
@@ -34,8 +34,7 @@ export default [
             },
             {
                 path: "verify_code",
-                component: async () => await import("pages/VerifyCode.vue"),
-                meta: { requiresAuth: false, onlyWithoutAuth: true },
+                component: async () => await import("src/pages/auth/VerifyCode.vue"),
                 beforeEnter(to, from, next) {
                     if (!localStorage.getItem("forgot")) {
                         if (localStorage.getItem("userIdForgot")) {
@@ -50,8 +49,7 @@ export default [
             },
             {
                 path: "reset_password",
-                component: async () => await import("pages/ResetPassword.vue"),
-                meta: { requiresAuth: false, onlyWithoutAuth: true },
+                component: async () => await import("src/pages/auth/ResetPassword.vue"),
                 beforeEnter(to, from, next) {
                     if (!localStorage.getItem("userIdForgot")) {
                         if (localStorage.getItem("forgot")) {
@@ -64,16 +62,16 @@ export default [
                     }
                 },
             },
-            {
-                path: "settings",
-                component: async () => await import("pages/SettingsUser.vue"),
-                meta: { requiresAuth: true, onlyWithoutAuth: false },
-            },
+            // {
+            //     path: "settings",
+            //     component: async () => await import("src/pages/auth/SettingsUser.vue"),
+            //     meta: { requiresAuth: true, onlyWithoutAuth: false },
+            // },
             {
                 path: "verify_email",
-                component: async () => await import("pages/EmailVerification.vue"),
+                component: async () => await import("src/pages/auth/EmailVerification.vue"),
                 name: "VerifyEmail",
-                meta: { requiresAuth: false, onlyWithoutAuth: true },
+
             },
         ],
     },

@@ -4,44 +4,75 @@
             <div class="col-6 col-md-6">
                 <div class="text-h4">{{ $t('settings.title') }}</div>
             </div>
-            <div class="col-6 col-md-6 text-right">
-                <q-btn label="logout" color="negative" class="q-mt-md" @click="logOut" />
-            </div>
         </div>
         <div class="col-12" style="position: relative;">
-            <q-card class="name-avatar col-12 w-100" flat bordered>
+            <q-card class="col-12 w-100 div-rounded-radius" flat>
                 <q-card-section v-if="$q.platform.is.mobile" class="row col-12 items-center justify-center">
                     <q-card-section class="col-4 col-md-4 col-xs-12 text-center items-center justify-center">
                         <q-avatar size="168px" class="avatar-user">
                             <img :src="user?.avatar" alt="User Avatar" />
                         </q-avatar>
-                        <!-- Input tipo archivo oculto -->
+
+                        <!-- Input para subir archivo -->
                         <input type="file" ref="fileInput" @change="handleFileChange" style="display: none;"
                             id="fileUpload" />
 
-                        <!-- Botón para subir archivo, posicionado en la esquina del avatar -->
+                        <!-- Botón para seleccionar archivo -->
                         <q-btn color="primary" icon="photo_camera" @click="selectFile" flat class="btn-upload-avatar" />
+
+                        <!-- Modal para recortar imagen -->
+                        <q-dialog v-model="showCropper" persistent>
+                            <q-card>
+                                <cropper :src="image" :auto-zoom="true" ref="croppedImage" :stencil-size="{
+                                    width: 280,
+                                    height: 280
+                                }" image-restriction="stencil" />
+                                <q-card-actions align="right">
+                                    <q-btn label="Cancel" flat color="primary" class="q-mt-md btn-border-radius"
+                                        @click="showCropper = false" />
+                                    <q-btn label="Save" color="primary" class="q-mt-md btn-border-radius"
+                                        @click="saveCroppedImage" />
+                                </q-card-actions>
+                            </q-card>
+                        </q-dialog>
                     </q-card-section>
                     <q-card-section class="col-6 col-md-6 col-xs-12 text-center items-center justify-center">
                         <div class="text-h4">{{ user?.name }}</div>
                         <div class="text-h6 text-second">{{ user?.email }}</div>
                     </q-card-section>
                 </q-card-section>
-                <q-card-section v-else horizontal class="row col-12 items-center justify-center">
-                    <q-card-section class="col-4 col-md-4 col-xs-12 items-center justify-center">
-                        <q-avatar size="168px" class="avatar-user">
+                <q-card-section v-else horizontal class="row col-12 items-center justify-center q-pa-none">
+                    <q-card-section class="col-4 col-md-4 col-xs-12 text-center items-center justify-center">
+                        <q-avatar size="150px" class="avatar-user">
                             <img :src="user?.avatar" alt="User Avatar" />
                         </q-avatar>
-                        <!-- Input tipo archivo oculto -->
+
+                        <!-- Input para subir archivo -->
                         <input type="file" ref="fileInput" @change="handleFileChange" style="display: none;"
                             id="fileUpload" />
 
-                        <!-- Botón para subir archivo, posicionado en la esquina del avatar -->
+                        <!-- Botón para seleccionar archivo -->
                         <q-btn color="primary" icon="photo_camera" @click="selectFile" flat class="btn-upload-avatar" />
+
+                        <!-- Modal para recortar imagen -->
+                        <q-dialog v-model="showCropper" persistent>
+                            <q-card>
+                                <cropper :src="image" :auto-zoom="true" ref="croppedImage" :stencil-size="{
+                                    width: 280,
+                                    height: 280
+                                }" image-restriction="stencil" />
+                                <q-card-actions align="right">
+                                    <q-btn label="Cancel" flat color="primary" class="q-mt-md btn-border-radius"
+                                        @click="showCropper = false" />
+                                    <q-btn label="Save" color="primary" class="q-mt-md btn-border-radius"
+                                        @click="saveCroppedImage" />
+                                </q-card-actions>
+                            </q-card>
+                        </q-dialog>
                     </q-card-section>
-                    <q-card-section class="col-6 col-md-6 col-xs-12 text-center items-center justify-center">
-                        <h3>{{ user?.name }}</h3>
-                        <h6>{{ user?.email }}</h6>
+                    <q-card-section class="col-6 col-md-6 col-xs-12 text-center items-center justify-center q-pa-none">
+                        <div class="text-h4 q-mb-md">{{ user?.name }}</div>
+                        <div class="text-h6 text-second">{{ user?.email }}</div>
                     </q-card-section>
                 </q-card-section>
             </q-card>
@@ -54,12 +85,10 @@
             <q-tab name="theme" :label="$t('settings.tabs.theme')" /> <!-- Nuevo tab de tema -->
         </q-tabs>
 
-        <q-separator />
-
-        <q-tab-panels v-model="activeTab" animated>
+        <q-tab-panels v-model="activeTab" animated class="div-rounded-radius">
             <!-- General Tab -->
             <q-tab-panel name="general">
-                <div class="q-gutter-md q-mt-md">
+                <div class="q-gutter-md">
                     <q-input filled :label="$t('settings.account.name')" v-model="form.name" />
                     <q-input filled :label="$t('settings.account.username')" v-model="form.username" />
                     <q-input filled :label="$t('settings.account.email')" v-model="form.email" disable readonly />
@@ -97,7 +126,7 @@
 
         <div class="q-ma-md flex justify-end">
             <div>
-                <q-btn label="Save Changes" color="primary" class="q-mt-md" @click="saveChanges" />
+                <q-btn label="Save Changes" color="primary" class="q-mt-md btn-border-radius" @click="saveChanges" />
             </div>
         </div>
     </q-page>
@@ -105,21 +134,25 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import { useAuthStore } from '../stores/auth';
+import { useAuthStore } from '../../stores/auth';
 import { useQuasar, Dark } from 'quasar';
 import { useRouter } from 'vue-router';
-
+import { Cropper } from 'vue-advanced-cropper';
 import { useI18n } from 'vue-i18n';  // Importar useI18n
-
+import 'vue-advanced-cropper/dist/style.css';
+import { valueFromAST } from 'graphql';
 // Obtener $t desde useI18n
 const { t } = useI18n();
 const router = useRouter();
 const $q = useQuasar();
 const authStore = useAuthStore();
-var user = ref(null);
-const avatarFile = ref(null);
+const user = ref({ avatar: '', });
 // Referencia al input tipo file
-const fileInput = ref(null)
+const fileInput = ref(null);
+const showCropper = ref(false);
+const image = ref(null);
+const croppedImage = ref(null);
+const nameAvatar = ref(null);
 const form = ref({
     user_id: '',
     rut_user: '',
@@ -216,27 +249,9 @@ const handleFileChange = async (event) => {
     const file = event.target.files[0]
     if (file) {
         console.log('Archivo seleccionado:', file)
-        try {
-            const response = await authStore.uploadAvatar(file);
-            console.log('response: ' + response);
-
-            // Actualiza el avatar en el objeto `user` y el formulario
-            user.value = { ...user.value, avatar: response };
-
-
-            // form.value.avatar = response;
-
-            $q.notify({
-                type: 'positive',
-                message: 'Avatar uploaded successfully',
-            });
-        } catch (error) {
-            console.error('Error uploading avatar:', error);
-            $q.notify({
-                type: 'negative',
-                message: 'Error uploading avatar',
-            });
-        }
+        showCropper.value = true
+        image.value = URL.createObjectURL(file);
+        nameAvatar.value = file.name
     }
 }
 // Función para guardar cambios
@@ -270,11 +285,13 @@ const saveChanges = async () => {
         // Guardar cambios generales
         await authStore.updateUserSettings(form.value).then(response => {
             console.log('response: ' + response)
+            user.value = { ...user.value, name: form.value.name };
             updateUserInLocalStorage({
                 email: user.value.email,
                 name: form.value.name,
                 avatar: user.value.avatar
             });
+            authStore.updateUserStore(user.value)
             $q.notify({
                 type: 'positive',
                 message: response,
@@ -296,28 +313,6 @@ const updateUserInLocalStorage = (updatedUser) => {
     );
     localStorage.setItem('rememberedUsers', JSON.stringify(users));
 };
-
-const logOut = async () => {
-    $q.loading.show()
-    updateUserInLocalStorage({
-        email: user.value.email,
-        name: user.value.name,
-        avatar: user.value.avatar
-    });
-    await authStore.logOut().then(response => {
-        console.log('response: ' + response)
-        $q.notify({
-            type: 'positive',
-            message: response,
-        });
-        Dark.set(false); // Cambiar el tema a claro al logout
-        router.push('/login');
-
-    }).catch(error => {
-        console.log('error catch: ' + error)
-    });
-    $q.loading.hide()
-};
 onMounted(async () => {
     try {
         const fetchedUser = await authStore.userSettings(authStore.user.user_id);
@@ -334,7 +329,54 @@ onMounted(async () => {
         console.error('Error fetching user:', error);
     }
 });
+const sendAvatarApi = async (fileAvatar) => {
+    // try {
+    //     await authStore.uploadAvatar(fileAvatar)
+    //     const fetchedUser = await authStore.userSettings(authStore.user.user_id);
+    //     user.value = fetchedUser;
+    //     Object.assign(form.value, fetchedUser);
+    //     showCropper.value = false
+    //     nameAvatar.value = null
+    //     $q.notify({
+    //         type: 'positive',
+    //         message: 'Avatar uploaded successfully',
+    //     });
+    // } catch (error) {
+    //     console.error('Error fetching user:', error);
+    // }
+    await authStore.uploadAvatar(fileAvatar).then((response) => {
+        console.log('response: ' + response);
+        // Actualiza el avatar en el objeto user
+        user.value = { ...user.value, avatar: response };
 
+        showCropper.value = false
+        nameAvatar.value = null
+        $q.notify({
+            type: 'positive',
+            message: 'Avatar uploaded successfully',
+        });
+        authStore.updateUserStore(user.value)
+    }).catch((error) => {
+        console.error('Error uploading avatar:', error);
+        $q.notify({
+            type: 'negative',
+            message: 'Error uploading avatar',
+        });
+    });
+}
+
+const saveCroppedImage = async () => {
+    const { canvas } = croppedImage.value.getResult();
+    console.log('canvas', canvas)
+    if (canvas) {
+        const img = canvas.toBlob(blob => {
+            const fileAvatar = new File([blob], nameAvatar.value, { type: "image/jpeg" });
+            console.log(fileAvatar, 'fileAvatar')
+            sendAvatarApi(fileAvatar)
+        }, "image/jpeg");
+        console.log(img, 'img')
+    }
+}
 </script>
 <script>
 export default {
@@ -354,11 +396,6 @@ export default {
     gap: 20px;
 }
 
-.name-avatar {
-    padding: 2%;
-    border-radius: 25px;
-}
-
 .q-avatar {
     border: 2px solid #fff;
     /* Opcional: añadir un borde blanco */
@@ -367,7 +404,7 @@ export default {
 .btn-upload-avatar {
     position: absolute;
     bottom: 20px;
-    right: calc(50% - 15px);
+    right: calc(50% - 70px);
     background-color: white;
     border-radius: 50%;
     box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.3);

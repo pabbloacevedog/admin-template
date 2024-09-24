@@ -295,7 +295,7 @@ export const authResolver = {
         // Verificar autenticación
         isAuth: async (_, __, { user }) => {
             console.log('user is authenticated', user);
-            if (!user) if (!user) throwCustomError(ErrorTypes.UNAUTHENTICATED);
+            if (!user) throwCustomError(ErrorTypes.UNAUTHENTICATED);
             const result = {
                 user_id: user.user_id,
                 username: user.username,
@@ -307,7 +307,18 @@ export const authResolver = {
                 user: result,
             };
         },
+        // Verificar autenticación true o false
+        isAuthBool: async (_, __, { user }) => {
+            console.log('user is authenticated', user);
+            var result = false;
+            if (user){
+                result = true;
+            }
 
+            return {
+                isAuth: result,
+            };
+        },
         // Cerrar sesión
         logout: async (_, __, { res }) => {
             res.clearCookie('token', {

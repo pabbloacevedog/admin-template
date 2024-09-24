@@ -178,7 +178,7 @@ const onSubmit = async () => {
             type: 'positive',
             message: `Bienvenido ${user.name}`
         });
-        router.push('/settings');
+        router.push('/admin');
     } catch (error) {
         console.log('error catch: ' + error)
         // Error handling is already done in the store, no need to do anything here

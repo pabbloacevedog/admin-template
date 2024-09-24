@@ -13,6 +13,7 @@ import { initializeRouter } from "../services/navigationService";
 import Auth from './auth'
 import notFound from './notFound'
 import Web from './web'
+import Admin from './admin'
 /*
  * If not building with SSR mode, you can
  * directly export the Router instantiation;
@@ -27,6 +28,7 @@ const routes = auxiliar.concat(
     //aqui se agregan las rutas de los archivos o paginas del sistema
     Web,
     Auth,
+    Admin,
     notFound,
     //incluir siempre el router del empresa, al final, ya que al recibir el parametro, causa conflicto con los otros routers
     //   empresa
@@ -67,10 +69,14 @@ export default route(function (/* { store, ssrContext } */) {
                 // Si está autenticado, permite continuar a la ruta protegida
                 return next();
             }
-        } else if (onlyWithoutAuth && authStore.user) {
+        } else if (onlyWithoutAuth) {
+
+            if (await authStore.isAuth()) {
+                return next({ path: "/admin" });
+            }
             // Si el usuario está autenticado y trata de acceder a una ruta que solo es accesible sin autenticación
             // Evita redirigir a la ruta solicitada y quédate en la ruta actual
-            return next(false); // Evita que cambie de ruta
+            return next(); // Evita que cambie de ruta
         } else {
             // console.log("to",to);
             // debugger

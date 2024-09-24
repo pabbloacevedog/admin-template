@@ -27,7 +27,7 @@
 import { ref, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useQuasar } from 'quasar';
-import { useAuthStore } from '../stores/auth';
+import { useAuthStore } from '../../stores/auth';
 import { useI18n } from 'vue-i18n';  // Importar useI18n
 
 // Obtener $t desde useI18n

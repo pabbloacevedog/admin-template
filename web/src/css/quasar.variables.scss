@@ -19,8 +19,15 @@ $secondary: #7926a6;
 $text-second: #929397;
 $accent: #9c27b0;
 
-$dark: #1d1d1d;
-$dark-page: #121212;
+$dark: #000000;
+$dark-page: #111111;
+$text-primary-dark: #FFFFFF;
+$text-secondary-dark: #888888;
+
+$light: #ffffff;
+$light-page: #eeeeee;
+$text-primary-light: #000000;
+$text-secondary-light: #404040;
 
 $positive: #2dba4e;
 $negative: #e0021c;
@@ -30,13 +37,7 @@ $warning: #f2c037;
 .text-second {
     color: $text-second;
 }
-.q-drawer {
-    background: rgba(255, 255, 255, 0.3);
-    -webkit-backdrop-filter: blur(5px);
-    backdrop-filter: blur(5px);
-    border: 1.5px solid rgba(209, 213, 219, 0.3);
-    color: white;
-}
+
 .q-field--filled .q-field__control {
     border-radius: 10px;
     -webkit-border-radius: 10px;
@@ -76,43 +77,58 @@ $warning: #f2c037;
     -o-border-radius: 8px !important;
     -webkit-border-radius: 8px !important;
 }
-
+.btn-round-radius {
+    border-radius: 50px !important;
+    -webkit-border-radius: 50px !important;
+    -moz-border-radius: 50px !important;
+    -ms-border-radius: 50px !important;
+    -o-border-radius: 50px !important;
+}
+.div-rounded-radius {
+    border-radius: 20px;
+}
 .body--dark {
-    background-color: #000;
-    color: #929397;
-    .menu-activo {
-        border-radius: 10px;
-        margin: 0px 4px;
-        background-color: #fff;
+    background-color: $dark;
+    color: $text-primary-dark;
+    .page-background {
+        background-color: $dark-page;
+        color: $text-primary-dark;
     }
-    .q-layout__section--marginal {
-        background-color: #000;
-        color: #fff;
+    .q-drawer {
+        background-color: $dark;
+        -webkit-backdrop-filter: blur(5px);
+        backdrop-filter: blur(5px);
+        color: white;
     }
-
-    .avatar-user {
-        background-color: #121212;
-        /* Color para el tema oscuro */
-        border: 0px solid !important;
+    .q-toolbar{
+        background-color: $dark;
+    }
+    .btn-toolbar{
+        background-color: $dark-page;
     }
 }
-
+.q-avatar{
+    border: 0px solid #fff !important;
+}
 /* Estilos para el tema claro */
 .body--light {
-    background-color: #f2f2f2;
-    color: black;
-    .menu-activo {
-        border-radius: 10px;
-        margin: 0px 4px;
-        background-color: #000;
+    background-color: $light;
+    color: $dark;
+    .page-background {
+        background-color: $light-page;
+        color: $text-primary-light;
     }
-    .q-layout__section--marginal {
-        background-color: #fff;
-        color: #000;
+    .q-drawer {
+        background: $light;
+        -webkit-backdrop-filter: blur(5px);
+        backdrop-filter: blur(5px);
+        color: rgb(23, 22, 22);
     }
-    .avatar-user {
-        background-color: #f2f2f2;
-        border: 0px solid !important;
-        /* Color para el tema claro */
+    .q-toolbar{
+        background-color: $light
+    }
+    .btn-toolbar{
+        background-color: $light-page;
+        color: $dark;
     }
 }

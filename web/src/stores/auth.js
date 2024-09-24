@@ -11,6 +11,7 @@ export const useAuthStore = defineStore("auth", {
         isUserFetched: false,
         userId: null,
         message: null,
+        isAuthenticated: false
     }),
     actions: {
         async login(credentials) {
@@ -239,35 +240,6 @@ export const useAuthStore = defineStore("auth", {
                 throw error;
             }
         },
-        // async uploadAvatar(file) {
-        //     const formData = new FormData();
-        //     formData.append(
-        //         "operations",
-        //         JSON.stringify({
-        //             query: `
-        //         mutation ($userId: String!, $avatar: Upload!) {
-        //           uploadAvatar(userId: $userId, avatar: $avatar) {
-        //             avatar
-        //           }
-        //         }
-        //       `,
-        //             variables: { userId: this.user.user_id, avatar: null },
-        //         }),
-        //     );
-        //     formData.append("map", JSON.stringify({ 0: ["variables.avatar"] }));
-        //     formData.append("0", file);
-
-        //     try {
-        //         const response = await fetch("/graphql", {
-        //             method: "POST",
-        //             body: formData,
-        //         });
-        //         const result = await response.json();
-        //         console.log(result);
-        //     } catch (error) {
-        //         console.error("Error uploading avatar:", error);
-        //     }
-        // },
         async forgotPassword(email) {
             const FORGOT_PASSWORD_MUTATION = gql`
                 mutation ForgotPassword($email: String!) {
@@ -394,6 +366,28 @@ export const useAuthStore = defineStore("auth", {
                 this.isUserFetched = true; // Aunque haya un error, marcamos que ya se ha intentado
             }
         },
+        async isAuth() {
+            const ISAUTH_QUERY = gql`
+                query isAuthBool {
+                    isAuthBool {
+                        isAuth
+                    }
+                }
+            `;
+            try {
+                const response = await apolloClient.query({
+                    query: ISAUTH_QUERY,
+                    operationName: "isAuth",
+                    fetchPolicy: "network-only",
+                });
+                const { isAuth } = response.data.isAuthBool;
+                this.isAuthenticated = isAuth;
+                return isAuth;
+            } catch (error) {
+                console.error("Error fetching user:", error);
+                this.user = null;
+            }
+        },
         async logOut() {
             const LOGOUT_QUERY = gql`
                 query logout {
@@ -419,6 +413,14 @@ export const useAuthStore = defineStore("auth", {
             } catch (error) {
                 console.error("Error during logout:", error);
                 return false;
+            }
+        },
+        async updateUserStore(user) {
+            try {
+                this.user = user
+            } catch (error) {
+                console.error("Error fetching user:", error);
+                this.user = null;
             }
         },
         clearError() {

@@ -41,7 +41,12 @@ const context = async ({ req, res }) => {
     // Asegúrate de que las cookies estén presentes
     const token = req.cookies ? req.cookies.token : null;
 
-    // console.log('context-token:', token);
+    if (operationName == 'isAuthBool') {
+        console.log('if isAuthBool')
+        if (!token) {
+            return false;
+        }
+    }
 
     // Si no hay token, lanzar error de autenticación
     if (!token) {

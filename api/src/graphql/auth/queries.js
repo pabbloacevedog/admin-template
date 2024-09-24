@@ -23,6 +23,10 @@ export const isAuth = {
     type: AuthType,
     resolve: authResolver.Query.isAuth, // Resolver que manejará la autenticación
 };
+export const isAuthBool = {
+    type: AuthType,
+    resolve: authResolver.Query.isAuthBool, // Resolver que manejará la autenticación
+};
 export const logout = {
     type: AuthType,
     resolve: authResolver.Query.logout, // Resolver que manejará la autenticación

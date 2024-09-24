@@ -1,5 +1,5 @@
 // Imports
-import {GraphQLObjectType, GraphQLString, GraphQLList} from 'graphql'
+import {GraphQLObjectType, GraphQLString, GraphQLList, GraphQLBoolean} from 'graphql'
 import UserType from  '../user/type.js';
 // Auth type
 const AuthType = new GraphQLObjectType({
@@ -24,6 +24,7 @@ const AuthType = new GraphQLObjectType({
         },
         actions: { type: new GraphQLList(GraphQLString) },
         user: { type: UserType },
+        isAuth: { type: GraphQLBoolean}
     })
 })
 
