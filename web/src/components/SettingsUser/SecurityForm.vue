@@ -1,0 +1,105 @@
+<template>
+    <div class="q-gutter-md q-mt-md">
+        <q-input filled type="password" :label="$t('settings.security.current_password')" v-model="form.currentPassword"
+            :error="errors.currentPassword" :error-message="errors.currentPasswordMsg" />
+        <q-input filled type="password" :label="$t('settings.security.new_password')" v-model="form.newPassword"
+            :error="errors.newPassword" :error-message="errors.newPasswordMsg" />
+        <q-input filled type="password" :label="$t('settings.security.confirm_password')" v-model="form.confirmPassword"
+            :error="errors.confirmPassword" :error-message="errors.confirmPasswordMsg" />
+    </div>
+    <div class="q-ma-md flex justify-end">
+        <q-btn label="Save Changes" color="primary" class="q-mt-md btn-border-radius" @click="saveChanges" />
+    </div>
+</template>
+
+<script setup>
+import { ref } from 'vue';
+import { useQuasar } from 'quasar';
+import { useAuthStore } from 'stores/auth';
+import { useRouter } from 'vue-router';
+import { useI18n } from 'vue-i18n';  
+const { t } = useI18n();
+const router = useRouter();
+const authStore = useAuthStore();
+const $q = useQuasar();
+const form = ref({
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: '',
+});
+
+const errors = ref({
+    currentPassword: false,
+    currentPasswordMsg: '',
+    newPassword: false,
+    newPasswordMsg: '',
+    confirmPassword: false,
+    confirmPasswordMsg: ''
+});
+// Valida los campos de cambio de contraseña
+const validatePasswordForm = () => {
+    let isValid = true;
+
+    if (!form.value.currentPassword) {
+        errors.value.currentPassword = true;
+        errors.value.currentPasswordMsg = 'Current password is required.';
+        isValid = false;
+    } else {
+        errors.value.currentPassword = false;
+        errors.value.currentPasswordMsg = '';
+    }
+
+    if (!form.value.newPassword) {
+        errors.value.newPassword = true;
+        errors.value.newPasswordMsg = 'New password is required.';
+        isValid = false;
+    } else if (form.value.newPassword === form.value.currentPassword) {
+        errors.value.newPassword = true;
+        errors.value.newPasswordMsg = 'New password cannot be the same as the current password.';
+        isValid = false;
+    } else {
+        errors.value.newPassword = false;
+        errors.value.newPasswordMsg = '';
+    }
+
+    if (form.value.newPassword !== form.value.confirmPassword) {
+        errors.value.confirmPassword = true;
+        errors.value.confirmPasswordMsg = 'Passwords do not match.';
+        isValid = false;
+    } else {
+        errors.value.confirmPassword = false;
+        errors.value.confirmPasswordMsg = '';
+    }
+
+    return isValid;
+};
+// Función para guardar cambios
+const saveChanges = async () => {
+    
+
+    if (!validatePasswordForm()) {
+        $q.notify({
+            type: 'negative',
+            message: t('settings.errors.please_fix_errors'),
+        });
+        return;
+    }
+    $q.loading.show()
+    // Llama a la acción de Pinia para cambiar la contraseña
+    await authStore.changePassword({
+        currentPassword: form.value.currentPassword,
+        newPassword: form.value.newPassword
+    }).then(response => {
+        console.log('response: ' + response)
+        $q.notify({
+            type: 'positive',
+            message: response,
+        });
+        router.push('/login');
+
+    }).catch(error => {
+        console.log('error catch: ' + error)
+    });
+    $q.loading.hide()
+};
+</script>

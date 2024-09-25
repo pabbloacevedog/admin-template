@@ -20,8 +20,8 @@ $text-second: #929397;
 $accent: #9c27b0;
 
 $dark: #000000;
-$dark-page: #111111;
-$text-primary-dark: #FFFFFF;
+$dark-page: #0d111e;
+$text-primary-dark: #ffffff;
 $text-secondary-dark: #888888;
 
 $light: #ffffff;
@@ -89,25 +89,44 @@ $warning: #f2c037;
 }
 .body--dark {
     background-color: $dark;
-    color: $text-primary-dark;
+    color: $light;
+    .text-theme {
+        color: $light;
+    }
     .page-background {
-        background-color: $dark-page;
+        background-color: $dark;
         color: $text-primary-dark;
     }
     .q-drawer {
-        background-color: $dark;
+        background-color: $dark-page;
         -webkit-backdrop-filter: blur(5px);
         backdrop-filter: blur(5px);
         color: white;
     }
-    .q-toolbar{
+    .q-toolbar {
         background-color: $dark;
     }
-    .btn-toolbar{
+    .btn-toolbar {
         background-color: $dark-page;
+        color: $text-primary-light;
+    }
+    .bg-card {
+        background: $dark;
+        -webkit-backdrop-filter: blur(5px);
+        backdrop-filter: blur(15px);
+        border-radius: 25px !important;
+        padding: 2rem;
+        -webkit-border-radius: 25px !important;
+        -moz-border-radius: 25px !important;
+        -ms-border-radius: 25px !important;
+        -o-border-radius: 25px !important;
+    }
+    .q-item.q-router-link--active{
+        color: $light !important;
+        background-color: $dark;
     }
 }
-.q-avatar{
+.q-avatar {
     border: 0px solid #fff !important;
 }
 /* Estilos para el tema claro */
@@ -115,20 +134,37 @@ $warning: #f2c037;
     background-color: $light;
     color: $dark;
     .page-background {
-        background-color: $light-page;
+        background-color: $light;
         color: $text-primary-light;
     }
     .q-drawer {
-        background: $light;
+        background: $light-page;
         -webkit-backdrop-filter: blur(5px);
         backdrop-filter: blur(5px);
-        color: rgb(23, 22, 22);
+        color: $dark-page;
     }
-    .q-toolbar{
-        background-color: $light
+    .q-toolbar {
+        background-color: $light;
     }
-    .btn-toolbar{
+    .btn-toolbar {
         background-color: $light-page;
         color: $dark;
     }
+    .bg-card {
+        background: $dark;
+        -webkit-backdrop-filter: blur(5px);
+        backdrop-filter: blur(15px);
+        border-radius: 25px !important;
+        padding: 2rem;
+        -webkit-border-radius: 25px !important;
+        -moz-border-radius: 25px !important;
+        -ms-border-radius: 25px !important;
+        -o-border-radius: 25px !important;
+    }
+    .text-theme {
+        color: $dark;
+    }
+}
+
+@media (max-width: 600px) {
 }

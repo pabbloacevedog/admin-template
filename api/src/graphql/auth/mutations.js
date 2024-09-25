@@ -48,7 +48,7 @@ export const resetPassword = {
 };
 
 export const changePassword = {
-    type: GraphQLBoolean,  // Devuelve true si la contraseña se actualizó correctamente
+    type: AuthType,  // Devuelve true si la contraseña se actualizó correctamente
     args: {
         currentPassword: { type: new GraphQLNonNull(GraphQLString) },
         newPassword: { type: new GraphQLNonNull(GraphQLString) }

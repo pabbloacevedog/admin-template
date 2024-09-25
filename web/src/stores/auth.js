@@ -189,18 +189,20 @@ export const useAuthStore = defineStore("auth", {
         },
         async changePassword({ currentPassword, newPassword }) {
             const CHANGE_PASSWORD_MUTATION = gql`
-                mutation ChangePassword(
+                mutation changePassword(
                     $currentPassword: String!
                     $newPassword: String!
                 ) {
                     changePassword(
                         currentPassword: $currentPassword
                         newPassword: $newPassword
-                    )
+                    ){
+                        message
+                    }
                 }
             `;
             try {
-                await apolloClient.mutate({
+                const response = await apolloClient.mutate({
                     mutation: CHANGE_PASSWORD_MUTATION,
                     variables: {
                         currentPassword,
@@ -208,6 +210,10 @@ export const useAuthStore = defineStore("auth", {
                     },
                     fetchPolicy: "network-only",
                 });
+                const { message } = response.data.changePassword;
+                console.log(response);
+                // this.user.avatar = avatar; // Actualiza el avatar del usuario en el store
+                return message;
             } catch (error) {
                 this.error = error.message;
                 throw error;

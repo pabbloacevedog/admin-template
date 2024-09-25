@@ -108,7 +108,7 @@
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useQuasar } from 'quasar';
-import { useAuthStore } from '../stores/auth';
+import { useAuthStore } from 'stores/auth';
 import { useI18n } from 'vue-i18n';  // Importar useI18n
 // Obtener $t desde useI18n
 const { t } = useI18n();
@@ -178,7 +178,7 @@ const onSubmit = async () => {
             type: 'positive',
             message: `Bienvenido ${user.name}`
         });
-        router.push('/admin');
+        router.push('/admin/settings');
     } catch (error) {
         console.log('error catch: ' + error)
         // Error handling is already done in the store, no need to do anything here

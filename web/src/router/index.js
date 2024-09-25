@@ -6,7 +6,7 @@ import {
     createWebHashHistory,
 } from "vue-router";
 // import routes from "./routes";
-import { useAuthStore } from "../stores/auth";
+import { useAuthStore } from "stores/auth";
 import { initializeRouter } from "../services/navigationService";
 
 //routes

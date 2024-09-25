@@ -151,7 +151,8 @@ export const authResolver = {
                     password: hashedPassword
                 });
 
-                return true;  // Indicar que la contraseña se actualizó con éxito
+                const successMessage = getSuccessMessage('PASSWORD_UPDATED');
+                return { message: successMessage };
             } catch (error) {
                 console.error(error);
                 throw new Error("Error changing password: " + error.message);
