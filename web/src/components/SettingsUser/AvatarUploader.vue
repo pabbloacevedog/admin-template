@@ -1,13 +1,13 @@
 <template>
-    <div class="text-center">
-        <q-avatar size="150px" class="avatar-user">
+    <div class="text-start">
+        <q-avatar :size="size_avatar" class="avatar-user">
             <img :src="authStore.user?.avatar" alt="User Avatar" />
         </q-avatar>
         <!-- Input para subir archivo -->
         <input type="file" ref="fileInput" @change="handleFileChange" style="display: none;" id="fileUpload" />
 
         <!-- Botón para seleccionar archivo -->
-        <q-btn color="primary" icon="photo_camera" @click="selectFile" flat class="btn-upload-avatar" />
+        <q-btn color="primary" icon="photo_camera" @click="selectFile" flat class="btn-upload-avatar bg-first" />
         <!-- Modal para recortar imagen -->
         <q-dialog v-model="showCropper" persistent>
             <q-card>
@@ -39,6 +39,10 @@ const showCropper = ref(false);
 const image = ref(null);
 const croppedImage = ref(null);
 const nameAvatar = ref(null);
+
+const props = defineProps({
+    size_avatar: String,
+});
 const selectFile = () => {
     fileInput.value.click();
 };
@@ -86,3 +90,37 @@ const saveCroppedImage = async () => {
     }
 }
 </script>
+<style scoped>
+
+.btn-upload-avatar {
+    top: 30px;
+    right: 30px;
+    border-radius: 50%;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.3);
+    padding: 8px;
+}
+
+@media (max-width: 1024px) {
+    .btn-upload-avatar {
+        right: 25%;
+    }
+}
+
+@media (max-width: 1023px) {
+    .btn-upload-avatar {
+        right: 40%;
+    }
+}
+
+@media (max-width: 768px) {
+    .btn-upload-avatar {
+        right: 40%;
+    }
+}
+
+@media (max-width: 541px) {
+    .btn-upload-avatar {
+        right: 30%;
+    }
+}
+</style>

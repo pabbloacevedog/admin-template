@@ -1,0 +1,39 @@
+<template>
+
+    <q-item class="q-pl-md q-py-xs item-panel-settings" v-ripple>
+        <q-item-section avatar top>
+            <q-avatar color="first" :icon="icon" />
+        </q-item-section>
+        <q-item-section class="q-pa-none">
+            <q-item-label class="subtitle-panel-settings">{{ subtitle}}</q-item-label>
+            <q-item-label caption  class="description-panel-settings" no-caps>
+                {{ description}}
+            </q-item-label>
+        </q-item-section>
+    </q-item>
+
+</template>
+
+<script setup>
+import { ref } from 'vue';
+const props = defineProps({
+    subtitle: String,
+    description: String,
+    icon: String,
+});
+</script>
+
+<style lang="css">
+.subtitle-panel-settings{
+    font-size: 14px !important;
+    font-weight: bold;
+    text-transform: none;
+}
+.item-panel-settings{
+    width: 100% !important;
+}
+.description-panel-settings{
+    font-size: 12px !important;
+    text-transform: none;
+}
+</style>

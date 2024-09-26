@@ -59,7 +59,7 @@ const menu = ref({
         { icon: 'camera', text: 'YouTube Premium' },
         { icon: 'local_movies', text: 'Movies & Shows' },
         { icon: 'videogame_asset', text: 'Gaming' },
-        { icon: 'settings', text: 'Account settings', href: '/admin/settings' }
+        { icon: 'manage_accounts', text: 'Account Settings', href: '/admin/settings' }
     ],
 })
 </script>

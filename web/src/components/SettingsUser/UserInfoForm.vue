@@ -1,13 +1,47 @@
 <template>
-    <div class="q-gutter-md">
-        <q-input filled :label="$t('settings.account.name')" v-model="form.name" />
-        <q-input filled :label="$t('settings.account.username')" v-model="form.username" />
-        <q-input filled :label="$t('settings.account.email')" v-model="form.email" disable readonly />
-        <q-input filled :label="$t('settings.account.personal_phone')" v-model="form.personal_phone" />
-        <q-input filled :label="$t('settings.account.rut_user')" v-model="form.rut_user" />
+    <div class="q-mt-none fit">
+        <q-card class="bg-second" flat>
+            <SubTitleSettingsPanel :subtitle="$t('settings.tabs.general.personal.subtitle')" :description="$t('settings.tabs.general.personal.description')" :icon="'account_circle'" />
+            <q-separator class="q-my-sm q-mx-md" />
+            <q-card-section horizontal>
+                <q-card-section class="col-6">
+                    <!-- <q-input class="q-my-md bg-second input-none-used" filled :label="$t('settings.account.name')" readonly/> -->
+                    <InputTitleSettingsPanel :title="$t('settings.account.avatar.title')" :description="$t('settings.account.avatar.description')" style="height:110px !important;"/>
+                    <InputTitleSettingsPanel :title="$t('settings.account.name.title')" :description="$t('settings.account.name.description')" />
+                    <InputTitleSettingsPanel :title="$t('settings.account.username.title')" :description="$t('settings.account.username.description')" />
+                    <InputTitleSettingsPanel :title="$t('settings.account.email.title')" :description="$t('settings.account.email.description')"/>
+                    <InputTitleSettingsPanel :title="$t('settings.account.personal_phone.title')" :description="$t('settings.account.personal_phone.description')" />
+                    <InputTitleSettingsPanel :title="$t('settings.account.rut_user.title')" :description="$t('settings.account.rut_user.description')" />
+                </q-card-section>
+
+                <q-card-section class="col-6">
+                    <AvatarUploader :size_avatar="'100px'"/>
+                    <q-input class="q-my-md" filled  v-model="form.name" />
+                    <q-input class="q-my-md" filled  v-model="form.username" />
+                    <q-input class="q-my-md" filled  v-model="form.email" disable readonly />
+                    <q-input class="q-my-md" filled  v-model="form.personal_phone" />
+                    <q-input class="q-my-md" filled  v-model="form.rut_user" />
+                </q-card-section>
+            </q-card-section>
+            <!-- <q-separator class="q-my-sm q-mx-md" />
+            <SubTitleSettingsPanel :subtitle="$t('settings.tabs.general.contact.subtitle')" :description="$t('settings.tabs.general.contact.description')" :icon="'contact_phone'" />
+            <q-separator class="q-my-sm q-mx-md" />
+            <q-card-section horizontal class="row">
+                <q-card-section class="col-6">
+                    <InputTitleSettingsPanel :title="$t('settings.account.personal_phone.title')" :description="$t('settings.account.personal_phone.description')" />
+                    <InputTitleSettingsPanel :title="$t('settings.account.rut_user.title')" :description="$t('settings.account.rut_user.description')" />
+                </q-card-section>
+
+                <q-card-section class="col-6">
+                    <q-input class="q-my-md" filled  v-model="form.personal_phone" />
+                    <q-input class="q-my-md" filled  v-model="form.rut_user" />
+                </q-card-section>
+            </q-card-section> -->
+        </q-card>
+
     </div>
     <div class="q-ma-md flex justify-end">
-        <q-btn label="Save Changes" color="primary" class="q-mt-md btn-border-radius" @click="saveChanges" />
+        <q-btn label="Save Changes" color="primary" class="btn-border-radius" @click="saveChanges" />
     </div>
 </template>
 
@@ -15,6 +49,9 @@
 import { ref, onMounted } from 'vue';
 import { useAuthStore } from 'stores/auth';
 import { useQuasar, Dark } from 'quasar';
+import SubTitleSettingsPanel from './SubTitleSettingsPanel.vue';
+import InputTitleSettingsPanel from './InputTitleSettingsPanel.vue';
+import AvatarUploader from './AvatarUploader.vue';
 const authStore = useAuthStore();
 const $q = useQuasar();
 const form = ref({

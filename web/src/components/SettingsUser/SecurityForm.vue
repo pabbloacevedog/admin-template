@@ -1,14 +1,35 @@
 <template>
-    <div class="q-gutter-md q-mt-md">
-        <q-input filled type="password" :label="$t('settings.security.current_password')" v-model="form.currentPassword"
-            :error="errors.currentPassword" :error-message="errors.currentPasswordMsg" />
-        <q-input filled type="password" :label="$t('settings.security.new_password')" v-model="form.newPassword"
-            :error="errors.newPassword" :error-message="errors.newPasswordMsg" />
-        <q-input filled type="password" :label="$t('settings.security.confirm_password')" v-model="form.confirmPassword"
-            :error="errors.confirmPassword" :error-message="errors.confirmPasswordMsg" />
+    <div class="q-mt-none fit">
+        <q-card class="bg-second fit" flat>
+            <SubTitleSettingsPanel :subtitle="$t('settings.tabs.security.title')"
+                :description="$t('settings.tabs.security.description')" :icon="'fingerprint'" />
+            <q-separator class="q-my-sm q-mx-md" />
+            <q-card-section horizontal>
+                <q-card-section class="col-6">
+                    <InputTitleSettingsPanel :title="$t('settings.account.current_password.title')"
+                        :description="$t('settings.account.current_password.description')" />
+                        <InputTitleSettingsPanel :title="$t('settings.account.new_password.title')"
+                        :description="$t('settings.account.new_password.description')" />
+                        <InputTitleSettingsPanel :title="$t('settings.account.confirm_password.title')"
+                        :description="$t('settings.account.confirm_password.description')" />
+                </q-card-section>
+
+                <q-card-section class="col-6">
+                    <q-input filled type="password" :label="$t('settings.security.current_password')"
+                        v-model="form.currentPassword" :error="errors.currentPassword"
+                        :error-message="errors.currentPasswordMsg" />
+                    <q-input filled type="password" :label="$t('settings.security.new_password')"
+                        v-model="form.newPassword" :error="errors.newPassword" :error-message="errors.newPasswordMsg" />
+                    <q-input filled type="password" :label="$t('settings.security.confirm_password')"
+                        v-model="form.confirmPassword" :error="errors.confirmPassword"
+                        :error-message="errors.confirmPasswordMsg" />
+                </q-card-section>
+            </q-card-section>
+        </q-card>
+
     </div>
     <div class="q-ma-md flex justify-end">
-        <q-btn label="Save Changes" color="primary" class="q-mt-md btn-border-radius" @click="saveChanges" />
+        <q-btn label="Save Changes" color="primary" class="btn-border-radius" @click="saveChanges" />
     </div>
 </template>
 
@@ -17,7 +38,9 @@ import { ref } from 'vue';
 import { useQuasar } from 'quasar';
 import { useAuthStore } from 'stores/auth';
 import { useRouter } from 'vue-router';
-import { useI18n } from 'vue-i18n';  
+import { useI18n } from 'vue-i18n';
+import SubTitleSettingsPanel from './SubTitleSettingsPanel.vue';
+import InputTitleSettingsPanel from './InputTitleSettingsPanel.vue';
 const { t } = useI18n();
 const router = useRouter();
 const authStore = useAuthStore();
@@ -75,7 +98,7 @@ const validatePasswordForm = () => {
 };
 // Función para guardar cambios
 const saveChanges = async () => {
-    
+
 
     if (!validatePasswordForm()) {
         $q.notify({

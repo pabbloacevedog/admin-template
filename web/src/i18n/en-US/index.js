@@ -95,12 +95,42 @@ export default {
         notification_settings: "Notifications",
         btn_save: "Save",
         account: {
-            rut_user: "Rut",
-            name: "Name",
-            username: "Username",
-            email: "Email Address",
-            personal_phone: "Phone Number",
-            avatar: "avatar",
+            rut_user: {
+                title: "Personal DNI ",
+                description: "Write your personal ID",
+            },
+            name: {
+                title: "Full Name",
+                description: "Write your full name",
+            },
+            username: {
+                title: "Username",
+                description: "Chose a username",
+            },
+            email: {
+                title: "Email address",
+                description: "Email linked to your account",
+            },
+            personal_phone: {
+                title: "Phone",
+                description: "Write your current phone",
+            },
+            avatar: {
+                title: "Avatar",
+                description: "You can change your profile photo",
+            },
+            current_password: {
+                title: "Current password",
+                description: "Write your current password",
+            },
+            new_password: {
+                title: "Current password",
+                description: "Write your new password",
+            },
+            confirm_password: {
+                title: "Confirm password",
+                description: "Confirm your new password",
+            },
         },
         security: {
             current_password: "Current Password",
@@ -108,12 +138,32 @@ export default {
             confirm_password: "Confirm Password",
         },
         theme: {
-            dark_mode: "Dark mode",
+            dark_mode: {
+                title: "Dark or Light Mode",
+                description: "You can chose your favorite theme",
+            },
         },
         tabs: {
-            general: "General",
-            security: "Security",
-            theme: "Theme",
+            general: {
+                title: "Account Settings",
+                description: "Personal Information",
+                personal: {
+                    subtitle: "Personal Information",
+                    description: "All your personal information",
+                },
+                contact: {
+                    subtitle: "Cotact Information",
+                    description: "Complete your contact information",
+                },
+            },
+            security: {
+                title: "Security",
+                description: "Change Password",
+            },
+            theme: {
+                title: "Apparences",
+                description: "Dark and Light Mode",
+            },
         },
         appearance: {
             dark_mode: "Dark Mode",

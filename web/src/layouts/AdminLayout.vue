@@ -1,10 +1,10 @@
 <template>
     <q-layout class="text-theme" view="lHh lpR lff">
         <q-header class="text-theme">
-            <q-toolbar class="q-py-sm q-px-md">
+            <q-toolbar class="q-py-sm q-pl-md q-pr-none">
                 <q-btn flat round @click="toggleLeftDrawer" aria-label="Menu" icon="menu" />
                 <q-space />
-                <div class="q-pl-sm q-gutter-sm row items-center no-wrap">
+                <div class="q-pr-xl row items-center no-wrap">
                     <BtnNotifyToolbar/>
                     <BtnMobileUserToolbar :goUserSettings="goUserSettings" :goUserMessages="goUserMessages" :logOut="logOut" v-if="$q.platform.is.mobile"/>
                     <BtnUserToolbar :goUserSettings="goUserSettings" :goUserMessages="goUserMessages" :logOut="logOut" v-else/>

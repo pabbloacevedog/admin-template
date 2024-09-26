@@ -372,21 +372,6 @@ export default {
 </script>
 
 <style scoped>
-.profile-page {
-    max-width: 1000px;
-    margin: auto;
-}
-
-.q-gutter-md {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 20px;
-}
-
-.q-avatar {
-    border: 2px solid #fff;
-    /* Opcional: añadir un borde blanco */
-}
 
 .btn-upload-avatar {
     position: absolute;
