@@ -13,7 +13,7 @@ export const useUserStore = defineStore("user", {
         async fetchUserById(userId) {
             const USER_QUERY = gql`
                 query getUserById($userId: String!) {
-                    userSettings(userId: $userId) {
+                    getUserById(userId: $userId) {
                         user {
                             user_id
                             rut_user
@@ -26,6 +26,9 @@ export const useUserStore = defineStore("user", {
                             state
                             avatar
                             role_id
+                            role {
+                                name
+                            }
                         }
                     }
                 }
@@ -36,7 +39,7 @@ export const useUserStore = defineStore("user", {
                     variables: { userId },
                     fetchPolicy: "network-only",
                 });
-                this.user = response.data.userSettings.user;
+                this.user = response.data.getUserById.user;
                 this.isUserFetched = true; // Marca que el usuario ha sido fetchado
                 return this.user;
             } catch (error) {
@@ -56,6 +59,12 @@ export const useUserStore = defineStore("user", {
                         personal_phone
                         avatar
                         role_id
+                        role {
+                            role_id
+                            name
+                            title
+                            description
+                        }
                     }
                 }
             `;

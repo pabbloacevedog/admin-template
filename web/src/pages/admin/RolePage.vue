@@ -1,10 +1,24 @@
 <template>
-    <q-page class="role-page">
-        <div class="row justify-between items-center q-mb-lg">
-            <h1 class="text-h5">Gestión de Roles</h1>
-            <q-btn @click="showCreateRoleModal" color="primary" label="Crear Rol" />
+    <q-page class="q-py-xs">
+        <TitlePages :title="$t('roles.title')" :description="$t('roles.description')"
+            :icon="$t('roles.icon')" :btn_create="showModal" :label_btn="'Crear Usuario'" />
+        <div class="col-12 q-pt-md" style="position: relative;">
+            <div class="q-pa-md">
+            <q-table grid flat bordered card-class="bg-primary text-white" title="Treats" :rows="roles"
+                :columns="columns" row-key="name" :filter="filter" hide-header @request="fetchRoles">
+                <template v-slot:top-right>
+                    <q-input borderless dense debounce="300" v-model="filter" placeholder="Search">
+                        <template v-slot:append>
+                            <q-icon name="search" />
+                        </template>
+                    </q-input>
+                </template>
+                <template v-slot:body-cell-actions="props">
+                    <q-btn @click="editRole(props.row)" icon="edit" color="secondary" flat />
+                    <q-btn @click="deleteRole(props.row.role_id)" icon="delete" color="negative" flat />
+                </template>
+            </q-table>
         </div>
-
         <q-table :rows="roles" :columns="columns" row-key="role_id" @request="fetchRoles"
             v-model:pagination="pagination">
             <template v-slot:top-right>
@@ -15,8 +29,9 @@
                 <q-btn @click="deleteRole(props.row.role_id)" icon="delete" color="negative" flat />
             </template>
         </q-table>
-
-        <RoleFormModal v-if="showModal" :isOpen="showModal" :role="selectedRole" @close="closeModal" @save="fetchRoles" />
+    </div>
+        <RoleFormModal v-if="showModal" :isOpen="showModal" :role="selectedRole" @close="closeModal"
+            @save="fetchRoles" />
     </q-page>
 </template>
 
@@ -24,7 +39,7 @@
 import { ref, onMounted } from 'vue';
 import { useRoleStore } from 'stores/role';
 import RoleFormModal from 'components/Roles/RoleFormModal.vue';
-
+import TitlePages from 'components/General/TitlePages.vue';
 const roleStore = useRoleStore();
 const roles = ref([]);
 const columns = ref([

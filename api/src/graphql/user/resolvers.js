@@ -53,13 +53,29 @@ export const userResolver = {
     Query: {
         // Obtener todos los usuarios
         getUsers: async () => {
-            const users = await models.User.findAll();
+            const users = await models.User.findAll({
+                include: [
+                    {
+                        model: models.Role,
+                        required: true
+                    },
+                ],
+            });
+            // console.log(users[0], 'users');
             return users;
         },
 
         // Obtener un usuario por ID
         getUserById: async (_, { userId }) => {
-            const user = await models.User.findByPk(userId);
+            const user = await models.User.findByPk(userId, {
+                include: [
+                    {
+                        model: models.Role,
+                        attributes: ['name'], // Solo trae el 'name' del Role
+                    },
+                ],
+            });
+
             if (!user) throwCustomError(ErrorTypes.USER_NOT_FOUND);
 
             return user;

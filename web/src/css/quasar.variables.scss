@@ -70,12 +70,7 @@ $warning: #f2c037;
     transition: transform 0.36s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .btn-border-radius {
-    border-radius: 8px !important;
-    -webkit-border-radius: 10px !important;
-    -moz-border-radius: 8px !important;
-    -ms-border-radius: 8px !important;
-    -o-border-radius: 8px !important;
-    -webkit-border-radius: 8px !important;
+    border-radius: 10px !important;
 }
 .btn-round-radius {
     border-radius: 50px !important;
@@ -85,7 +80,11 @@ $warning: #f2c037;
     -o-border-radius: 50px !important;
 }
 .div-rounded-radius {
-    border-radius: 20px;
+    border-radius:20px !important;
+    -webkit-border-radius:20px !important;
+    -moz-border-radius:20px !important;
+    -ms-border-radius:20px !important;
+    -o-border-radius:20px !important;
 }
 .q-splitter--vertical > .q-splitter__separator {
     width: 0px !important;

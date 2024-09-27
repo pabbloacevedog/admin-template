@@ -1,6 +1,6 @@
 // schema/user/type.js
 import { GraphQLObjectType, GraphQLString, GraphQLBoolean, GraphQLNonNull, GraphQLInt } from 'graphql';
-
+import RoleType from  '../role/type.js';
 const UserType = new GraphQLObjectType({
     name: 'UserType',
     fields: () => ({
@@ -15,7 +15,8 @@ const UserType = new GraphQLObjectType({
         verified: { type: GraphQLBoolean },
         state: { type: GraphQLString },
         avatar: { type: GraphQLString },
-        role_id: { type: GraphQLInt }
+        role_id: { type: GraphQLInt },
+        role: { type: RoleType }
     })
 });
 

@@ -36,7 +36,7 @@ const props = defineProps({
 });
 const localModel = ref(props.isOpen);
 const user = ref(props.user);
-console.log(user.value,'user')
+console.log(user.value, 'user')
 const emit = defineEmits(['close', 'create-user', 'update-user']);
 const form = ref({
     name: '',
@@ -50,7 +50,15 @@ const isEdit = ref(false);
 
 onMounted(async () => {
     try {
-        form.value = user.value;
+        if (Object.keys(user.value).length > 0) {
+            // Si el objeto user no está vacío, estamos en modo edición
+            form.value = { ...user.value };
+            isEdit.value = true;
+        } else {
+            // Si user es vacío, significa que estamos creando un nuevo usuario
+            resetForm();
+            isEdit.value = false;
+        }
     } catch (error) {
         console.error('Error fetching user:', error);
     }

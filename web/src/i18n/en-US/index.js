@@ -87,6 +87,16 @@ export default {
         message: "Oops ... we don't have anything around here.",
         btn_home: "Go back",
     },
+    users: {
+        title: "User Management",
+        description: "Manage your team members and their account permissions.",
+        icon:'supervised_user_circle',
+    },
+    roles: {
+        title: "Role Management",
+        description: "Manage your roles and their routes and actions",
+        icon:'attribution',
+    },
     settings: {
         title: "Settings",
         description: "Here you can manage your account",
@@ -144,9 +154,10 @@ export default {
             },
         },
         tabs: {
+            title: "Account Settings",
+            description: "Personal Information",
+            icon:'manage_accounts',
             general: {
-                title: "Account Settings",
-                description: "Personal Information",
                 personal: {
                     subtitle: "Personal Information",
                     description: "All your personal information",
@@ -165,6 +176,7 @@ export default {
                 description: "Dark and Light Mode",
             },
         },
+
         appearance: {
             dark_mode: "Dark Mode",
             glass_mode: "Glass Mode",
