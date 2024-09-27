@@ -1,5 +1,5 @@
 <template>
-    <q-menu auto-close class="btn-toolbar menu-user-top no-shadow" transition-show="jump-down" transition-hide="jump-up">
+    <q-menu auto-close class="btn-toolbar menu-user-top shadow-menu-user" transition-show="jump-down" transition-hide="jump-up">
         <q-lis>
             <div class="q-pa-md">
                 <CardUser />
@@ -40,3 +40,5 @@ const props = defineProps({
     logOut: Function
 });
 </script>
+<style>
+</style>

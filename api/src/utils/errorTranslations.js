@@ -3,7 +3,7 @@
 const errorTranslations = {
     en: {
         BAD_USER_PASSWORD: 'The password you entered is incorrect. Please try again.',
-        BAD_USER_INPUT: 'Invalid input provided.',
+        BAD_USER_INPUT: 'We do not have any registered users with the email provided.',
         USER_NOT_FOUND: 'User not found.',
         INVALID_RESET_TOKEN: 'The reset token is invalid or has expired.',
         NO_ACTIONS_FOR_ROLE: 'No actions found for the specified role.',
@@ -21,7 +21,7 @@ const errorTranslations = {
     },
     es: {
         BAD_USER_PASSWORD: 'Lo sentimos, la contraseña que ingresaste es incorrecta. Inténtalo de nuevo.',
-        BAD_USER_INPUT: 'Entrada no válida proporcionada.',
+        BAD_USER_INPUT: 'No tenemos ningun usuario registrado con el email proporcionado.',
         USER_NOT_FOUND: 'No hay usuarios registrados con ese email.',
         INVALID_RESET_TOKEN: 'El token de restablecimiento es inválido o ha expirado.',
         NO_ACTIONS_FOR_ROLE: 'No se encontraron acciones para el rol especificado.',

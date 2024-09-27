@@ -13,6 +13,16 @@ export default [
                 component: async () => await import("src/pages/auth/SettingsUser.vue"),
 
             },
+            {
+                path: "users",
+                component: async () => await import("src/pages/admin/UserPage.vue"),
+
+            },
+            {
+                path: "roles",
+                component: async () => await import("src/pages/admin/RolePage.vue"),
+
+            },
         ],
     },
 ];

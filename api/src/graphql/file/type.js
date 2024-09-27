@@ -1,33 +1,26 @@
 // Imports
 import {
-    GraphQLNonNull,
     GraphQLObjectType,
     GraphQLString,
-    GraphQLID,
 } from 'graphql'
-// FileType
-const FileType = new GraphQLObjectType({
-    name: 'FileType',
-    description: 'File',
-
+// actionType
+const actionType = new GraphQLObjectType({
+    name: 'Action',  // Nombre en mayúsculas por convención para tipos de salida
+    description: 'Acciones de la aplicación',
     fields: () => ({
-        id: {
-            description: 'Unique ID.',
-            type: new GraphQLNonNull(GraphQLID),
+        action_id: {
+            type: GraphQLString
         },
-        path: {
-            description: 'Where it’s stored in the filesystem.',
-            type: new GraphQLNonNull(GraphQLString),
+        name: {
+            type: GraphQLString
         },
-        filename: {
-            description: 'Filename, including extension.',
-            type: new GraphQLNonNull(GraphQLString),
+        title: {
+            type: GraphQLString
         },
-        mimetype: {
-            description: 'MIME type.',
-            type: new GraphQLNonNull(GraphQLString),
+        description: {
+            type: GraphQLString
         },
     })
-})
+});
 
-export default FileType
+export default actionType

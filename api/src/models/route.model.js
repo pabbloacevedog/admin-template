@@ -2,7 +2,8 @@ import { Model, DataTypes } from 'sequelize';
 
 class Route extends Model {
     static associate(models) {
-        // this.belongsToMany(models.Role, { through: models.RoleRoute, foreignKey: 'route_id' });
+        this.belongsToMany(models.Role, { through: models.RoleRoute, foreignKey: 'route_id' });
+        this.belongsTo(models.Module, { foreignKey: 'module_id' });
     }
 }
 
@@ -17,6 +18,10 @@ const initializeRoute = (sequelize) => {
             type: DataTypes.STRING,
             allowNull: false
         },
+        title: {
+            type: DataTypes.STRING,
+            allowNull: false
+        },
         description: {
             type: DataTypes.STRING,
             allowNull: true
@@ -27,6 +32,10 @@ const initializeRoute = (sequelize) => {
         },
         icon: {
             type: DataTypes.STRING,
+            allowNull: true
+        },
+        module_id: {
+            type: DataTypes.INTEGER,
             allowNull: true
         },
     }, {

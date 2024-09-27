@@ -23,6 +23,7 @@ const AuthType = new GraphQLObjectType({
             type: GraphQLString
         },
         actions: { type: new GraphQLList(GraphQLString) },
+        routes: { type: new GraphQLList(GraphQLString) },
         user: { type: UserType },
         isAuth: { type: GraphQLBoolean}
     })

@@ -1,16 +1,17 @@
-// schema/user/queries.js
+// src/graphql/user/queries.js
+import { GraphQLList, GraphQLString, GraphQLNonNull } from 'graphql';
+import UserType from './type.js';  // Asegúrate de tener definido el UserType
+import { userResolver } from './resolvers.js';
 
-import { GraphQLList, GraphQLNonNull, GraphQLString } from 'graphql';
-import UserType from './type.js';
-import { userResolver } from  './resolvers.js';
-
-export const users = {
-    type: new GraphQLList(UserType),
-    resolve: userResolver.Query.users
+export const getUsers = {
+    type: new GraphQLList(UserType), // Retorna una lista de usuarios
+    resolve: userResolver.Query.getUsers
 };
 
-export const user = {
-    type: UserType,
-    args: { user_id: { type: new GraphQLNonNull(GraphQLString) } },
-    resolve: userResolver.Query.user
+export const getUserById = {
+    type: UserType,  // Retorna un solo usuario
+    args: {
+        userId: { type: new GraphQLNonNull(GraphQLString) }
+    },
+    resolve: userResolver.Query.getUserById
 };

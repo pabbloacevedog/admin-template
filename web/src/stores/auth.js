@@ -5,6 +5,7 @@ export const useAuthStore = defineStore("auth", {
     state: () => ({
         email: null,
         actions: null,
+        routes: null,
         error: null,
         user: null,
         verification_code: null,
@@ -132,6 +133,58 @@ export const useAuthStore = defineStore("auth", {
                 this.user = user;
                 // console.log(user, "userSettings ");
                 return user;
+            } catch (error) {
+                this.error = error.message;
+                throw error;
+            }
+        },
+        async userActions() {
+            const USERACTIONS_QUERY = gql`
+                query userActions {
+                    userActions {
+                        action_id
+                        name
+                        title
+                        description
+                    }
+                }
+            `;
+            try {
+                const response = await apolloClient.query({
+                    query: USERACTIONS_QUERY,
+                    fetchPolicy: "network-only",
+                });
+                const { userActions } = response.data;
+                this.actions = userActions;
+                return userActions;
+            } catch (error) {
+                this.error = error.message;
+                throw error;
+            }
+        },
+        async userRoutes() {
+            const USERACTIONS_QUERY = gql`
+                query userRoutes {
+                    userRoutes {
+                        route_id
+                        name
+                        title
+                        description
+                        path
+                        icon
+                        module_id
+                    }
+                }
+            `;
+            try {
+                const response = await apolloClient.query({
+                    query: USERACTIONS_QUERY,
+                    fetchPolicy: "network-only",
+                });
+                console.log(response.data);
+                const { userRoutes } = response.data;
+                this.routes = userRoutes;
+                return userRoutes;
             } catch (error) {
                 this.error = error.message;
                 throw error;

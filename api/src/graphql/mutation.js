@@ -4,6 +4,7 @@ import { GraphQLObjectType } from 'graphql';
 // Importa las mutaciones de cada modelo
 import * as authMutations from './auth/mutations.js';
 import * as userMutations from './user/mutations.js';
+import * as roleMutations from './role/mutations.js';
 // Mutation
 const mutation = new GraphQLObjectType({
     name: 'mutations',
@@ -11,7 +12,8 @@ const mutation = new GraphQLObjectType({
 
     fields: {
         ...authMutations,
-        ...userMutations
+        ...userMutations,
+        ...roleMutations,
     }
 });
 

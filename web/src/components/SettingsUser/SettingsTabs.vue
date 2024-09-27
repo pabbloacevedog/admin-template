@@ -1,5 +1,5 @@
 <template>
-    <q-splitter v-model="splitterModel">
+    <q-splitter v-model="splitterModel" class="bg-first">
         <template v-slot:before>
             <CardUserBig />
             <q-tabs v-model="activeTab" vertical indicator-color="transparent" inline-label class="q-pt-xl">
@@ -21,21 +21,21 @@
         </template>
 
         <template v-slot:after>
-            <q-tab-panels v-model="activeTab" animated swipeable vertical transition-prev="jump-up" transition-next="jump-up" class="q-pl-lg fit">
+            <q-tab-panels v-model="activeTab" animated swipeable vertical transition-prev="jump-up" transition-next="jump-up" class="q-pl-lg fit bg-first">
                 <q-tab-panel name="general" class="q-pa-none fit">
-                    <div class="q-py-lg q-px-xl bg-second div-rounded-radius fit">
+                    <div class="q-py-lg q-px-xl bg-second div-rounded-radius h-form">
                         <UserInfoForm />
                     </div>
                 </q-tab-panel>
 
                 <q-tab-panel name="security" class="q-pa-none fit">
-                    <div class="q-py-lg q-px-xl bg-second div-rounded-radius fit">
+                    <div class="q-py-lg q-px-xl bg-second div-rounded-radius h-form">
                         <SecurityForm />
                     </div>
                 </q-tab-panel>
 
                 <q-tab-panel name="theme" class="q-pa-none fit">
-                    <div class="q-py-lg q-px-xl bg-second div-rounded-radius fit">
+                    <div class="q-py-lg q-px-xl bg-second div-rounded-radius h-form">
                         <ThemeToggle />
                     </div>
 
@@ -62,5 +62,8 @@ const splitterModel = ref(20);
     text-align: left !important;
     justify-content: start !important;
     padding: 0px 0px !important;
+}
+.h-form{
+    min-height: 80vh !important;
 }
 </style>

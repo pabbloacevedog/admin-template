@@ -4,7 +4,6 @@ import { GraphQLString, GraphQLBoolean, GraphQLNonNull, GraphQLInputObjectType, 
 import GraphQLUpload from "graphql-upload/GraphQLUpload.mjs";
 import AuthType from './type.js';
 import UserType from '../user/type.js';
-import FileType from '../file/type.js';
 import { authResolver } from './resolvers.js';
 
 export const register = {

@@ -1,13 +1,13 @@
 import { Model, DataTypes } from 'sequelize';
 
-class RoleAction extends Model {
+class RoleRoute extends Model {
     static associate(models) {
         // Define associations here if needed
     }
 }
 
-const initializeRoleAction = (sequelize) => {
-    RoleAction.init({
+const initializeRoleRoute = (sequelize) => {
+    RoleRoute.init({
         role_id: {
             type: DataTypes.INTEGER,
             references: {
@@ -15,22 +15,22 @@ const initializeRoleAction = (sequelize) => {
                 key: 'role_id'
             }
         },
-        action_id: {
+        route_id: {
             type: DataTypes.INTEGER,
             references: {
-                model: 'action',
-                key: 'action_id'
+                model: 'route',
+                key: 'route_id'
             }
         },
     }, {
         sequelize,
-        tableName: 'role_action',
-        modelName: 'RoleAction',
+        tableName: 'role_route',
+        modelName: 'RoleRoute',
         timestamps: false,
     });
 
-    return RoleAction;
+    return RoleRoute;
 };
 
-export default initializeRoleAction;
+export default initializeRoleRoute;
 

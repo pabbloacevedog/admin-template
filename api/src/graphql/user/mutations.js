@@ -1,48 +1,54 @@
-// schema/user/mutations.js
-import { GraphQLNonNull, GraphQLString, GraphQLBoolean, GraphQLInt } from 'graphql';
-import UserType from './type.js';
+// src/graphql/user/mutations.js
+import { GraphQLString, GraphQLBoolean, GraphQLNonNull, GraphQLInputObjectType, GraphQLInt, GraphQLObjectType } from 'graphql';
+import UserType from './type.js'; // Asegúrate de tener definido el UserType
 import { userResolver } from './resolvers.js';
 
-export const addUser = {
-    type: UserType,
+export const createUser = {
+    type: UserType,  // El tipo de retorno será el UserType
     args: {
-        rut_user: { type: new GraphQLNonNull(GraphQLString) },
-        name: { type: new GraphQLNonNull(GraphQLString) },
-        username: { type: new GraphQLNonNull(GraphQLString) },
-        email: { type: new GraphQLNonNull(GraphQLString) },
-        personal_phone: { type: new GraphQLNonNull(GraphQLString) },
-        verification_code: { type: GraphQLString },
-        verified: { type: GraphQLBoolean },
-        state: { type: GraphQLString },
-        avatar: { type: GraphQLString },
-        role_id: { type: new GraphQLNonNull(GraphQLInt) }
+        input: {
+            type: new GraphQLNonNull(new GraphQLInputObjectType({
+                name: 'CreateUserInput',
+                fields: {
+                    email: { type: new GraphQLNonNull(GraphQLString) },
+                    name: { type: new GraphQLNonNull(GraphQLString) },
+                    password: { type: new GraphQLNonNull(GraphQLString) },
+                    rut_user: { type: GraphQLString },
+                    personal_phone: { type: GraphQLString },
+                    role_id: { type: new GraphQLNonNull(GraphQLInt) },
+                }
+            })),
+        },
     },
-    resolve: userResolver.Mutation.addUser
+    resolve: userResolver.Mutation.createUser
 };
 
-export const editUser = {
-    type: UserType,
+export const updateUser = {
+    type: UserType,  // Retorna el UserType actualizado
     args: {
-        user_id: { type: new GraphQLNonNull(GraphQLString) },
-        rut_user: { type: GraphQLString },
-        name: { type: GraphQLString },
-        username: { type: GraphQLString },
-        email: { type: GraphQLString },
-        personal_phone: { type: GraphQLString },
-        verification_code: { type: GraphQLString },
-        verified: { type: GraphQLBoolean },
-        state: { type: GraphQLString },
-        avatar: { type: GraphQLString },
-        role_id: { type: GraphQLInt }
+        userId: { type: new GraphQLNonNull(GraphQLString) },
+        input: {
+            type: new GraphQLNonNull(new GraphQLInputObjectType({
+                name: 'UpdateUserInput',
+                fields: {
+                    email: { type: GraphQLString },
+                    name: { type: GraphQLString },
+                    password: { type: GraphQLString },
+                    rut_user: { type: GraphQLString },
+                    personal_phone: { type: GraphQLString },
+                    verified: { type: GraphQLBoolean },
+                    role_id: { type: GraphQLInt },
+                }
+            })),
+        },
     },
-    resolve: userResolver.Mutation.editUser
+    resolve: userResolver.Mutation.updateUser
 };
 
-export const removeUser = {
-    type: GraphQLString,
+export const deleteUser = {
+    type: GraphQLString,  // Retorna un mensaje indicando si se eliminó con éxito
     args: {
-        user_id: { type: new GraphQLNonNull(GraphQLString) }
+        userId: { type: new GraphQLNonNull(GraphQLString) }
     },
-    resolve: userResolver.Mutation.removeUser
+    resolve: userResolver.Mutation.deleteUser
 };
-

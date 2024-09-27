@@ -5,7 +5,7 @@ import { GraphQLObjectType } from 'graphql';
 
 import * as authQueries from './auth/queries.js';
 import * as userQueries from './user/queries.js';
-
+import * as roleQueries from './role/queries.js';
 console.info(`INFO - Cargando queries.`);
 
 // Queries
@@ -15,7 +15,8 @@ const query = new GraphQLObjectType({
 
     fields: () => ({
         ...authQueries,
-        ...userQueries
+        ...userQueries,
+        ...roleQueries,
     })
 });
 

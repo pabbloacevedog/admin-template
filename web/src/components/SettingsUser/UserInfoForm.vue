@@ -1,5 +1,5 @@
 <template>
-    <div class="q-mt-none fit">
+    <div class="q-mt-none">
         <q-card class="bg-second" flat>
             <SubTitleSettingsPanel :subtitle="$t('settings.tabs.general.personal.subtitle')" :description="$t('settings.tabs.general.personal.description')" :icon="'account_circle'" />
             <q-separator class="q-my-sm q-mx-md" />
@@ -23,20 +23,6 @@
                     <q-input class="q-my-md" filled  v-model="form.rut_user" />
                 </q-card-section>
             </q-card-section>
-            <!-- <q-separator class="q-my-sm q-mx-md" />
-            <SubTitleSettingsPanel :subtitle="$t('settings.tabs.general.contact.subtitle')" :description="$t('settings.tabs.general.contact.description')" :icon="'contact_phone'" />
-            <q-separator class="q-my-sm q-mx-md" />
-            <q-card-section horizontal class="row">
-                <q-card-section class="col-6">
-                    <InputTitleSettingsPanel :title="$t('settings.account.personal_phone.title')" :description="$t('settings.account.personal_phone.description')" />
-                    <InputTitleSettingsPanel :title="$t('settings.account.rut_user.title')" :description="$t('settings.account.rut_user.description')" />
-                </q-card-section>
-
-                <q-card-section class="col-6">
-                    <q-input class="q-my-md" filled  v-model="form.personal_phone" />
-                    <q-input class="q-my-md" filled  v-model="form.rut_user" />
-                </q-card-section>
-            </q-card-section> -->
         </q-card>
 
     </div>
@@ -123,3 +109,5 @@ export default {
     name: 'UserInfoForm',
 }
 </script>
+<style lang="css">
+</style>

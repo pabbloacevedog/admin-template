@@ -160,7 +160,7 @@ const validateForm = () => {
     return isValid;
 };
 const onSubmit = async () => {
-    $q.loading.show()
+
     if (!validateForm()) {
         $q.notify({
             type: 'negative',
@@ -168,6 +168,7 @@ const onSubmit = async () => {
         });
         return;
     }
+    $q.loading.show()
     try {
         const user = await authStore.login({ email: email.value, password: password.value });
         // Guardar usuario en localStorage

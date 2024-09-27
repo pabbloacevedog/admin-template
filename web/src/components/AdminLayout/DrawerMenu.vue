@@ -4,28 +4,19 @@
             <q-list padding>
                 <div class="q-pa-sm">
                     <div class="row justify-center items-center column q-pb-sm ">
-                        <q-img :src="logoUrl" spinner-color="red" class="img-logo"/>
+                        <q-img :src="logoUrl" spinner-color="red" class="img-logo" />
                     </div>
-                    <q-item v-for="link in menu.links1" :key="link.text" v-ripple clickable :to="link.href"
-                        class="item-drawer-user q-my-sm">
-                        <q-item-section avatar class="icon-section-drawer-user">
-                            <q-icon :name="link.icon" />
-                        </q-item-section>
-                        <q-item-section class="text-section-drawer-user">
-                            <q-item-label>{{ link.text }}</q-item-label>
-                        </q-item-section>
-                    </q-item>
                     <q-item-label header class="text-weight-bold text-uppercase q-mt-md q-mb-xs text-theme">
                         Settings Admin
                     </q-item-label>
 
-                    <q-item v-for="link in menu.links3" :key="link.text" v-ripple clickable :to="link.href"
-                        class="item-drawer-user q-my-sm">
+                    <q-item v-for="route in routes" :key="route.name" v-ripple clickable :to="route.path" exact
+                        class="item-drawer-user q-my-sm" active-class="active-drawer-item">
                         <q-item-section avatar class="icon-section-drawer-user">
-                            <q-icon :name="link.icon" />
+                            <q-icon :name="route.icon" />
                         </q-item-section>
                         <q-item-section class="text-section-drawer-user">
-                            <q-item-label>{{ link.text }}</q-item-label>
+                            <q-item-label>{{ route.title }}</q-item-label>
                         </q-item-section>
                     </q-item>
                 </div>
@@ -35,7 +26,9 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
+import { useAuthStore } from 'stores/auth';
+const authStore = useAuthStore();
 // Recibimos el valor del v-model como prop
 const props = defineProps({
     leftDrawerOpen: Boolean, // El valor vinculado al v-model, en este caso un booleano para abrir/cerrar el drawer
@@ -43,25 +36,17 @@ const props = defineProps({
 import logoUrl from 'src/assets/logo.webp';
 // Definimos una variable local para manejar el valor del v-model
 const localModel = ref(props.modelValue);
-const menu = ref({
-    links1: [
-        { icon: 'dashboard', text: 'Dashboard', href: '/admin' },
-        { icon: 'whatshot', text: 'Trending' },
-        { icon: 'subscriptions', text: 'Subscriptions' }
-    ],
-    links2: [
-        { icon: 'folder', text: 'Library' },
-        { icon: 'restore', text: 'History' },
-        { icon: 'watch_later', text: 'Watch later' },
-        { icon: 'thumb_up_alt', text: 'Liked videos' }
-    ],
-    links3: [
-        { icon: 'camera', text: 'YouTube Premium' },
-        { icon: 'local_movies', text: 'Movies & Shows' },
-        { icon: 'videogame_asset', text: 'Gaming' },
-        { icon: 'manage_accounts', text: 'Account Settings', href: '/admin/settings' }
-    ],
-})
+const routes = ref();
+onMounted(async () => {
+    try {
+        const rou = await authStore.userRoutes();
+        routes.value = rou
+        console.log(rou, 'routes')
+
+    } catch (error) {
+        console.error('Error fetching user:', error);
+    }
+});
 </script>
 
 <style lang="css">
@@ -79,9 +64,11 @@ const menu = ref({
     padding: 6px 0px !important;
     min-width: 35px !important;
 }
-.img-logo{
+
+.img-logo {
     height: 100px;
     max-width: 200px;
-    border-radius:10px;
+    border-radius: 10px;
 }
+
 </style>

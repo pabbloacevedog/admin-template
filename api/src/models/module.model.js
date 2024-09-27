@@ -1,14 +1,14 @@
 import { Model, DataTypes } from 'sequelize';
 
-class Action extends Model {
+class Module extends Model {
     static associate(models) {
-        this.belongsToMany(models.Role, { through: models.RoleAction, foreignKey: 'action_id' });
+        this.belongsToMany(models.Route, { through: models.Route, foreignKey: 'module_id', otherKey: 'route_id' });
     }
 }
 
-const initializeAction = (sequelize) => {
-    Action.init({
-        action_id: {
+const initializeModule = (sequelize) => {
+    Module.init({
+        module_id: {
             type: DataTypes.INTEGER,
             primaryKey: true,
             autoIncrement: true
@@ -23,16 +23,16 @@ const initializeAction = (sequelize) => {
         },
         description: {
             type: DataTypes.STRING,
-            allowNull: true
+            allowNull: false
         },
     }, {
         sequelize,
-        tableName: 'action',
-        modelName: 'Action',
+        tableName: 'module',
+        modelName: 'Module',
         timestamps: false,
     });
 
-    return Action;
+    return Module;
 };
 
-export default initializeAction;
+export default initializeModule;

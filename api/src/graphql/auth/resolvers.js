@@ -189,7 +189,7 @@ export const authResolver = {
             const stream = createReadStream();
 
             // Define la ruta donde se guardará el archivo
-            const uploadDir = path.join(process.cwd(), 'public','uploads', 'users', userId, 'avatar');
+            const uploadDir = path.join(process.cwd(), 'public', 'uploads', 'users', userId, 'avatar');
 
             // Verifica si la carpeta existe, si no, la crea
             if (!existsSync(uploadDir)) {
@@ -224,8 +224,18 @@ export const authResolver = {
         login: async (_, { email, password }, { res }) => {
             console.log('password', password);
 
-            // Buscar el usuario por email
-            const user = await models.User.findOne({ where: { email } });
+            // Buscar el usuario por email y obtener el role.name
+            const user = await models.User.findOne({
+                where: { email },
+                include: [
+                    {
+                        model: models.Role,
+                        attributes: ['name'], // Solo trae el 'name' del Role
+                    },
+                ],
+                // attributes: { exclude: ['role_id'] } // Opcional: Excluye el role_id si no lo necesitas
+            });
+            // Verificar si el correo electrónico está registrado en la base de datos
             if (!user) throwCustomError(ErrorTypes.BAD_USER_INPUT);
 
             // Verificar si el correo electrónico está verificado
@@ -235,21 +245,13 @@ export const authResolver = {
             const passwordMatch = await bcrypt.compare(password, user.password);
             if (!passwordMatch) throwCustomError(ErrorTypes.BAD_USER_PASSWORD);
 
-            // Buscar el rol y las acciones asociadas
-            const role = await models.Role.findByPk(user.role_id, {
-                include: { model: models.Action, through: { attributes: [] } },
-            });
-            if (!role || !role.Actions) throwCustomError(ErrorTypes.NO_ACTIONS_FOR_ROLE);
-
-            // Mapear las acciones
-            const actions = role.Actions.map(action => action.name);
-
             // Crear el token JWT
             const result = {
                 user_id: user.user_id,
                 username: user.username,
                 email: user.email,
                 role_id: user.role_id,
+                role: user.Role.name,
                 avatar: user.avatar,
                 name: user.name,
             };
@@ -266,15 +268,36 @@ export const authResolver = {
 
             return {
                 user: result,
-                actions,
+                // actions,
+                // routes
             };
         },
 
         // Obtener configuración de usuario
-        userSettings: async (_, { userId }, { user }) => {
+        userSettings: async (_, { userId }, { user, res }) => {
             if (!user || user.user_id !== userId) throwCustomError(ErrorTypes.UNAUTHORIZED);
-            const userSettings = await models.User.findByPk(userId);
-            if (!user) throwCustomError(ErrorTypes.USER_NOT_FOUND);
+
+            // Buscar el usuario por email y obtener el role.name
+            const userSettings = await models.User.findOne({
+                where: { user_id: userId },
+                include: [
+                    {
+                        model: models.Role,
+                        attributes: ['name'], // Solo trae el 'name' del Role
+                    },
+                ],
+                // attributes: { exclude: ['role_id'] } // Opcional: Excluye el role_id si no lo necesitas
+            });
+            // Si no se encuentra el usuario, llamar a logout
+            if (!userSettings) {
+                console.log('No se encuentra el usuario',res)
+                res.clearCookie('token', {
+                    httpOnly: true,
+                    secure: process.env.NODE_ENV === 'production',
+                    sameSite: 'Strict',
+                });
+                throwCustomError(ErrorTypes.USER_NOT_FOUND); // Lanza el error después de cerrar sesión
+            }
             const result = {
                 user_id: userSettings.user_id,
                 rut_user: userSettings.rut_user,
@@ -286,22 +309,52 @@ export const authResolver = {
                 verified: userSettings.verified,
                 state: userSettings.state,
                 avatar: userSettings.avatar,
-                role_id: userSettings.role_id
+                role_id: userSettings.role_id,
+                role: userSettings.Role.name
             };
             return {
                 user: result,
             };
         },
+        // Obtener Acciones de usuario
+        userActions: async (_, __, { user }) => {
+            if (!user) throwCustomError(ErrorTypes.UNAUTHORIZED);
 
+            // Buscar el rol y las acciones asociadas
+            const roleActions = await models.Role.findByPk(user.role_id, {
+                include: { model: models.Action, through: { attributes: [] } },
+            });
+            if (!roleActions || !roleActions.Actions) throwCustomError(ErrorTypes.NO_ACTIONS_FOR_ROLE);
+            // Mapear las acciones
+            const actions = roleActions.Actions.map(action => action);
+            // console.log(actions, 'actions')
+            return actions
+        },
+        // Obtener Routes de usuario
+        userRoutes: async (_, __, { user }) => {
+            if (!user) throwCustomError(ErrorTypes.UNAUTHORIZED);
+
+            // Buscar el rol y las acciones asociadas
+            const roleRoutes = await models.Role.findByPk(user.role_id, {
+                include: { model: models.Route, through: { attributes: [] } },
+            });
+            if (!roleRoutes || !roleRoutes.Routes) throwCustomError(ErrorTypes.NO_ACTIONS_FOR_ROLE);
+
+            // Mapear las acciones
+            const routes = roleRoutes.Routes.map(route => route);
+            // console.log(routes, 'routes')
+            return routes
+        },
         // Verificar autenticación
         isAuth: async (_, __, { user }) => {
-            console.log('user is authenticated', user);
+            // console.log('user is authenticated', user);
             if (!user) throwCustomError(ErrorTypes.UNAUTHENTICATED);
             const result = {
                 user_id: user.user_id,
                 username: user.username,
                 email: user.email,
                 role_id: user.role_id,
+                role: user.role,
                 avatar: user.avatar
             };
             return {
@@ -312,7 +365,7 @@ export const authResolver = {
         isAuthBool: async (_, __, { user }) => {
             console.log('user is authenticated', user);
             var result = false;
-            if (user){
+            if (user) {
                 result = true;
             }
 
