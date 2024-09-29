@@ -1,7 +1,8 @@
 <template>
     <div class="text-start">
         <q-avatar :size="size_avatar" class="avatar-user">
-            <img :src="authStore.user?.avatar" alt="User Avatar" />
+            <img :src="user?.avatar" alt="User Avatar" v-if="user?.avatar"/>
+            <q-icon v-else name="account_circle" color="second" size="2.1em" />
         </q-avatar>
         <!-- Input para subir archivo -->
         <input type="file" ref="fileInput" @change="handleFileChange" style="display: none;" id="fileUpload" />
@@ -42,11 +43,14 @@ const nameAvatar = ref(null);
 
 const props = defineProps({
     size_avatar: String,
+    user: {
+        type: Object,
+        default: () => ({}),
+    },
 });
 const selectFile = () => {
     fileInput.value.click();
 };
-const user = ref(authStore.user);
 const handleFileChange = async (event) => {
     const file = event.target.files[0]
     if (file) {

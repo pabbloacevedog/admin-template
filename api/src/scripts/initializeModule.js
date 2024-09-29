@@ -107,7 +107,7 @@ export async function initializeModule(models) {
     const rolesArray = [
         {
             name: 'admin',
-            title: 'Admin',
+            title: 'Administrator',
             description: 'The administrator role has full access to all features and settings in the system, including user management and system configuration.'
         },
         {

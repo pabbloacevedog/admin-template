@@ -1,5 +1,6 @@
 // src/graphql/user/resolvers.js
 import bcrypt from 'bcryptjs';
+import { Op } from 'sequelize';
 import models from '../../models/index.js';
 import throwCustomError, { ErrorTypes } from '../../helpers/error-handler.helper.js';
 import { getSuccessMessage } from '../../helpers/success-handler.helper.js';
@@ -13,11 +14,10 @@ export const userResolver = {
 
             if (existingUser) throwCustomError(ErrorTypes.USER_ALREADY_EXISTS);
 
-            const hashedPassword = await bcrypt.hash(password, 10);
             const newUser = await models.User.create({
                 ...rest,
                 email,
-                password: hashedPassword,
+                password: password,
             });
 
             return newUser;
@@ -54,17 +54,43 @@ export const userResolver = {
         // Obtener todos los usuarios
         getUsers: async () => {
             const users = await models.User.findAll({
-                include: [
-                    {
-                        model: models.Role,
-                        required: true
-                    },
-                ],
+                include: [models.Role],
             });
-            // console.log(users[0], 'users');
+            console.log(users[0], 'users');
             return users;
         },
+        // Obtener todos los usuarios
+        getAllUsers: async (_, { filter, pagination }) => {
+            try {
+                // Lógica para obtener usuarios de la base de datos, por ejemplo con Sequelize
+                const users = await models.User.findAll({
+                    // Aplica la paginación y filtros aquí
+                    where: {
+                        name: {
+                            [Op.like]: `%${filter.search}%`
+                        }
+                    },
+                    limit: pagination.rowsPerPage,
+                    offset: (pagination.page - 1) * pagination.rowsPerPage,
+                    include: [models.Role] // Si también necesitas incluir el rol
+                });
 
+                const totalUsers = await models.User.count({
+                    where: {
+                        name: {
+                            [Op.like]: `%${filter.search}%`
+                        }
+                    }
+                });
+
+                return {
+                    users,
+                    totalUsers
+                };
+            } catch (error) {
+                throw new Error('Error al obtener los usuarios' + error);
+            }
+        },
         // Obtener un usuario por ID
         getUserById: async (_, { userId }) => {
             const user = await models.User.findByPk(userId, {

@@ -8,6 +8,13 @@ export const useUserStore = defineStore("user", {
         error: null,
         message: null,
         isUserFetched: false,
+        users: [],
+        totalUsers: 0,
+        error: null,
+        pagination: {
+            page: 1,
+            rowsPerPage: 10,
+        },
     }),
     actions: {
         async fetchUserById(userId) {
@@ -47,39 +54,93 @@ export const useUserStore = defineStore("user", {
                 throw error;
             }
         },
-        async getAllUsers() {
+        async getAllUsers(search, page, rowsPerPage) {
+            // Modificamos el query para aceptar los parámetros de búsqueda y paginación
             const ALL_USERS_QUERY = gql`
-                query {
-                    getUsers {
-                        user_id
-                        rut_user
-                        name
-                        username
-                        email
-                        personal_phone
-                        avatar
-                        role_id
-                        role {
-                            role_id
+                query getAllUsers ($filter: FilterInput, $pagination: PaginationInput!) {
+                    getAllUsers(pagination: $pagination, filter: $filter) {
+                        users {
+                            user_id
+                            rut_user
                             name
-                            title
-                            description
+                            username
+                            email
+                            personal_phone
+                            avatar
+                            role_id
+                            role {
+                                role_id
+                                name
+                                title
+                                description
+                            }
                         }
+                        totalUsers
                     }
                 }
-            `;
+                `;
+            const variables = {
+                pagination: {
+                    page,
+                    rowsPerPage
+                },
+                filter: {
+                    search
+                }
+            };
             try {
+                // Ejecutamos la consulta con el filtro de búsqueda y paginación
                 const response = await apolloClient.query({
                     query: ALL_USERS_QUERY,
-                    fetchPolicy: "network-only",
+                    variables,
+                    fetchPolicy: 'network-only',
                 });
-                this.users = response.data.getUsers;  // Almacena todos los usuarios en el estado
-                return this.users;
+                const { users, totalUsers } = response.data.getAllUsers
+                // Almacenamos los usuarios en el estado
+                this.users = users
+
+                // Almacenamos el número total de usuarios
+                this.totalUsers = totalUsers
+
+                return { users: this.users, totalUsers: this.totalUsers };
             } catch (error) {
                 this.error = error.message;
                 throw error;
             }
         },
+        // async getAllUsers() {
+        //     const ALL_USERS_QUERY = gql`
+        //         query {
+        //             getUsers {
+        //                 user_id
+        //                 rut_user
+        //                 name
+        //                 username
+        //                 email
+        //                 personal_phone
+        //                 avatar
+        //                 role_id
+        //                 role {
+        //                     role_id
+        //                     name
+        //                     title
+        //                     description
+        //                 }
+        //             }
+        //         }
+        //     `;
+        //     try {
+        //         const response = await apolloClient.query({
+        //             query: ALL_USERS_QUERY,
+        //             fetchPolicy: "network-only",
+        //         });
+        //         this.users = response.data.getUsers;  // Almacena todos los usuarios en el estado
+        //         return this.users;
+        //     } catch (error) {
+        //         this.error = error.message;
+        //         throw error;
+        //     }
+        // },
         async updateUser(updatedUser) {
             const UPDATE_USER_MUTATION = gql`
                 mutation UpdateUser($userId: String!, $input: UserUpdateInput!) {

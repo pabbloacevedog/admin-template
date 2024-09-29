@@ -146,6 +146,12 @@ $warning: #f2c037;
     .active-drawer-item {
         background-color: $dark !important;
     }
+    .q-table thead, .q-table tr, .q-table th, .q-table td {
+        border-color: #151515;
+    }
+    .chip-total-users .q-chip__content{
+        color: $light;
+    }
 }
 .q-avatar {
     border: 0px solid #fff !important;
@@ -208,6 +214,12 @@ $warning: #f2c037;
     .active-drawer-item {
         background-color: $light !important;
     }
+    .q-table thead, .q-table tr, .q-table th, .q-table td {
+        border-color: #f0f0f0;
+    }
+    .chip-total-users .q-chip__content{
+        color: $dark;
+    }
 }
 
 .q-tab__content {
@@ -218,4 +230,12 @@ $warning: #f2c037;
 .input-none-used.q-field--filled.q-field--dark .q-field__control,
 .q-field--filled.q-field--dark .q-field__control:before {
     background: rgba(255, 255, 255, 0);
+}
+
+.q-field--outlined .q-field__control {
+    border-radius: 10px;
+
+}
+.q-table__top {
+    padding: 0px;
 }

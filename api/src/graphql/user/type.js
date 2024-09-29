@@ -1,6 +1,7 @@
 // schema/user/type.js
-import { GraphQLObjectType, GraphQLString, GraphQLBoolean, GraphQLNonNull, GraphQLInt } from 'graphql';
+import { GraphQLObjectType, GraphQLString, GraphQLBoolean, GraphQLNonNull, GraphQLInt, GraphQLInputObjectType } from 'graphql';
 import RoleType from  '../role/type.js';
+// Input para los usuarios
 const UserType = new GraphQLObjectType({
     name: 'UserType',
     fields: () => ({
@@ -16,8 +17,28 @@ const UserType = new GraphQLObjectType({
         state: { type: GraphQLString },
         avatar: { type: GraphQLString },
         role_id: { type: GraphQLInt },
-        role: { type: RoleType }
+        role: {
+            type: RoleType,
+            resolve: (user) => {
+                return user.Role; // Asegúrate de que Sequelize devuelva el modelo 'Role'
+            }
+        }
     })
 });
+// Input para paginación
+const PaginationInput = new GraphQLInputObjectType({
+    name: 'PaginationInput',
+    fields: {
+        page: { type: GraphQLInt },
+        rowsPerPage: { type: GraphQLInt }
+    }
+});
 
-export default UserType;
+// Input para filtros
+const FilterInput = new GraphQLInputObjectType({
+    name: 'FilterInput',
+    fields: {
+        search: { type: GraphQLString },
+    }
+});
+export { PaginationInput, FilterInput, UserType };

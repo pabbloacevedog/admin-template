@@ -1,11 +1,11 @@
 <template>
-    <div class="q-mt-none fit">
+    <div class="q-mt-none">
         <q-card class="bg-second fit" flat>
             <SubTitleSettingsPanel :subtitle="$t('settings.tabs.security.title')"
                 :description="$t('settings.tabs.security.description')" :icon="'fingerprint'" />
             <q-separator class="q-my-sm q-mx-md" />
             <q-card-section horizontal>
-                <q-card-section class="col-6">
+                <q-card-section class="col-5 q-pr-none">
                     <InputTitleSettingsPanel :title="$t('settings.account.current_password.title')"
                         :description="$t('settings.account.current_password.description')" />
                         <InputTitleSettingsPanel :title="$t('settings.account.new_password.title')"
@@ -14,7 +14,7 @@
                         :description="$t('settings.account.confirm_password.description')" />
                 </q-card-section>
 
-                <q-card-section class="col-6">
+                <q-card-section class="col-7 q-pl-none">
                     <q-input filled type="password" :label="$t('settings.security.current_password')"
                         v-model="form.currentPassword" :error="errors.currentPassword"
                         :error-message="errors.currentPasswordMsg" />

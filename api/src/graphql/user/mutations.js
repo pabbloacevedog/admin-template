@@ -1,6 +1,6 @@
 // src/graphql/user/mutations.js
 import { GraphQLString, GraphQLBoolean, GraphQLNonNull, GraphQLInputObjectType, GraphQLInt, GraphQLObjectType } from 'graphql';
-import UserType from './type.js'; // Asegúrate de tener definido el UserType
+import {UserType} from './type.js'; // Asegúrate de tener definido el UserType
 import { userResolver } from './resolvers.js';
 
 export const createUser = {
@@ -13,6 +13,7 @@ export const createUser = {
                     email: { type: new GraphQLNonNull(GraphQLString) },
                     name: { type: new GraphQLNonNull(GraphQLString) },
                     password: { type: new GraphQLNonNull(GraphQLString) },
+                    username: { type: GraphQLString },
                     rut_user: { type: GraphQLString },
                     personal_phone: { type: GraphQLString },
                     role_id: { type: new GraphQLNonNull(GraphQLInt) },
@@ -34,6 +35,7 @@ export const updateUser = {
                     email: { type: GraphQLString },
                     name: { type: GraphQLString },
                     password: { type: GraphQLString },
+                    username: { type: GraphQLString },
                     rut_user: { type: GraphQLString },
                     personal_phone: { type: GraphQLString },
                     verified: { type: GraphQLBoolean },

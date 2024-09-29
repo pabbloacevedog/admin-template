@@ -35,8 +35,8 @@
                                 class="full-width q-mb-md btn-border-radius" />
                         </q-form>
                     </div>
-                    <div v-if="isRemember" class="justify-center q-mb-md q-px-xl">
-                        <div v-if="!clickUserRemember">
+                    <div v-if="isRemember" class="justify-center  q-mb-md q-px-xl">
+                        <div v-if="!clickUserRemember" class="remembered-users-container">
                             <div v-for="(reus, index) in rememberedUsers" :key="index" class="q-mb-lg ">
                                 <q-card class="cursor-pointer card-remember-user" flat bordered
                                     @click="selectRememberUser(reus)">
@@ -52,6 +52,10 @@
                                             <q-item-label caption>
                                                 {{ reus.email }}
                                             </q-item-label>
+                                        </q-item-section>
+                                        <q-item-section side>
+                                            <q-btn flat round icon="close" @click.stop="removeRememberUser(reus.email)"
+                                                color="negative" />
                                         </q-item-section>
                                     </q-item>
                                 </q-card>
@@ -203,7 +207,13 @@ const loadRememberedUsers = () => {
         isRemember.value = true;
     }
 };
-
+//Elimina el email de los recordados
+const removeRememberUser = (email) => {
+    let users = JSON.parse(localStorage.getItem('rememberedUsers')) || [];
+    users = users.filter(u => u.email !== email); // Eliminar usuario por email
+    localStorage.setItem('rememberedUsers', JSON.stringify(users));
+    rememberedUsers.value = users; // Actualizar la lista en la vista
+};
 // Permitir seleccionar un usuario diferente
 const selectDifferentUser = () => {
     isRemember.value = false;
@@ -317,7 +327,10 @@ onMounted(() => {
     overflow: hidden;
     /* Esconde cualquier contenido que se desborde */
 }
-
+.remembered-users-container {
+    max-height: 380px; /* Ajusta la altura máxima según lo que necesites */
+    overflow-y: auto;  /* Habilita el scroll vertical */
+}
 .full-size {
     position: absolute;
     /* Para que la imagen se posicione respecto a su contenedor */

@@ -5,8 +5,8 @@
             <q-avatar color="primary" text-color="white" :icon="icon" />
         </q-item-section>
         <q-item-section class="q-pa-none">
-            <q-item-label class="title-section-menu-settings">{{ title}}</q-item-label>
-            <q-item-label caption style="font-size: 10px;" class="description-section-menu-settings" no-caps>
+            <q-item-label class="title-section-menu-settings ellipsis">{{ title}}</q-item-label>
+            <q-item-label caption style="font-size: 10px;" class="description-section-menu-settings ellipsis" no-caps>
                 {{ description}}
             </q-item-label>
         </q-item-section>

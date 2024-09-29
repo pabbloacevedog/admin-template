@@ -1,7 +1,7 @@
 <template>
     <div class="row q-my-none justify-between items-center">
         <div class="col-12 q-pl-xs bg-second div-rounded-radius">
-            <q-item class="q-pl-md q-py-sm item-panel-settings" v-ripple>
+            <q-item class="q-pl-md q-py-md item-panel-settings">
                 <q-item-section avatar top>
                     <q-avatar color="first" :icon="icon" />
                 </q-item-section>
@@ -12,7 +12,7 @@
             </q-item-label>
                 </q-item-section>
                 <div class="flex justify-end" v-if="btn_create">
-                    <q-btn :label="label_btn" color="primary" class="btn-border-radius" @click="btn_create" />
+                    <q-btn :label="label_btn" :icon="icon_btn" color="primary" class="btn-border-radius" @click="btn_create" />
                 </div>
             </q-item>
         </div>
@@ -27,6 +27,7 @@ const props = defineProps({
     description: String,
     icon: String,
     label_btn: String,
+    icon_btn: String,
     btn_create: {
         type: Function,
         default: null, // Si no se pasa la función, será null

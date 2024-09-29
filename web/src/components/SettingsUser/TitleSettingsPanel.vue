@@ -1,6 +1,6 @@
 <template>
 
-    <q-item class="q-pl-md q-py-sm item-panel-settings" v-ripple>
+    <q-item class="q-pl-md q-py-sm item-panel-settings">
         <q-item-section avatar top>
             <q-avatar color="first" :icon="icon" />
         </q-item-section>

@@ -91,6 +91,45 @@ export default {
         title: "User Management",
         description: "Manage your team members and their account permissions.",
         icon:'supervised_user_circle',
+        btn_create: "Add user",
+        account: {
+            rut_user: {
+                title: "Personal DNI ",
+                description: "Write the personal ID",
+            },
+            name: {
+                title: "Full Name",
+                description: "Write the full name",
+            },
+            username: {
+                title: "Username",
+                description: "Chose a username",
+            },
+            email: {
+                title: "Email address",
+                description: "Email linked to the account",
+            },
+            personal_phone: {
+                title: "Phone",
+                description: "Write the current phone",
+            },
+            avatar: {
+                title: "Avatar",
+                description: "The profile photo",
+            },
+            password: {
+                title: "Password",
+                description: "Write the password",
+            }
+        },
+        edit: {
+            title: "Update data user",
+            description: "Complete all data user",
+        },
+        create: {
+            title: "Create a new user",
+            description: "Complete all data user",
+        },
     },
     roles: {
         title: "Role Management",

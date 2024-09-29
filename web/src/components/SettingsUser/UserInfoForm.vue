@@ -1,34 +1,41 @@
 <template>
     <div class="q-mt-none">
         <q-card class="bg-second" flat>
-            <SubTitleSettingsPanel :subtitle="$t('settings.tabs.general.personal.subtitle')" :description="$t('settings.tabs.general.personal.description')" :icon="'account_circle'" />
+            <SubTitleSettingsPanel :subtitle="$t('settings.tabs.general.personal.subtitle')"
+                :description="$t('settings.tabs.general.personal.description')" :icon="'account_circle'" />
             <q-separator class="q-my-sm q-mx-md" />
             <q-card-section horizontal>
-                <q-card-section class="col-6">
+                <q-card-section class="col-5 q-pr-none">
                     <!-- <q-input class="q-my-md bg-second input-none-used" filled :label="$t('settings.account.name')" readonly/> -->
-                    <InputTitleSettingsPanel :title="$t('settings.account.avatar.title')" :description="$t('settings.account.avatar.description')" style="height:110px !important;"/>
-                    <InputTitleSettingsPanel :title="$t('settings.account.name.title')" :description="$t('settings.account.name.description')" />
-                    <InputTitleSettingsPanel :title="$t('settings.account.username.title')" :description="$t('settings.account.username.description')" />
-                    <InputTitleSettingsPanel :title="$t('settings.account.email.title')" :description="$t('settings.account.email.description')"/>
-                    <InputTitleSettingsPanel :title="$t('settings.account.personal_phone.title')" :description="$t('settings.account.personal_phone.description')" />
-                    <InputTitleSettingsPanel :title="$t('settings.account.rut_user.title')" :description="$t('settings.account.rut_user.description')" />
+                    <InputTitleSettingsPanel :title="$t('settings.account.avatar.title')"
+                        :description="$t('settings.account.avatar.description')" style="height:110px !important;" />
+                    <InputTitleSettingsPanel :title="$t('settings.account.name.title')"
+                        :description="$t('settings.account.name.description')" />
+                    <InputTitleSettingsPanel :title="$t('settings.account.username.title')"
+                        :description="$t('settings.account.username.description')" />
+                    <InputTitleSettingsPanel :title="$t('settings.account.email.title')"
+                        :description="$t('settings.account.email.description')" />
+                    <InputTitleSettingsPanel :title="$t('settings.account.personal_phone.title')"
+                        :description="$t('settings.account.personal_phone.description')" />
+                    <InputTitleSettingsPanel :title="$t('settings.account.rut_user.title')"
+                        :description="$t('settings.account.rut_user.description')" />
                 </q-card-section>
 
-                <q-card-section class="col-6">
-                    <AvatarUploader :size_avatar="'100px'"/>
-                    <q-input class="q-my-md" filled  v-model="form.name" />
-                    <q-input class="q-my-md" filled  v-model="form.username" />
-                    <q-input class="q-my-md" filled  v-model="form.email" disable readonly />
-                    <q-input class="q-my-md" filled  v-model="form.personal_phone" />
-                    <q-input class="q-my-md" filled  v-model="form.rut_user" />
+                <q-card-section class="col-7 q-pl-none">
+                    <AvatarUploader :size_avatar="'100px'" />
+                    <q-input class="q-my-md" filled v-model="form.name" />
+                    <q-input class="q-my-md" filled v-model="form.username" />
+                    <q-input class="q-my-md" filled v-model="form.email" disable readonly />
+                    <q-input class="q-my-md" filled v-model="form.personal_phone" />
+                    <q-input class="q-my-md" filled v-model="form.rut_user" />
                 </q-card-section>
             </q-card-section>
         </q-card>
+        <div class="q-ma-md flex justify-end">
+            <q-btn label="Save Changes" color="primary" class="btn-border-radius" @click="saveChanges" />
+        </div>
+    </div>
 
-    </div>
-    <div class="q-ma-md flex justify-end">
-        <q-btn label="Save Changes" color="primary" class="btn-border-radius" @click="saveChanges" />
-    </div>
 </template>
 
 <script setup>
@@ -109,5 +116,4 @@ export default {
     name: 'UserInfoForm',
 }
 </script>
-<style lang="css">
-</style>
+<style lang="css"></style>

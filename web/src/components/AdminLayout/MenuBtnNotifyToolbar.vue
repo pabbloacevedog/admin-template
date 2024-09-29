@@ -1,24 +1,25 @@
 <template>
-    <q-menu auto-close fit class="btn-toolbar menu-user-top no-shadow">
+    <q-menu auto-close fit class="btn-toolbar menu-user-top shadow-menu-user">
         <q-list>
-            <div class="q-pa-sm">
+            <div class="q-px-md">
                 <q-item clickable class="item-menu-user">
                     <q-item-section class="q-pa-xs">
-                        <q-item-label style="font-size: 16px;">
+                        <div class="text-h6 text-center q-mt-sm q-mb-xs text-theme ellipsis">
                             Notifications
-                        </q-item-label>
+                        </div>
                     </q-item-section>
 
                 </q-item>
+                <q-separator class="q-my-xs" />
                 <q-item clickable class="item-menu-user">
-                    <q-item-section avatar class="icon-section-menu-user">
+                    <q-item-section avatar class="icon-section-menu-user q-my-xs">
                         <q-icon name="mail_outline" size="20px" />
                     </q-item-section>
                     <q-item-section class="text-section-menu-user">
                         Tienes 5 mensajes
                     </q-item-section>
                 </q-item>
-                <q-item clickable class="item-menu-user">
+                <q-item clickable class="item-menu-user q-mb-md">
                     <q-item-section avatar class="icon-section-menu-user">
                         <q-icon name="check_circle_outline" size="20px" />
                     </q-item-section>

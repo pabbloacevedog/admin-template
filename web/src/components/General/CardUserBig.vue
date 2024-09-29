@@ -4,12 +4,12 @@
         <q-avatar size="120px">
             <img :src="authStore.user?.avatar">
         </q-avatar>
-        <div class="text-h4 text-center q-mt-lg q-mb-sm text-theme">{{ authStore.user?.name }}</div>
-        <q-item-label caption style="font-size: 14px;" class="text-theme q-mb-md ">
+        <div class="text-h5 text-center q-mt-lg q-mb-sm text-theme ellipsis">{{ authStore.user?.name }}</div>
+        <q-item-label caption style="font-size: 14px;" class="text-theme q-mb-md ellipsis">
             {{ authStore.user?.email }}
         </q-item-label>
         <q-chip  color="primary" text-color="white" icon="attribution">
-            Administrator
+            {{ authStore.user?.role }}
         </q-chip>
     </div>
 </template>
