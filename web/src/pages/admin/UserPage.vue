@@ -1,15 +1,15 @@
 <template>
     <q-page class="q-px-lg q-py-xs">
-        <!-- <TitlePages :title="$t('users.title') "
-        :description="$t('users.description')" :icon="'group_add'"  /> -->
-        <q-item class="q-mr-none" style="padding: 0px 0px;">
+        <TitlePages :title="$t('users.title') "
+        :description="$t('users.description')" :icon="'group_add'"  />
+        <!-- <q-item class="q-mr-none" style="padding: 0px 0px;">
             <q-item-section class="q-pa-none">
                 <q-item-label class="title-panel-users">{{ $t('users.title') }}</q-item-label>
                 <q-item-label caption class="description-panel-users" no-caps>
                     {{ $t('users.description') }}
                 </q-item-label>
             </q-item-section>
-        </q-item>
+        </q-item> -->
 
         <div class="col-12 q-py-none">
             <div class="div-rounded-radius">
@@ -56,7 +56,7 @@
                             </template>
 
                             <template v-slot:body="props">
-                                <q-tr :props="props" @click="showing = true">
+                                <q-tr :props="props">
                                     <q-td key="name" :props="props">
                                         <ItemUserTable :user="props.row" />
                                     </q-td>
@@ -67,8 +67,8 @@
                                         <ItemRoleTable :user="props.row" />
                                     </q-td>
                                     <q-td key="actions" :props="props">
-                                        <q-btn round icon="edit" flat size="md" @click="editUser(props.row)" />
-                                        <q-btn flat size="md" round icon="delete_outline"
+                                        <q-btn v-if="props.row.user_id != authStore.user?.user_id" round icon="edit" flat size="md" @click="editUser(props.row)" />
+                                        <q-btn flat v-if="props.row.user_id != authStore.user?.user_id" size="md" round icon="delete_outline"
                                             @click="deleteUser(props.row)" />
                                     </q-td>
                                 </q-tr>
@@ -86,7 +86,7 @@
             </div>
         </div>
 
-        <UserFormModal v-if="showModal" :isOpen="showModal" :user="selectedUser" @close="closeModal"
+        <UserFormModal v-if="userStore.show_modal_user" :user="selectedUser" @close="closeModal"
             @save="fetchUsers" />
     </q-page>
 </template>
@@ -98,11 +98,13 @@ import UserFormModal from 'components/Users/UserFormModal.vue';
 import ItemUserTable from 'components/Users/ItemUserTable.vue';
 import ItemRoleTable from 'components/Users/ItemRoleTable.vue';
 import TitlePages from 'components/General/TitlePages.vue';
+import { useAuthStore } from 'stores/auth';
+const authStore = useAuthStore();
 const userStore = useUserStore();
 const users = ref([]);
 const totalUsers = ref(0);
 const search = ref('');
-const showModal = ref(false);
+
 const selectedUser = ref(null);
 
 const pagination = ref({
@@ -156,12 +158,12 @@ const clearSearch = () => {
 
 const showCreateUserModal = () => {
     selectedUser.value = null;
-    showModal.value = true;
+    userStore.show_modal_user = true;
 };
 
 const editUser = (user) => {
     selectedUser.value = user;
-    showModal.value = true;
+    userStore.show_modal_user = true;
 };
 
 const deleteUser = async (userId) => {
@@ -170,7 +172,7 @@ const deleteUser = async (userId) => {
 };
 
 const closeModal = () => {
-    showModal.value = false;
+    userStore.show_modal_user = false;
 };
 
 onMounted(fetchUsers);

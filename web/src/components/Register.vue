@@ -9,7 +9,7 @@
                     <div class="text-h6 text-second text-center q-ma-lg">{{ $t('register.description') }}</div>
                     <q-form @submit="onSubmit" autocomplete="on">
                         <q-input v-model="name" :label="$t('register.name')" type="text" filled class="q-mb-md"
-                            autocomplete="name" :error="errors.name" :error-message="errors.namelMsg" />
+                            autocomplete="name" :error="errors.name" :error-message="errors.nameMsg" />
                         <q-input v-model="email" :label="$t('register.email')" type="email" filled class="q-mb-md"
                             autocomplete="email" :error="errors.email" :error-message="errors.emailMsg" />
                         <q-input v-model="password" :label="$t('register.pass')" type="password" filled class="q-mb-md"
@@ -57,41 +57,90 @@ const errors = ref({
     name: false,
     nameMsg: '',
 });
-// Validación de contraseñas
 const validateForm = () => {
     let isValid = true;
 
-    // Verificar si la nueva contraseña está vacía
-    if (!password.value) {
-        errors.value.password = true;
-        errors.value.passwordMsg = t('register.errors.password_required');
-        isValid = false;
-    } else {
-        errors.value.password = false;
-        errors.value.passwordMsg = '';
-    }
-    // Verificar si la nueva contraseña está vacía
-    if (!email.value) {
-        errors.value.email = true;
-        errors.value.emailMsg = t('register.errors.email_required');
-        isValid = false;
-    } else {
-        errors.value.email = false;
-        errors.value.emailMsg = '';
-    }
-    // Verificar si la nueva contraseña está vacía
+    // Validar el nombre (al menos 5 caracteres)
     if (!name.value) {
         errors.value.name = true;
         errors.value.nameMsg = t('register.errors.name_required');
+        isValid = false;
+    } else if (name.value.length < 3) {
+        errors.value.name = true;
+        errors.value.nameMsg = t('register.errors.name_min_length');
         isValid = false;
     } else {
         errors.value.name = false;
         errors.value.nameMsg = '';
     }
+
+    // Validar el email (formato válido)
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!email.value) {
+        errors.value.email = true;
+        errors.value.emailMsg = t('register.errors.email_required');
+        isValid = false;
+    } else if (!emailPattern.test(email.value)) {
+        errors.value.email = true;
+        errors.value.emailMsg = t('register.errors.email_invalid');
+        isValid = false;
+    } else {
+        errors.value.email = false;
+        errors.value.emailMsg = '';
+    }
+
+    // Validar la contraseña (al menos 6 caracteres, una mayúscula y un número)
+    const passwordPattern = /^(?=.*[A-Z])(?=.*\d).{6,}$/;
+    if (!password.value) {
+        errors.value.password = true;
+        errors.value.passwordMsg = t('register.errors.password_required');
+        isValid = false;
+    } else if (!passwordPattern.test(password)) {
+        errors.value.password = true;
+        errors.value.passwordMsg = t('register.errors.password_invalid');
+        isValid = false;
+    } else {
+        errors.value.password = false;
+        errors.value.passwordMsg = '';
+    }
+
     return isValid;
 };
+// Validación de contraseñas
+// const validateForm = () => {
+//     let isValid = true;
+
+//     // Verificar si la nueva contraseña está vacía
+//     if (!password.value) {
+//         errors.value.password = true;
+//         errors.value.passwordMsg = t('register.errors.password_required');
+//         isValid = false;
+//     } else {
+//         errors.value.password = false;
+//         errors.value.passwordMsg = '';
+//     }
+//     // Verificar si la nueva contraseña está vacía
+//     if (!email.value) {
+//         errors.value.email = true;
+//         errors.value.emailMsg = t('register.errors.email_required');
+//         isValid = false;
+//     } else {
+//         errors.value.email = false;
+//         errors.value.emailMsg = '';
+//     }
+//     // Verificar si la nueva contraseña está vacía
+//     if (!name.value) {
+//         errors.value.name = true;
+//         errors.value.nameMsg = t('register.errors.name_required');
+//         isValid = false;
+//     } else {
+//         errors.value.name = false;
+//         errors.value.nameMsg = '';
+//     }
+//     return isValid;
+// };
 const onSubmit = async () => {
-    $q.loading.show()
+
     if (!validateForm()) {
         $q.notify({
             type: 'negative',
@@ -99,6 +148,7 @@ const onSubmit = async () => {
         });
         return;
     }
+    $q.loading.show()
     await authStore.register({ name: name.value, email: email.value, password: password.value }).then(response => {
         console.log('response: ' + response)
         $q.notify({

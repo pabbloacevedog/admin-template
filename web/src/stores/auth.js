@@ -108,7 +108,7 @@ export const useAuthStore = defineStore("auth", {
                     userSettings(userId: $userId) {
                         user {
                             user_id
-                            rut_user
+                            # rut_user
                             name
                             username
                             email
@@ -191,15 +191,15 @@ export const useAuthStore = defineStore("auth", {
             }
         },
         async updateUserSettings(updatedUser) {
-            const UPDATE_USER_MUTATION = gql`
-                mutation UpdateUser(
+            const UPDATE_ACCOUNT_MUTATION = gql`
+                mutation updateAccount(
                     $userId: String!
                     $input: UserUpdateInput!
                 ) {
-                    updateUser(userId: $userId, input: $input) {
+                    updateAccount(userId: $userId, input: $input) {
                         user{
                             user_id
-                            rut_user
+                            # rut_user
                             name
                             username
                             email
@@ -216,7 +216,7 @@ export const useAuthStore = defineStore("auth", {
             `;
             try {
                 const response = await apolloClient.mutate({
-                    mutation: UPDATE_USER_MUTATION,
+                    mutation: UPDATE_ACCOUNT_MUTATION,
                     variables: {
                         userId: updatedUser.user_id,
                         input: {
@@ -224,14 +224,14 @@ export const useAuthStore = defineStore("auth", {
                             username: updatedUser.username,
                             email: updatedUser.email,
                             personal_phone: updatedUser.personal_phone,
-                            rut_user: updatedUser.rut_user,
+                            // rut_user: updatedUser.rut_user,
                             verified: updatedUser.verified,
                             avatar: updatedUser.avatar,
                             role_id: updatedUser.role_id,
                         },
                     },
                 });
-                const { user, message } =  response.data.updateUser;
+                const { user, message } =  response.data.updateAccount;
                 this.user = user; // Actualiza el estado con la respuesta
                 return message;
             } catch (error) {

@@ -11,6 +11,8 @@ export const useUserStore = defineStore("user", {
         users: [],
         totalUsers: 0,
         error: null,
+        show_modal_user: false,
+        new_avatar: null,
         pagination: {
             page: 1,
             rowsPerPage: 10,
@@ -23,7 +25,7 @@ export const useUserStore = defineStore("user", {
                     getUserById(userId: $userId) {
                         user {
                             user_id
-                            rut_user
+                            # rut_user
                             name
                             username
                             email
@@ -54,6 +56,43 @@ export const useUserStore = defineStore("user", {
                 throw error;
             }
         },
+        async createUser(details) {
+            const CREATE_USER_MUTATION = gql`
+                mutation createUser(
+                    $name: String!
+                    $username: String
+                    $email: String!
+                    $password: String!
+                    $personal_phone: String
+                    $role_id: Int!
+                ) {
+                    createUser(
+                        name: $name,
+                        username: $username,
+                        email: $email,
+                        password: $password,
+                        personal_phone: $personal_phone,
+                        role_id: $role_id,
+                    ) {
+                        user_id
+                        message
+                    }
+                }
+            `;
+            try {
+                const response = await apolloClient.mutate({
+                    mutation: CREATE_USER_MUTATION,
+                    variables: details,
+                    fetchPolicy: "network-only",
+                });
+                const { user_id, error, message } = response.data.register;
+                this.error = error;
+                return { user_id, message };
+            } catch (error) {
+                this.error = error.message;
+                throw error;
+            }
+        },
         async getAllUsers(search, page, rowsPerPage) {
             // Modificamos el query para aceptar los parámetros de búsqueda y paginación
             const ALL_USERS_QUERY = gql`
@@ -61,7 +100,7 @@ export const useUserStore = defineStore("user", {
                     getAllUsers(pagination: $pagination, filter: $filter) {
                         users {
                             user_id
-                            rut_user
+                            # rut_user
                             name
                             username
                             email
@@ -108,46 +147,13 @@ export const useUserStore = defineStore("user", {
                 throw error;
             }
         },
-        // async getAllUsers() {
-        //     const ALL_USERS_QUERY = gql`
-        //         query {
-        //             getUsers {
-        //                 user_id
-        //                 rut_user
-        //                 name
-        //                 username
-        //                 email
-        //                 personal_phone
-        //                 avatar
-        //                 role_id
-        //                 role {
-        //                     role_id
-        //                     name
-        //                     title
-        //                     description
-        //                 }
-        //             }
-        //         }
-        //     `;
-        //     try {
-        //         const response = await apolloClient.query({
-        //             query: ALL_USERS_QUERY,
-        //             fetchPolicy: "network-only",
-        //         });
-        //         this.users = response.data.getUsers;  // Almacena todos los usuarios en el estado
-        //         return this.users;
-        //     } catch (error) {
-        //         this.error = error.message;
-        //         throw error;
-        //     }
-        // },
         async updateUser(updatedUser) {
             const UPDATE_USER_MUTATION = gql`
                 mutation UpdateUser($userId: String!, $input: UserUpdateInput!) {
                     updateUser(userId: $userId, input: $input) {
                         user {
                             user_id
-                            rut_user
+                            # rut_user
                             name
                             username
                             email
@@ -172,7 +178,7 @@ export const useUserStore = defineStore("user", {
                             username: updatedUser.username,
                             email: updatedUser.email,
                             personal_phone: updatedUser.personal_phone,
-                            rut_user: updatedUser.rut_user,
+                            // rut_user: updatedUser.rut_user,
                             verified: updatedUser.verified,
                             avatar: updatedUser.avatar,
                             role_id: updatedUser.role_id,
@@ -206,6 +212,33 @@ export const useUserStore = defineStore("user", {
                 return message;
             } catch (error) {
                 this.error = error.message;
+                throw error;
+            }
+        },
+        async uploadAvatarUser(avatarFile, user_id) {
+            try {
+                const response = await apolloClient.mutate({
+                    mutation: gql`
+                        mutation UploadAvatar(
+                            $userId: String!
+                            $avatar: Upload!
+                        ) {
+                            UploadAvatar(userId: $userId, avatar: $avatar) {
+                                avatar
+                            }
+                        }
+                    `,
+                    variables: {
+                        userId: user_id,
+                        avatar: await avatarFile,
+                    },
+                });
+                console.log(response);
+                const { avatar } = response.data.UploadAvatar;
+                // this.user.avatar = avatar; // Actualiza el avatar del usuario en el store
+                return avatar;
+            } catch (error) {
+                console.error("Error uploading avatar:", error);
                 throw error;
             }
         },

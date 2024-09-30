@@ -17,8 +17,8 @@
                         :description="$t('settings.account.email.description')" />
                     <InputTitleSettingsPanel :title="$t('settings.account.personal_phone.title')"
                         :description="$t('settings.account.personal_phone.description')" />
-                    <InputTitleSettingsPanel :title="$t('settings.account.rut_user.title')"
-                        :description="$t('settings.account.rut_user.description')" />
+                    <!-- <InputTitleSettingsPanel :title="$t('settings.account.rut_user.title')"
+                        :description="$t('settings.account.rut_user.description')" /> -->
                 </q-card-section>
 
                 <q-card-section class="col-7 q-pl-none">
@@ -27,7 +27,7 @@
                     <q-input class="q-my-md" filled v-model="form.username" />
                     <q-input class="q-my-md" filled v-model="form.email" disable readonly />
                     <q-input class="q-my-md" filled v-model="form.personal_phone" />
-                    <q-input class="q-my-md" filled v-model="form.rut_user" />
+                    <!-- <q-input class="q-my-md" filled v-model="form.rut_user" /> -->
                 </q-card-section>
             </q-card-section>
         </q-card>
@@ -49,7 +49,7 @@ const authStore = useAuthStore();
 const $q = useQuasar();
 const form = ref({
     user_id: '',
-    rut_user: '',
+    // rut_user: '',
     name: '',
     username: '',
     email: '',

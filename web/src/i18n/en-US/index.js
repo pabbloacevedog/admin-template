@@ -21,7 +21,9 @@ export default {
         select_different_user: "Log in with another account",
         errors: {
             password_required: "Password is required.",
+            password_invalid: "Password: min 6 chars, 1 uppercase, 1 number.",
             email_required: "Email is required.",
+            email_invalid: "Please enter a valid email.",
             fix_errors: "Please correct the errors before continuing.",
         },
     },
@@ -68,7 +70,10 @@ export default {
         btn_signup: "Sign up",
         errors: {
             password_required: "Password is required.",
+            password_invalid: "Password: min 6 chars, 1 uppercase, 1 number.",
             email_required: "Email is required.",
+            email_invalid: "Please enter a valid email.",
+            name_min_length: "Name must be at least 3 characters.",
             name_required: "Name is required.",
             fix_errors: "Please correct the errors before continuing.",
         },
@@ -98,7 +103,7 @@ export default {
                 description: "Write the personal ID",
             },
             name: {
-                title: "Full Name",
+                title: "Full Name *",
                 description: "Write the full name",
             },
             username: {
@@ -106,29 +111,45 @@ export default {
                 description: "Chose a username",
             },
             email: {
-                title: "Email address",
+                title: "Email address *",
                 description: "Email linked to the account",
             },
             personal_phone: {
                 title: "Phone",
                 description: "Write the current phone",
             },
+            role: {
+                title: "Role",
+                description: "Chose de role for the account",
+            },
             avatar: {
                 title: "Avatar",
                 description: "The profile photo",
             },
             password: {
-                title: "Password",
+                title: "Password *",
                 description: "Write the password",
             }
         },
         edit: {
             title: "Update data user",
             description: "Complete all data user",
+            upload_avatar: "Avatar update successfully"
         },
         create: {
             title: "Create a new user",
             description: "Complete all data user",
+            upload_avatar: "Avatar upload successfully"
+        },
+        errors: {
+            password_required: "Password is required.",
+            password_invalid: "Password: min 6 chars, 1 uppercase, 1 number.",
+            email_required: "Email is required.",
+            email_invalid: "Please enter a valid email.",
+            name_min_length: "Name must be at least 3 characters.",
+            name_required: "Name is required.",
+            role_required: "Select a role for the user.",
+            fix_errors: "Please correct the errors before continuing.",
         },
     },
     roles: {

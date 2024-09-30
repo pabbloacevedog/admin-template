@@ -141,26 +141,37 @@ const reus_selected = ref({
 // Validación de contraseñas
 const validateForm = () => {
     let isValid = true;
-
-    // Verificar si la nueva contraseña está vacía
-    if (!password.value) {
-        errors.value.password = true;
-        errors.value.passwordMsg = t('login.errors.password_required');
-        isValid = false;
-    } else {
-        errors.value.password = false;
-        errors.value.passwordMsg = '';
-    }
-    // Verificar si la nueva contraseña está vacía
+    // Validar el email (formato válido)
+    const emailPattern = /^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$/;
     if (!email.value) {
         errors.value.email = true;
         errors.value.emailMsg = t('login.errors.email_required');
+        isValid = false;
+    } else if (!emailPattern.test(email.value)) {
+        errors.value.email = true;
+        errors.value.emailMsg = t('login.errors.email_invalid');
         isValid = false;
     } else {
         errors.value.email = false;
         errors.value.emailMsg = '';
     }
 
+    // Validar la contraseña (al menos 6 caracteres, una mayúscula y un número)
+    const passwordPattern = /^(?=.*[A-Z])(?=.*\d).{6,}$/;
+    if (!password.value) {
+        errors.value.password = true;
+        errors.value.passwordMsg = t('login.errors.password_required');
+        isValid = false;
+    }
+    // else if (!passwordPattern.test(password)) {
+    //     errors.value.password = true;
+    //     errors.value.passwordMsg = t('login.errors.password_invalid');
+    //     isValid = false;
+    // }
+    else {
+        errors.value.password = false;
+        errors.value.passwordMsg = '';
+    }
     return isValid;
 };
 const onSubmit = async () => {
@@ -327,10 +338,14 @@ onMounted(() => {
     overflow: hidden;
     /* Esconde cualquier contenido que se desborde */
 }
+
 .remembered-users-container {
-    max-height: 380px; /* Ajusta la altura máxima según lo que necesites */
-    overflow-y: auto;  /* Habilita el scroll vertical */
+    max-height: 380px;
+    /* Ajusta la altura máxima según lo que necesites */
+    overflow-y: auto;
+    /* Habilita el scroll vertical */
 }
+
 .full-size {
     position: absolute;
     /* Para que la imagen se posicione respecto a su contenedor */

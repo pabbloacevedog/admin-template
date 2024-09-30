@@ -1,7 +1,7 @@
 <template>
     <div class="text-start">
         <q-avatar :size="size_avatar" class="avatar-user">
-            <img :src="avatarPreview || user?.avatar" alt="User Avatar" v-if="avatarPreview || user?.avatar"/>
+            <img :src="user?.avatar" alt="User Avatar" v-if="user?.avatar"/>
             <q-icon v-else name="account_circle" color="second" size="2.1em" />
         </q-avatar>
         <!-- Input para subir archivo -->
@@ -28,20 +28,20 @@
 
 <script setup>
 import { ref } from 'vue';
+import { useUserStore } from 'stores/user';
 import { useQuasar } from 'quasar';
 import { Cropper } from 'vue-advanced-cropper';
 import 'vue-advanced-cropper/dist/style.css';
 import 'vue-advanced-cropper/dist/theme.bubble.css';
-import { useUserStore } from 'stores/user';
-const userStore = useUserStore();
+import { useI18n } from 'vue-i18n';
+const { t } = useI18n();
 const $q = useQuasar();
+const userStore = useUserStore();
 const fileInput = ref(null);
 const showCropper = ref(false);
 const image = ref(null);
 const croppedImage = ref(null);
 const nameAvatar = ref(null);
-const avatarPreview = ref(null); // Almacena la imagen previsualizada
-const croppedBlob = ref(null);  // Almacena el blob del avatar recortado
 
 const props = defineProps({
     size_avatar: String,
@@ -50,34 +50,51 @@ const props = defineProps({
         default: () => ({}),
     },
 });
-
-
 const selectFile = () => {
     fileInput.value.click();
 };
-
 const handleFileChange = async (event) => {
-    const file = event.target.files[0];
+    const file = event.target.files[0]
     if (file) {
-        showCropper.value = true;
+        console.log('Archivo seleccionado:', file)
+        showCropper.value = true
         image.value = URL.createObjectURL(file);
-        nameAvatar.value = file.name;
+        nameAvatar.value = file.name
     }
-};
+}
+const sendAvatarApi = async (fileAvatar) => {
+    await userStore.uploadAvatarUser(fileAvatar, user.user_id).then((response) => {
+        console.log('response: ' + response);
+        // Actualiza el avatar en el objeto user
+        user.value = { ...user.value, avatar: response };
 
+        showCropper.value = false
+        nameAvatar.value = null
+        $q.notify({
+            type: 'positive',
+            message: t('users.edit.upload_avatar'),
+        });
+    }).catch((error) => {
+        console.error('Error uploading avatar:', error);
+        $q.notify({
+            type: 'negative',
+            message: 'Error uploading avatar',
+        });
+    });
+}
 const saveCroppedImage = async () => {
     const { canvas } = croppedImage.value.getResult();
+    console.log('canvas', canvas)
     if (canvas) {
         const img = canvas.toBlob(blob => {
-            croppedBlob.value = blob; // Guardar el blob
-            avatarPreview.value = URL.createObjectURL(blob); // Previsualizar la imagen
-            userStore.new_avatar = croppedBlob.value; // Emitir el avatar recortado al padre
-            showCropper.value = false;
+            const fileAvatar = new File([blob], nameAvatar.value, { type: "image/jpeg" });
+            console.log(fileAvatar, 'fileAvatar')
+            sendAvatarApi(fileAvatar)
         }, "image/jpeg");
+        console.log(img, 'img')
     }
-};
+}
 </script>
-
 <style scoped>
 
 .btn-upload-avatar {

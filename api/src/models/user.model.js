@@ -25,15 +25,16 @@ const initializeUser = (sequelize) => {
                 isEmail: true,
             }
         },
-        rut_user: {
-            type: DataTypes.STRING(20)
-        },
+        // rut_user: {
+        //     type: DataTypes.STRING(20)
+        // },
         name: {
             type: DataTypes.STRING(1000)
         },
         username: {
             type: DataTypes.STRING(255),
             unique: true,
+            llowNull: true,
             validate: {
                 is: /^[a-zA-Z0-9_]+$/, // Solo letras, números y guiones bajos
             }

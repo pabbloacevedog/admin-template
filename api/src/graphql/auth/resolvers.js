@@ -26,7 +26,7 @@ export const authResolver = {
                 email,
                 password,
                 avatar: defaultAvatar,
-                role_id: 1, // rol por defecto
+                role_id: 2, // rol por defecto
                 verification_email: verificationToken,  // Guardamos el token
                 verification_email_expires: Date.now() + 3600000, // Expira en 1 hora
                 verified: false, // Por defecto, el usuario no está verificado
@@ -165,14 +165,14 @@ export const authResolver = {
 
                 // Actualizamos los campos proporcionados
                 await user.update({
-                    rut_user: input.rut_user || user.rut_user,
+                    // rut_user: input.rut_user || user.rut_user,
                     name: input.name || user.name,
                     username: input.username || user.username,
                     email: input.email || user.email,
                     personal_phone: input.personal_phone || user.personal_phone,
-                    verification_code: input.verification_code || user.verification_code,
-                    verified: input.verified !== undefined ? input.verified : user.verified,
-                    state: input.state || user.state,
+                    // verification_code: input.verification_code || user.verification_code,
+                    // verified: input.verified !== undefined ? input.verified : user.verified,
+                    // state: input.state || user.state,
                     avatar: input.avatar || user.avatar,
                     role_id: input.role_id !== undefined ? input.role_id : user.role_id
                 });
@@ -300,7 +300,7 @@ export const authResolver = {
             }
             const result = {
                 user_id: userSettings.user_id,
-                rut_user: userSettings.rut_user,
+                // rut_user: userSettings.rut_user,
                 name: userSettings.name,
                 username: userSettings.username,
                 email: userSettings.email,

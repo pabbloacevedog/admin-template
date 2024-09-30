@@ -1,43 +1,70 @@
 // src/graphql/user/resolvers.js
 import bcrypt from 'bcryptjs';
+import crypto from 'crypto';
 import { Op } from 'sequelize';
 import models from '../../models/index.js';
 import throwCustomError, { ErrorTypes } from '../../helpers/error-handler.helper.js';
 import { getSuccessMessage } from '../../helpers/success-handler.helper.js';
-
+import { CLIENT } from '../../config/config.js';
 export const userResolver = {
     Mutation: {
         // Crear un nuevo usuario
-        createUser: async (_, { input }) => {
-            const { email, password, ...rest } = input;
+        createUser: async (_, args) => {
+            const { email,...rest } = args;
             const existingUser = await models.User.findOne({ where: { email } });
-
+            console.log('rest',rest);
             if (existingUser) throwCustomError(ErrorTypes.USER_ALREADY_EXISTS);
-
+            // Generar un token de verificación
+            const verificationToken = crypto.randomBytes(32).toString('hex');
             const newUser = await models.User.create({
-                ...rest,
                 email,
-                password: password,
+                ...rest,
+                verification_email: verificationToken,  // Guardamos el token
+                verification_email_expires: Date.now() + 3600000, // Expira en 1 hora
+                verified: false, // Por defecto, el usuario no está verificado
             });
 
-            return newUser;
+            // Enviar el correo con el token de verificación
+            const verificationUrl = `${CLIENT}/#/verify_email?token=${verificationToken}`;
+            const subject = getSuccessMessage('SUBJECT_VERIFY_EMAIL');
+            const message = `Hi ${name}, ${getSuccessMessage('MESSAGE_VERIFY_EMAIL')} ${verificationUrl}`;
+
+            await sendEmail({
+                to: email,
+                subject: subject,
+                text: message,
+            });
+
+            const successMessage = getSuccessMessage('USER_CREATED_VERIFY_EMAIL');
+            return { user_id: newUser.user_id, message: successMessage };
+
         },
 
         // Actualizar un usuario existente
-        updateUser: async (_, { userId, input }) => {
-            const user = await models.User.findByPk(userId);
-            if (!user) throwCustomError(ErrorTypes.USER_NOT_FOUND);
+        async updateUser(_, { userId, input }) {
+            try {
+                const user = await models.User.findByPk(userId);
+                if (!user) throwCustomError(ErrorTypes.USER_NOT_FOUND);
 
-            const updatedFields = {
-                ...input,
-            };
+                // Actualizamos los campos proporcionados
+                await user.update({
+                    // rut_user: input.rut_user || user.rut_user,
+                    name: input.name || user.name,
+                    username: input.username || user.username,
+                    email: input.email || user.email,
+                    personal_phone: input.personal_phone || user.personal_phone,
+                    verification_code: input.verification_code || user.verification_code,
+                    verified: input.verified !== undefined ? input.verified : user.verified,
+                    state: input.state || user.state,
+                    avatar: input.avatar || user.avatar,
+                    role_id: input.role_id !== undefined ? input.role_id : user.role_id
+                });
+                const successMessage = getSuccessMessage('USER_DATA_UPDATE_SUCCESS');
+                return { user: user.get(), message: successMessage };
 
-            if (input.password) {
-                updatedFields.password = await bcrypt.hash(input.password, 10);
+            } catch (error) {
+                throw new Error("Error updating user: " + error.message);
             }
-
-            await user.update(updatedFields);
-            return user;
         },
 
         // Eliminar un usuario

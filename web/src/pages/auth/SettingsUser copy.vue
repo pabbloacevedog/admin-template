@@ -93,7 +93,7 @@
                     <q-input filled :label="$t('settings.account.username')" v-model="form.username" />
                     <q-input filled :label="$t('settings.account.email')" v-model="form.email" disable readonly />
                     <q-input filled :label="$t('settings.account.personal_phone')" v-model="form.personal_phone" />
-                    <q-input filled :label="$t('settings.account.rut_user')" v-model="form.rut_user" />
+                    <!-- <q-input filled :label="$t('settings.account.rut_user')" v-model="form.rut_user" /> -->
                 </div>
             </q-tab-panel>
 
@@ -156,13 +156,13 @@ const croppedImage = ref(null);
 const nameAvatar = ref(null);
 const form = ref({
     user_id: '',
-    rut_user: '',
+    // rut_user: '',
     name: '',
     username: '',
     email: '',
     personal_phone: '',
-    verification_code: '',
-    verified: false,
+    // verification_code: '',
+    // verified: false,
     state: '',
     avatar: '',
     role_id: '',
