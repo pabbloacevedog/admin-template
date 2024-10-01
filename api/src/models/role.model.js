@@ -27,6 +27,10 @@ const initializeRole = (sequelize) => {
             type: DataTypes.STRING,
             allowNull: false
         },
+        color: {
+            type: DataTypes.STRING,
+            allowNull: false
+        },
     }, {
         sequelize,
         tableName: 'role',

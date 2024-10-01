@@ -41,7 +41,7 @@ onMounted(async () => {
     try {
         const rou = await authStore.userRoutes();
         routes.value = rou
-        console.log(rou, 'routes')
+        // console.log(rou, 'routes')
 
     } catch (error) {
         console.error('Error fetching user:', error);

@@ -2,7 +2,9 @@
 
     <q-item class="q-pl-md q-py-xs item-panel-settings" v-ripple>
         <q-item-section avatar top>
-            <q-avatar color="first" :icon="icon" />
+            <q-avatar color="first">
+                <q-icon :name="icon" color="second" style="font-size: 40px;width: 40px;height: 40px;" class="p-qa-none" />
+            </q-avatar>
         </q-item-section>
         <q-item-section class="q-pa-none">
             <q-item-label class="subtitle-panel-settings">{{ subtitle}}</q-item-label>

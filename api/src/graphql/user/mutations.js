@@ -27,7 +27,7 @@ export const updateUser = {
 };
 
 export const deleteUser = {
-    type: GraphQLString,  // Retorna un mensaje indicando si se eliminó con éxito
+    type: UserType,  // Retorna un mensaje indicando si se eliminó con éxito
     args: {
         userId: { type: new GraphQLNonNull(GraphQLString) }
     },

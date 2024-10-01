@@ -8,8 +8,8 @@
         <q-item-label caption style="font-size: 14px;" class="text-theme q-mb-md ellipsis">
             {{ authStore.user?.email }}
         </q-item-label>
-        <q-chip  color="primary" text-color="white" icon="attribution">
-            {{ authStore.user?.role }}
+        <q-chip  :color="authStore.user?.role?.color" text-color="white" icon="attribution" style="padding: 10px 8px 10px 7px">
+            {{ authStore.user?.role?.title }}
         </q-chip>
     </div>
 </template>

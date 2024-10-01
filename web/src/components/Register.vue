@@ -3,8 +3,8 @@
     <q-page class="register-page">
         <div class="register-container row justify-center items-center q-mt-xl">
             <!-- Columna izquierda: Formulario -->
-            <div class="col-xl-6 col-md-6 q-px-md">
-                <div class="form-container">
+            <div class="col-xl-6 col-md-6">
+                <div class="form-container form-register">
                     <div class="text-h4 text-center q-my-lg">{{ $t('register.title') }}</div>
                     <div class="text-h6 text-second text-center q-ma-lg">{{ $t('register.description') }}</div>
                     <q-form @submit="onSubmit" autocomplete="on">
@@ -26,7 +26,7 @@
             </div>
             <!-- Columna derecha: Imagen -->
             <div class="col-xl-6 col-md-6 col-xs-12 col-sm-12 q-pa-xs full-height">
-                <q-img src="https://picsum.photos/500/300" style="border-radius: 15px;" class="img-login full-height"
+                <q-img src="https://picsum.photos/500/300" style="border-radius: 15px;" class="img-register full-height"
                     fit="cover" />
             </div>
         </div>
@@ -217,7 +217,7 @@ onMounted(() => {
 }
 /* Estilo para pantallas grandes: ratio de 1 */
 @media (min-width: 856px) {
-    .img-login {
+    .img-register {
         aspect-ratio: 1;
         /* Mantiene una proporción 1:1 en pantallas grandes */
     }
@@ -225,9 +225,24 @@ onMounted(() => {
 
 /* Estilo para pantallas pequeñas: ratio libre */
 @media (max-width: 855px) {
-    .img-login {
+    .img-register {
         aspect-ratio: auto;
         /* Ratio libre en pantallas móviles */
+    }
+}
+@media (max-width: 855px) {
+
+    .form-register {
+        padding: 16px 16px;
+    }
+}
+
+/* Estilo para pantallas pequeñas: ratio libre */
+@media (min-width: 855px) {
+
+
+    .form-register {
+        padding: 16px 48px;
     }
 }
 </style>

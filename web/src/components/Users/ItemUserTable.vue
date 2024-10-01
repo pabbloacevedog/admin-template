@@ -2,14 +2,15 @@
     <q-item class="q-pa-none q-py-sm">
         <q-item-section avatar class="q-pa-none">
             <q-avatar>
-                <img :src="user?.avatar">
+                <img :src="user?.avatar" v-if="user?.avatar">
+                <q-icon v-else name="account_circle" color="second" style="font-size: 48px;width: 40px;height: 40px;" class="p-qa-none" />
             </q-avatar>
         </q-item-section>
         <q-item-section class="q-pa-none">
             <q-item-label class="text-weight-bold">{{ user?.name }}</q-item-label>
             <q-item-label caption style="font-size: 11px;" v-if="user?.username">
-                                @{{ user?.username }}
-                            </q-item-label>
+                @{{ user?.username }}
+            </q-item-label>
         </q-item-section>
     </q-item>
 </template>

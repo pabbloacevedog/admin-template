@@ -1,5 +1,5 @@
 <template>
-    <q-page class="q-px-lg q-py-xs">
+    <q-page class="page-padding q-py-xs">
         <TitlePages :title="$t('settings.tabs.title')"
             :description="$t('settings.tabs.description')" :icon="$t('settings.tabs.icon')"  />
         <div class="col-12 q-pt-md" style="position: relative;">

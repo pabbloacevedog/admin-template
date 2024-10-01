@@ -47,30 +47,28 @@ const FilterInput = new GraphQLInputObjectType({
 const UserInputType = new GraphQLInputObjectType({
     name: 'UserInput',
     fields: {
+        user_id: { type: new GraphQLNonNull(GraphQLString) },
         // rut_user: { type: GraphQLString },
         name: { type: GraphQLString },
         username: { type: GraphQLString },
+        password: { type: GraphQLString },
         email: { type: GraphQLString },
         personal_phone: { type: GraphQLString },
-        verification_code: { type: GraphQLString },
-        verified: { type: GraphQLBoolean },
         state: { type: GraphQLString },
-        avatar: { type: GraphQLString },
         role_id: { type: GraphQLInt },
     }
 });
 const UserUpdateInputType = new GraphQLInputObjectType({
     name: 'UserUpdateInput',
     fields: {
+        user_id: { type: new GraphQLNonNull(GraphQLString) },
         // rut_user: { type: GraphQLString },
         name: { type: GraphQLString },
         username: { type: GraphQLString },
+        password: { type: GraphQLString },
         email: { type: GraphQLString },
         personal_phone: { type: GraphQLString },
-        verification_code: { type: GraphQLString },
-        verified: { type: GraphQLBoolean },
         state: { type: GraphQLString },
-        avatar: { type: GraphQLString },
         role_id: { type: GraphQLInt },
         message: { type: GraphQLString },
         user: { type: UserInputType } // Asegúrate de que sea UserInputType

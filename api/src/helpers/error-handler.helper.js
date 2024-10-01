@@ -48,6 +48,14 @@ export const ErrorTypes = {
         errorCode: 'USER_ALREADY_EXISTS',
         errorStatus: 400,
     },
+    USER_CREATE_ALREADY_EXISTS: {
+        errorCode: 'USER_CREATE_ALREADY_EXISTS',
+        errorStatus: 400,
+    },
+    EMAIL_ALREADY_IN_USE: {
+        errorCode: 'EMAIL_ALREADY_IN_USE',
+        errorStatus: 400,
+    },
     INTERNAL_SERVER_ERROR: {
         errorCode: ApolloServerErrorCode.INTERNAL_SERVER_ERROR,
         errorStatus: 500,

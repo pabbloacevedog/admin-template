@@ -1,9 +1,9 @@
 <template>
 
-    <q-item class="q-pl-none q-pr-xs item-input-settings" style="height: 76px;">
+    <q-item class="q-pl-none q-pr-xs item-input-users">
         <q-item-section class="q-pa-none">
-            <q-item-label class="input-title-panel-settings">{{ title }}</q-item-label>
-            <q-item-label caption style="font-size: 10px;" class="input-description-panel-settings" no-caps>
+            <q-item-label class="input-title-panel-users">{{ title }}</q-item-label>
+            <q-item-label caption style="font-size: 10px;" class="input-description-panel-users ellipsis" no-caps>
                 {{ description }}
             </q-item-label>
         </q-item-section>
@@ -20,26 +20,33 @@ const props = defineProps({
 </script>
 
 <style lang="css">
-.input-title-panel-settings {
+.input-title-panel-users {
     font-size: 16px !important;
     font-weight: bold;
     text-transform: none;
 }
 
-.input-description-panel-settings {
+.input-description-panel-users {
     font-size: 12px !important;
     text-transform: none;
 }
 
-.item-input-settings .q-item__section {
+.item-input-users .q-item__section {
     justify-content: start;
 }
-
+.item-input-users {
+        height: 76px;
+    }
 @media (max-width: 768px) {
-    .input-title-panel-settings {
+    .input-title-panel-users {
         font-size: 13px !important;
         font-weight: bold;
         text-transform: none;
+    }
+
+    .item-input-users {
+        height: 60px;
+        padding-top: 0px;
     }
 }
 </style>

@@ -1,5 +1,5 @@
 <template>
-    <q-chip color="primary" text-color="white" icon="attribution" class="q-pr-lg">
+    <q-chip :color="user?.role?.color" text-color="white" icon="attribution" class="q-pr-lg" style="font-size: 12px; padding: 7px 8px 7px 8px;">
         {{ user.role ? user.role.title : 'N/A' }}
     </q-chip>
 </template>

@@ -3,6 +3,7 @@ import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
 import { Op } from 'sequelize';
 import models from '../../models/index.js';
+import { sendEmail } from '../../utils/emailService.js';
 import throwCustomError, { ErrorTypes } from '../../helpers/error-handler.helper.js';
 import { getSuccessMessage } from '../../helpers/success-handler.helper.js';
 import { CLIENT } from '../../config/config.js';
@@ -10,10 +11,10 @@ export const userResolver = {
     Mutation: {
         // Crear un nuevo usuario
         createUser: async (_, args) => {
-            const { email,...rest } = args;
+            const { email, ...rest } = args;
             const existingUser = await models.User.findOne({ where: { email } });
-            console.log('rest',rest);
-            if (existingUser) throwCustomError(ErrorTypes.USER_ALREADY_EXISTS);
+            console.log('rest', rest);
+            if (existingUser) throwCustomError(ErrorTypes.USER_CREATE_ALREADY_EXISTS);
             // Generar un token de verificación
             const verificationToken = crypto.randomBytes(32).toString('hex');
             const newUser = await models.User.create({
@@ -27,7 +28,7 @@ export const userResolver = {
             // Enviar el correo con el token de verificación
             const verificationUrl = `${CLIENT}/#/verify_email?token=${verificationToken}`;
             const subject = getSuccessMessage('SUBJECT_VERIFY_EMAIL');
-            const message = `Hi ${name}, ${getSuccessMessage('MESSAGE_VERIFY_EMAIL')} ${verificationUrl}`;
+            const message = `Hi ${rest.name}, ${getSuccessMessage('MESSAGE_VERIFY_EMAIL')} ${verificationUrl}`;
 
             await sendEmail({
                 to: email,
@@ -43,22 +44,35 @@ export const userResolver = {
         // Actualizar un usuario existente
         async updateUser(_, { userId, input }) {
             try {
+                console.log('input', input);
                 const user = await models.User.findByPk(userId);
                 if (!user) throwCustomError(ErrorTypes.USER_NOT_FOUND);
 
+                // Verificar si el nuevo correo ya pertenece a otro usuario
+                if (input.email) {
+                    const existingUser = await models.User.findOne({
+                        where: { email: input.email, user_id: { [Op.ne]: userId } } // Excluir el usuario actual
+                    });
+                    if (existingUser) {
+                        throwCustomError(ErrorTypes.EMAIL_ALREADY_IN_USE);
+                    }
+                }
+                // Si el input.password está presente, usa set() para que se active el middleware
+                if (input.password) {
+                    await user.update({password: input.password});
+                    console.log('password updated', input.password);
+                }
                 // Actualizamos los campos proporcionados
                 await user.update({
-                    // rut_user: input.rut_user || user.rut_user,
                     name: input.name || user.name,
                     username: input.username || user.username,
                     email: input.email || user.email,
                     personal_phone: input.personal_phone || user.personal_phone,
-                    verification_code: input.verification_code || user.verification_code,
-                    verified: input.verified !== undefined ? input.verified : user.verified,
                     state: input.state || user.state,
-                    avatar: input.avatar || user.avatar,
+                    // avatar: input.avatar || user.avatar,
                     role_id: input.role_id !== undefined ? input.role_id : user.role_id
                 });
+
                 const successMessage = getSuccessMessage('USER_DATA_UPDATE_SUCCESS');
                 return { user: user.get(), message: successMessage };
 
@@ -67,13 +81,15 @@ export const userResolver = {
             }
         },
 
+
         // Eliminar un usuario
         deleteUser: async (_, { userId }) => {
             const user = await models.User.findByPk(userId);
             if (!user) throwCustomError(ErrorTypes.USER_NOT_FOUND);
 
             await user.destroy();
-            return getSuccessMessage('USER_DELETED');
+            const successMessage = getSuccessMessage('USER_DELETED');
+            return { message: successMessage };
         },
     },
 

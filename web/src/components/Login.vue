@@ -9,12 +9,12 @@
             </div>
             <!-- Columna derecha: Formulario -->
             <div class="col-xl-6 col-md-6 col-xs-12 col-sm-12 q-px-lg">
-                <div class="form-container">
+                <div class="form-container form-login">
                     <div v-if="!clickUserRemember">
                         <div class="text-h4 text-center q-my-lg">{{ $t('login.title') }}</div>
                         <div class="text-h6 text-second text-center q-ma-lg">{{ $t('login.description') }}</div>
                     </div>
-                    <div v-else class="q-pt-lg">
+                    <div v-else class="q-pt-lg ">
                         <div class="row justify-center items-center column">
                             <q-avatar size="100px">
                                 <img :src="reus_selected.avatar">
@@ -35,7 +35,7 @@
                                 class="full-width q-mb-md btn-border-radius" />
                         </q-form>
                     </div>
-                    <div v-if="isRemember" class="justify-center  q-mb-md q-px-xl">
+                    <div v-if="isRemember" class="justify-center  q-mb-md">
                         <div v-if="!clickUserRemember" class="remembered-users-container">
                             <div v-for="(reus, index) in rememberedUsers" :key="index" class="q-mb-lg ">
                                 <q-card class="cursor-pointer card-remember-user" flat bordered
@@ -194,7 +194,7 @@ const onSubmit = async () => {
             type: 'positive',
             message: `Bienvenido ${user.name}`
         });
-        router.push('/admin/settings');
+        router.push('/admin');
     } catch (error) {
         console.log('error catch: ' + error)
         // Error handling is already done in the store, no need to do anything here
@@ -309,7 +309,7 @@ onMounted(() => {
     .login-container {
         flex-direction: column;
         margin-top: 0px;
-        width: 90%;
+        width: 95%;
     }
 
     .left-section,
@@ -388,6 +388,19 @@ onMounted(() => {
     .img-login {
         aspect-ratio: auto;
         /* Ratio libre en pantallas móviles */
+    }
+
+    .form-login {
+        padding: 16px 16px;
+    }
+}
+
+/* Estilo para pantallas pequeñas: ratio libre */
+@media (min-width: 855px) {
+
+
+    .form-login {
+        padding: 16px 48px;
     }
 }
 </style>

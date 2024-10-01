@@ -1,5 +1,4 @@
 export async function initializeModule(models) {
-    await models.sequelize.sync({ force: true }); // Esto elimina las tablas existentes y crea nuevas
     /////////////////////> Dependecias fijas de todos los modulos </////////////////////////////////////////
     // Insertar módulos
     const [adminModule, created] = await models.Module.findOrCreate({

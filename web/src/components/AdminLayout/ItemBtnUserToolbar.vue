@@ -8,8 +8,8 @@
             <q-item-section class="q-pa-none">
                 <q-item-label>{{ authStore.user?.name }}</q-item-label>
                 <!-- <q-item-label caption style="font-size: 10px;">
-                                    {{ authStore.user?.email }}
-                                </q-item-label> -->
+                    {{ authStore.user?.email }}
+                </q-item-label> -->
             </q-item-section>
         </q-item>
 </template>

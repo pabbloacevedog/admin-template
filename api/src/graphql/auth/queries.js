@@ -1,6 +1,7 @@
 
 import { GraphQLString, GraphQLObjectType, GraphQLList } from 'graphql';
 import AuthType from './type.js';
+import { UserType } from '../user/type.js';  // Asegúrate de tener definido el UserType
 import actionType from '../action/type.js';
 import routeType from '../route/type.js';
 import { authResolver } from './resolvers.js';

@@ -30,6 +30,13 @@ export const forgotPassword = {
     },
     resolve: authResolver.Mutation.forgotPassword,
 };
+export const VerifyEmailAdmin = {
+    type: AuthType,
+    args: {
+        userId: { type: GraphQLString },
+    },
+    resolve: authResolver.Mutation.verifyEmailAdmin,
+};
 export const verifyCode = {
     type: AuthType,
     args: {

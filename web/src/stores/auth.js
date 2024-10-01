@@ -26,6 +26,13 @@ export const useAuthStore = defineStore("auth", {
                             role_id
                             avatar
                             name
+                            role {
+                                role_id
+                                name
+                                title
+                                description
+                                color
+                            }
                         }
                         actions
                     }
@@ -118,6 +125,13 @@ export const useAuthStore = defineStore("auth", {
                             state
                             avatar
                             role_id
+                            role {
+                                role_id
+                                name
+                                title
+                                description
+                                color
+                            }
                         }
                     }
                 }
@@ -181,7 +195,7 @@ export const useAuthStore = defineStore("auth", {
                     query: USERACTIONS_QUERY,
                     fetchPolicy: "network-only",
                 });
-                console.log(response.data);
+                // console.log(response.data);
                 const { userRoutes } = response.data;
                 this.routes = userRoutes;
                 return userRoutes;
@@ -264,7 +278,7 @@ export const useAuthStore = defineStore("auth", {
                     fetchPolicy: "network-only",
                 });
                 const { message } = response.data.changePassword;
-                console.log(response);
+                // console.log(response);
                 // this.user.avatar = avatar; // Actualiza el avatar del usuario en el store
                 return message;
             } catch (error) {
@@ -314,12 +328,11 @@ export const useAuthStore = defineStore("auth", {
                     fetchPolicy: "network-only",
                 });
                 localStorage.setItem("forgot", true);
-                console.log(response, "forgot password");
+                // console.log(response, "forgot password");
                 const { message, error } = response.data.forgotPassword;
                 this.error = error;
                 return message;
             } catch (error) {
-                debugger;
                 console.log("error", error);
                 this.error = error.message;
                 throw error;
@@ -340,7 +353,7 @@ export const useAuthStore = defineStore("auth", {
                     variables: { verification_code },
                     fetchPolicy: "network-only",
                 });
-                console.log(response, "verifyCode");
+                // console.log(response, "verifyCode");
                 const { user_id, message } = response.data.verifyCode;
                 this.userId = user_id;
                 localStorage.setItem("userIdForgot", user_id);
@@ -378,7 +391,7 @@ export const useAuthStore = defineStore("auth", {
                     variables: { userId, newPassword },
                     fetchPolicy: "network-only",
                 });
-                console.log("resetPassword", response);
+                // console.log("resetPassword", response);
                 const { message } = response.data.resetPassword;
                 this.message = message;
                 this.error = null; // Limpiar errores si la operación fue exitosa
@@ -406,6 +419,14 @@ export const useAuthStore = defineStore("auth", {
                             email
                             role_id
                             avatar
+                            name
+                            role {
+                                role_id
+                                name
+                                title
+                                description
+                                color
+                            }
                         }
                     }
                 }

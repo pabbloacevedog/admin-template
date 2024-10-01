@@ -1,5 +1,5 @@
 <template>
-    <q-page class="q-py-xs">
+    <q-page class="page-padding q-py-xs">
         <TitlePages :title="$t('roles.title')" :description="$t('roles.description')"
             :icon="$t('roles.icon')" :btn_create="showModal" :label_btn="'Crear Usuario'" />
         <div class="col-12 q-pt-md" style="position: relative;">
@@ -20,7 +20,7 @@
             </q-table>
         </div>
         <q-table :rows="roles" :columns="columns" row-key="role_id" @request="fetchRoles"
-            v-model:pagination="pagination">
+            :pagination="pagination">
             <template v-slot:top-right>
                 <q-input v-model="search" debounce="300" placeholder="Buscar..." class="q-mb-md" />
             </template>

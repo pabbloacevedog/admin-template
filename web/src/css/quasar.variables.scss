@@ -18,6 +18,7 @@ $primary: #155eee;
 $secondary: #7926a6;
 $text-second: #929397;
 $accent: #9c27b0;
+$verified: #0195F7;
 
 $dark: #000000;
 $dark-page: #0d111e;
@@ -30,14 +31,155 @@ $text-primary-light: #000000;
 $text-secondary-light: #404040;
 
 $positive: #2dba4e;
-$negative: #e0021c;
+$negative: #d91c32;
 $info: #005eff;
 $warning: #f2c037;
 
+//colores predeterminados para los roles
+
+$role-color-1: #FF6B6B;  // Coral Red
+$role-color-2: #076ea9;  // Aqua Mint
+$role-color-3: #F7B731;  // Mustard Yellow
+$role-color-4: #1A535C;  // Dark Teal
+$role-color-5: #FF9F1C;  // Vibrant Orange
+$role-color-6: #6A4C93;  // Royal Purple
+$role-color-7: #2EC4B6;  // Turquoise
+$role-color-8: #D90368;  // Raspberry Pink
+$role-color-9: #3A86FF;  // Bright Blue
+$role-color-10: #8338EC; // Electric Violet
+
+.bg-role-color-1 {
+    background: $role-color-1 !important;
+}
+
+.bg-role-color-2 {
+    background: $role-color-2 !important;
+}
+
+.bg-role-color-3 {
+    background: $role-color-3 !important;
+}
+
+.bg-role-color-4 {
+    background: $role-color-4 !important;
+}
+
+.bg-role-color-5 {
+    background: $role-color-5 !important;
+}
+
+.bg-role-color-6 {
+    background: $role-color-6 !important;
+}
+
+.bg-role-color-7 {
+    background: $role-color-7 !important;
+}
+
+.bg-role-color-8 {
+    background: $role-color-8 !important;
+}
+
+.bg-role-color-9 {
+    background: $role-color-9 !important;
+}
+
+.bg-role-color-10 {
+    background: $role-color-10 !important;
+}
+
+.text-role-1 {
+    background-image: $role-color-1 !important;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.text-role-2 {
+    background-image: $role-color-2 !important;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.text-role-3 {
+    background-image: $role-color-3 !important;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.text-role-4 {
+    background-image: $role-color-4 !important;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.text-role-5 {
+    background-image: $role-color-5 !important;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.text-role-6 {
+    background-image: $role-color-6 !important;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.text-role-7 {
+    background-image: $role-color-7 !important;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.text-role-8 {
+    background-image: $role-color-8 !important;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.text-role-9 {
+    background-image: $role-color-9 !important;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.text-role-10 {
+    background-image: $role-color-10 !important;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+
+.bg-admin {
+    background: linear-gradient(
+        -225deg,
+        #ac32e4 0%,
+        #7918f2 48%,
+        #4801ff 100%
+    ) !important;
+}
+.text-admin {
+    background-image: linear-gradient(
+        -225deg,
+        #ac32e4 0%,
+        #7918f2 48%,
+        #4801ff 100%
+    ) !important;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+// Fin Colores predeterminados para los roles
+
+.bg-verified {
+    background: $verified !important;
+}
+.text-verified {
+    background-color: $verified !important;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
 .text-second {
     color: $text-second;
 }
-
 .q-field--filled .q-field__control {
     border-radius: 10px;
     -webkit-border-radius: 10px;
@@ -243,3 +385,16 @@ $warning: #f2c037;
     padding: 4px 12px 0 !important;
 
 }
+.page-padding {
+    padding: 16px 48px !important;
+}
+
+@media (max-width: 768px) {
+    .page-padding {
+        padding: 8px 8px !important;
+    }
+    .q-dialog__inner--minimized {
+        padding: 0px !important;
+    }
+}
+

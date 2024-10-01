@@ -1,9 +1,10 @@
 <template>
-    <q-dialog v-model="userStore.show_modal_user" @hide="resetForm" backdrop-filter="blur(4px) saturate(150%)">
-        <div class="q-py-lg q-px-md bg-second div-rounded-radius h-form" style="width: 800px; max-width: 100vw;">
-            <q-card class="bg-second q-px-md" flat>
+    <q-dialog v-model="userStore.show_modal_user" @hide="resetForm" backdrop-filter="blur(4px) saturate(150%)"
+        class="container-modal" :fullscreen="isMobile">
+        <div class="q-py-lg form-modal bg-second div-rounded-radius h-form" :style="dialogStyle">
+            <q-card class="bg-second" flat style="flex-grow: 1; display: flex; flex-direction: column;">
                 <q-card-header>
-                    <q-toolbar class="div-rounded-radius q-py-xs">
+                    <q-toolbar class="div-rounded-radius">
                         <q-toolbar-title v-if="isEdit">
                             <SubTitleSettingsPanel :subtitle="$t('users.edit.title')"
                                 :description="$t('users.edit.description')" :icon="'supervisor_account'" />
@@ -15,12 +16,12 @@
                         <q-btn round flat icon="close" @click="close" />
                     </q-toolbar>
                 </q-card-header>
-                <q-card-section horizontal class="q-pt-md">
-                    <q-card-section class="col-5 q-pr-none">
+                <q-card-section horizontal class="q-pt-none">
+                    <q-card-section class="col-5 q-pl-none q-pr-xs">
                         <InputTitleModal :title="$t('users.account.avatar.title')"
-                            :description="$t('users.account.avatar.description')" style="height:110px !important;" />
+                            :description="$t('users.account.avatar.description')" style="height:100px !important;" />
                         <InputTitleModal :title="$t('users.account.name.title')"
-                            :description="$t('users.account.name.description')" />
+                            :description="$t('users.account.name.description')" class="q-mt-md q-mb-none" />
                         <InputTitleModal :title="$t('users.account.username.title')"
                             :description="$t('users.account.username.description')" />
                         <InputTitleModal :title="$t('users.account.email.title')"
@@ -29,31 +30,35 @@
                             :description="$t('users.account.email.description')" />
                         <InputTitleModal :title="$t('users.account.personal_phone.title')"
                             :description="$t('users.account.personal_phone.description')" />
+                        <InputTitleModal :title="$t('users.account.verified.title')"
+                            :description="$t('users.account.verified.description')" />
                         <InputTitleModal :title="$t('users.account.role.title')"
                             :description="$t('users.account.role.description')" />
                         <!-- <InputTitleModal :title="$t('users.account.rut_user.title')"
                             :description="$t('users.account.rut_user.description')" /> -->
                     </q-card-section>
 
-                    <q-card-section class="col-7 q-pl-none">
-                        <NewAvatarUploader :size_avatar="'100px'" :user="user" />
-                        <q-input class="q-mt-md q-mb-none" filled v-model="form.name"
+                    <q-card-section class="col-7 q-pr-none q-pl-xs">
+                        <UpdateAvatarUploader :size_avatar="'100px'" :user="user" v-if="isEdit" />
+                        <NewAvatarUploader :size_avatar="'100px'" :user="user" v-else />
+                        <q-input :dense="isMobile" class="q-mt-md q-mb-none" filled v-model="form.name"
                             :label="$t('users.account.name.title')" type="text" autocomplete="name" :error="errors.name"
                             :error-message="errors.nameMsg" />
-                        <q-input class="input-form" filled v-model="form.username"
+                        <q-input :dense="isMobile" class="input-form" filled v-model="form.username"
                             :label="$t('users.account.username.title')" type="text" />
-                        <q-input class="q-mb-none q-mt-md" filled v-model="form.email"
+                        <q-input :dense="isMobile" class="q-mb-none q-mt-md" filled v-model="form.email"
                             :label="$t('users.account.email.title')" type="email" autocomplete="email"
                             :error="errors.email" :error-message="errors.emailMsg" />
                         <div v-if="isEdit" class="flex justify-end input-bottom">
-                            <q-btn icon="arrow_back" v-if="!edit_pass" outline color="primary" style="max-height: 55px;"
-                                class="btn-border-radius q-mr-md" @click="edit_pass = !edit_pass" />
-                            <q-btn label="Edit password" icon="lock" icon-right="lock_open" v-if="edit_pass" outline
-                                color="primary" style="height: 56px; width: 100%;" class="btn-border-radius q-my-none"
-                                @click="edit_pass = !edit_pass" />
-                            <q-input v-else v-model="form.password" filled :type="isPwd ? 'password' : 'text'"
-                                style="width: 82%; padding: 0px;" :label="$t('users.account.password.title')"
-                                :error="errors.password" :error-message="errors.passwordMsg">
+                            <q-btn icon="arrow_back" v-if="!edit_pass" outline color="primary"
+                                class="btn-border-radius q-mr-md btn-password-back" @click="edit_pass = !edit_pass" />
+                            <q-btn :dense="isMobile" label="Edit password" icon="lock" icon-right="lock_open"
+                                v-if="edit_pass" outline color="primary"
+                                class="btn-border-radius q-my-none btn-password-edit" @click="edit_pass = !edit_pass" />
+                            <q-input :dense="isMobile" v-else v-model="form.password" filled
+                                :type="isPwd ? 'password' : 'text'" :label="$t('users.account.password.title')"
+                                :error="errors.password" :error-message="errors.passwordMsg"
+                                class="input-password-edit">
                                 <template v-slot:append>
                                     <q-icon :name="isPwd ? 'visibility_off' : 'visibility'" class="cursor-pointer"
                                         @click="isPwd = !isPwd" />
@@ -61,9 +66,9 @@
                             </q-input>
                         </div>
                         <div v-else class="q-my-none">
-                            <q-input v-model="form.password" filled :type="isPwd ? 'password' : 'text'"
-                                :label="$t('users.account.password.title')" :error="errors.password"
-                                :error-message="errors.passwordMsg">
+                            <q-input :dense="isMobile" v-model="form.password" filled
+                                :type="isPwd ? 'password' : 'text'" :label="$t('users.account.password.title')"
+                                :error="errors.password" :error-message="errors.passwordMsg">
                                 <template v-slot:append>
                                     <q-icon :name="isPwd ? 'visibility_off' : 'visibility'" class="cursor-pointer"
                                         @click="isPwd = !isPwd" />
@@ -71,10 +76,35 @@
                             </q-input>
                         </div>
 
-                        <q-input class="input-bottom" filled v-model="form.personal_phone"
+                        <q-input :dense="isMobile" class="input-bottom" filled v-model="form.personal_phone"
                             :label="$t('Phone: (###) ### - ####')" type="tel" mask="(###) ### - ####" />
+                        <div class="btn-verified-edit input-bottom">
+                            <q-item class="q-pa-none" v-if="form.verified">
+                                <q-item-section avatar class="q-pa-none">
+                                    <q-avatar>
+                                        <q-icon name="verified" class="text-verified" size="36px" />
+                                    </q-avatar>
+                                </q-item-section>
+                                <q-item-section class="q-pa-none">
+                                    <q-item-label
+                                        class="text-weight-bold">{{ $t('users.account.verified.title') }}</q-item-label>
+                                </q-item-section>
+                            </q-item>
+                            <q-item class="q-pa-none" v-else>
+                                <q-item-section avatar class="q-pa-none">
+                                    <q-avatar>
+                                        <q-icon name="verified" color="second" size="36px" />
+                                    </q-avatar>
+                                </q-item-section>
+                                <q-item-section class="q-pa-none">
+                                    <q-item-label class="text-weight-bold">No
+                                        {{ $t('users.account.verified.title') }}</q-item-label>
+                                </q-item-section>
+                            </q-item>
+                        </div>
+
                         <!-- q-select para los roles -->
-                        <q-select class="input-bottom" filled v-model="selectedRole" :options="roles"
+                        <q-select :dense="isMobile" class="input-bottom" filled v-model="selectedRole" :options="roles"
                             :error="errors.role" :error-message="errors.roleMsg" option-label="label"
                             option-value="value" :label="$t('users.account.role.title')">
                         </q-select>
@@ -84,8 +114,16 @@
 
                 </q-card-section>
             </q-card>
-            <div class="q-my-md q-px-md flex justify-end">
-                <q-btn label="Cancel" outline color="primary" class="btn-border-radius q-mr-md" @click="close" />
+
+            <!-- Botones en posición fija usando q-page-sticky -->
+            <q-page-sticky position="bottom" :offset="[0, 36]" class="q-mb-md" v-if="isMobile">
+                <div class="flex justify-end">
+                    <q-btn label="Cancel" outline color="primary" class="btn-border-radius q-mr-lg" @click="close" />
+                    <q-btn label="Save Changes" color="primary" class="btn-border-radius" @click="submit" />
+                </div>
+            </q-page-sticky>
+            <div class="flex justify-center q-pb-lg" v-else>
+                <q-btn label="Cancel" outline color="primary" class="btn-border-radius q-mr-lg" @click="close" />
                 <q-btn label="Save Changes" color="primary" class="btn-border-radius" @click="submit" />
             </div>
         </div>
@@ -93,10 +131,11 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import SubTitleSettingsPanel from 'components/SettingsUser/SubTitleSettingsPanel.vue';
 import InputTitleModal from './InputTitleModal.vue';
 import NewAvatarUploader from './NewAvatarUploader.vue';
+import UpdateAvatarUploader from './UpdateAvatarUploader.vue';
 import { useUserStore } from 'stores/user';
 import { useRoleStore } from 'stores/role';
 import { useQuasar } from 'quasar';
@@ -196,6 +235,15 @@ const validateForm = () => {
     return isValid;
 };
 
+// Detectar si es móvil
+const isMobile = computed(() => {
+    return window.innerWidth <= 600; // Define tu umbral para mobile aquí
+});
+
+// Estilo de dialog
+const dialogStyle = computed(() => {
+    return isMobile.value ? 'width: 100vw; max-width: 100vw; max-height: 100vh !important;height: 98vh;margin: 8px;' : 'width: 800px; max-width: 100vw;';
+});
 
 // Cargar roles y preparar el formulario al montar
 onMounted(async () => {
@@ -257,7 +305,6 @@ const submit = async () => {
     }
 
     $q.loading.show();
-
     // Mapea el valor del select al form antes de enviar
     form.value.role_id = selectedRole.value.value;
     //Si los campos opcionales estan vacios los elimina del form para no tener problemas con graphql, aqui se deben agregar todos los campos opcionales
@@ -271,10 +318,15 @@ const submit = async () => {
 
     if (isEdit.value) {
         console.log('edit data ', form.value);
-        // Si edit_pass es true, eliminamos la propiedad password antes de enviar los datos
-        if (!edit_pass.value) {
+        // Si edit_pass es true, eliminamos la propiedad password antes de enviar los datos, significa que la password no fue
+        if (edit_pass.value) {
             delete form.value.password;
         }
+        // Eliminamos el role, avatar, verified y el __typename para que sea igual al input que espera graphql
+        delete form.value.role;
+        delete form.value.avatar;
+        delete form.value.verified;
+        delete form.value.__typename;
         await userStore.updateUser(form.value).then(response => {
             console.log('response: ' + response)
             $q.notify({
@@ -301,9 +353,8 @@ const submit = async () => {
             }
             $q.notify({
                 type: 'positive',
-                message: response,
+                message: newUser.message,
             });
-            router.push('/login');
             close();
         } catch (error) {
             console.error(error);
@@ -312,25 +363,6 @@ const submit = async () => {
                 message: 'Error creating user',
             });
         }
-        // await userStore.createUser(form.value).then(response => {
-        //     console.log('response: ' + response)
-        //     const user_id = response.user_id
-        //     //recien aqui deberia guardarse el avatar
-        //     // Si se cargó un avatar, enviarlo
-        //     if (avatarBlob.value) {
-        //         const avatarFile = new File([avatarBlob.value], 'avatar.jpg', { type: 'image/jpeg' });
-        //         await userStore.uploadAvatarUser(avatarFile, newUser.user_id);
-        //     }
-
-        //     $q.notify({
-        //         type: 'positive',
-        //         message: response,
-        //     });
-        //     router.push('/login');
-
-        // }).catch(error => {
-        //     console.log('error catch: ' + error)
-        // });
     }
 
     $q.loading.hide();
@@ -346,5 +378,64 @@ const submit = async () => {
 
 .input-bottom {
     padding: 0px 0px 20px 0px;
+}
+
+@media (max-width: 855px) {
+
+    .form-modal {
+        padding: 24px 24px;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+
+    .btn-password-edit {
+        height: 40px !important;
+        width: 100%;
+        font-size: 12px;
+    }
+
+    .btn-verified-edit {
+        height: 60px !important;
+        width: 100%;
+    }
+
+    .input-password-edit {
+        width: 75%;
+        padding: 0px;
+    }
+
+    .btn-password-back {
+        padding: 0px 8px;
+        margin-right: 8px;
+    }
+}
+
+/* Estilo para pantallas pequeñas: ratio libre */
+@media (min-width: 855px) {
+    .form-modal {
+        padding: 16px 48px;
+
+    }
+
+    .btn-password-edit {
+        height: 56px !important;
+        width: 100%;
+    }
+
+    .btn-verified-edit {
+        height: 66px !important;
+        width: 100%;
+    }
+
+    .input-password-edit {
+        width: 82%;
+        padding: 0px;
+    }
+
+    .btn-password-back {
+        padding: 0px 20px;
+        margin-right: 8px;
+    }
 }
 </style>

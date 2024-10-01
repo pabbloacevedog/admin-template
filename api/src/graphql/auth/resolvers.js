@@ -69,6 +69,28 @@ export const authResolver = {
             console.log('successMessage', successMessage);
             return { email: user.email, message: successMessage };
         },
+        // Verificar el token de correo electrónico
+        verifyEmailAdmin: async (_, { userId }) => {
+            // Buscar el usuario con el userId de verificación
+            console.log('Verificar el userId', userId);
+            const user = await models.User.findOne({ where: { user_id: userId } });
+            console.log('Verificar el user', user);
+            if (!user) throwCustomError(ErrorTypes.INVALID_VERIFY_CODE);
+
+            // Verificar si el token ha expirado
+            // if (user.verification_email_expires < Date.now()) throwCustomError(ErrorTypes.EXPIRED_VERIFY_CODE);
+
+            // Actualizar el estado del usuario como verificado
+            await user.update({
+                verified: true,
+                verification_email: null, // Limpiamos el código
+                verification_email_expires: null,
+            });
+
+            const successMessage = getSuccessMessage('SUCCESS_VERIFY_EMAIL');
+            console.log('successMessage', successMessage);
+            return { email: user.email, message: successMessage };
+        },
         // Recuperar contraseña
         async forgotPassword(_, { email }) {
             // Verificar si el usuario existe
@@ -221,8 +243,8 @@ export const authResolver = {
 
     Query: {
         // Login
-        login: async (_, { email, password }, { res }) => {
-            console.log('password', password);
+        login: async (_, { email, password: userPassword }, { res }) => {
+            // console.log('password', password);
 
             // Buscar el usuario por email y obtener el role.name
             const user = await models.User.findOne({
@@ -230,7 +252,6 @@ export const authResolver = {
                 include: [
                     {
                         model: models.Role,
-                        attributes: ['name'], // Solo trae el 'name' del Role
                     },
                 ],
                 // attributes: { exclude: ['role_id'] } // Opcional: Excluye el role_id si no lo necesitas
@@ -242,20 +263,14 @@ export const authResolver = {
             if (!user.verified) throwCustomError(ErrorTypes.EMAIL_NOT_VERIFIED);
 
             // Verificar si la contraseña es correcta
-            const passwordMatch = await bcrypt.compare(password, user.password);
+            const passwordMatch = await bcrypt.compare(userPassword, user.password);
             if (!passwordMatch) throwCustomError(ErrorTypes.BAD_USER_PASSWORD);
 
-            // Crear el token JWT
-            const result = {
-                user_id: user.user_id,
-                username: user.username,
-                email: user.email,
-                role_id: user.role_id,
-                role: user.Role.name,
-                avatar: user.avatar,
-                name: user.name,
-            };
-            const token = jwt.sign(result, JWT_SECRET, { expiresIn: JWT_EXPIRES });
+            // Excluir la contraseña del objeto user antes de devolverlo
+            const { password, ...userWithoutPassword } = user.toJSON(); // Convertir a JSON y excluir la password
+            console.log('userWithoutPassword', userWithoutPassword);
+            // Generar y firmar el token JWT_SECRET unica
+            const token = jwt.sign(userWithoutPassword, JWT_SECRET, { expiresIn: JWT_EXPIRES });
 
             // Si hay respuesta y cookies, establecer la cookie
             if (res && res.cookie) {
@@ -267,7 +282,7 @@ export const authResolver = {
             }
 
             return {
-                user: result,
+                user: userWithoutPassword,
                 // actions,
                 // routes
             };
@@ -283,14 +298,13 @@ export const authResolver = {
                 include: [
                     {
                         model: models.Role,
-                        attributes: ['name'], // Solo trae el 'name' del Role
                     },
                 ],
-                // attributes: { exclude: ['role_id'] } // Opcional: Excluye el role_id si no lo necesitas
+                // attributes: { exclude: ['role_id'] } // Opcional: Excluye el role_id
             });
             // Si no se encuentra el usuario, llamar a logout
             if (!userSettings) {
-                console.log('No se encuentra el usuario',res)
+                console.log('No se encuentra el usuario', res)
                 res.clearCookie('token', {
                     httpOnly: true,
                     secure: process.env.NODE_ENV === 'production',
@@ -298,22 +312,10 @@ export const authResolver = {
                 });
                 throwCustomError(ErrorTypes.USER_NOT_FOUND); // Lanza el error después de cerrar sesión
             }
-            const result = {
-                user_id: userSettings.user_id,
-                // rut_user: userSettings.rut_user,
-                name: userSettings.name,
-                username: userSettings.username,
-                email: userSettings.email,
-                personal_phone: userSettings.personal_phone,
-                verification_code: userSettings.verification_code,
-                verified: userSettings.verified,
-                state: userSettings.state,
-                avatar: userSettings.avatar,
-                role_id: userSettings.role_id,
-                role: userSettings.Role.name
-            };
+            const { password, ...userWithoutPassword } = userSettings.toJSON(); // Convertir a JSON y excluir la password
+
             return {
-                user: result,
+                user: userWithoutPassword,
             };
         },
         // Obtener Acciones de usuario
@@ -349,16 +351,8 @@ export const authResolver = {
         isAuth: async (_, __, { user }) => {
             // console.log('user is authenticated', user);
             if (!user) throwCustomError(ErrorTypes.UNAUTHENTICATED);
-            const result = {
-                user_id: user.user_id,
-                username: user.username,
-                email: user.email,
-                role_id: user.role_id,
-                role: user.role,
-                avatar: user.avatar
-            };
             return {
-                user: result,
+                user: user,
             };
         },
         // Verificar autenticación true o false

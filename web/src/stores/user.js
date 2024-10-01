@@ -12,6 +12,7 @@ export const useUserStore = defineStore("user", {
         totalUsers: 0,
         error: null,
         show_modal_user: false,
+        show_modal_delete: false,
         new_avatar: null,
         pagination: {
             page: 1,
@@ -85,7 +86,7 @@ export const useUserStore = defineStore("user", {
                     variables: details,
                     fetchPolicy: "network-only",
                 });
-                const { user_id, error, message } = response.data.register;
+                const { user_id, error, message } = response.data.createUser;
                 this.error = error;
                 return { user_id, message };
             } catch (error) {
@@ -107,11 +108,13 @@ export const useUserStore = defineStore("user", {
                             personal_phone
                             avatar
                             role_id
+                            verified
                             role {
                                 role_id
                                 name
                                 title
                                 description
+                                color
                             }
                         }
                         totalUsers
@@ -173,16 +176,7 @@ export const useUserStore = defineStore("user", {
                     mutation: UPDATE_USER_MUTATION,
                     variables: {
                         userId: updatedUser.user_id,
-                        input: {
-                            name: updatedUser.name,
-                            username: updatedUser.username,
-                            email: updatedUser.email,
-                            personal_phone: updatedUser.personal_phone,
-                            // rut_user: updatedUser.rut_user,
-                            verified: updatedUser.verified,
-                            avatar: updatedUser.avatar,
-                            role_id: updatedUser.role_id,
-                        },
+                        input: updatedUser,
                     },
                 });
                 const { user, message } = response.data.updateUser;

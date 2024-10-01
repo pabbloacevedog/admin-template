@@ -2,7 +2,7 @@
     <div class="text-start">
         <q-avatar :size="size_avatar" class="avatar-user">
             <img :src="avatarPreview || user?.avatar" alt="User Avatar" v-if="avatarPreview || user?.avatar"/>
-            <q-icon v-else name="account_circle" color="second" size="2.1em" />
+            <q-icon v-else name="account_circle" color="second" style="font-size: 120px;width: 100px;height: 100px;" class="p-qa-none" />
         </q-avatar>
         <!-- Input para subir archivo -->
         <input type="file" ref="fileInput" @change="handleFileChange" style="display: none;" id="fileUpload" />
@@ -90,19 +90,19 @@ const saveCroppedImage = async () => {
 
 @media (max-width: 1024px) {
     .btn-upload-avatar {
-        right: 25%;
+        right: 7%;
     }
 }
 
 @media (max-width: 1023px) {
     .btn-upload-avatar {
-        right: 40%;
+        right: 9%;
     }
 }
 
 @media (max-width: 768px) {
     .btn-upload-avatar {
-        right: 40%;
+        right: 9%;
     }
 }
 

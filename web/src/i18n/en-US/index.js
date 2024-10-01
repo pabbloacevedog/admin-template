@@ -122,6 +122,10 @@ export default {
                 title: "Role",
                 description: "Chose de role for the account",
             },
+            verified: {
+                title: "Verified",
+                description: "shows if the email has been verified",
+            },
             avatar: {
                 title: "Avatar",
                 description: "The profile photo",
@@ -140,6 +144,12 @@ export default {
             title: "Create a new user",
             description: "Complete all data user",
             upload_avatar: "Avatar upload successfully"
+        },
+        delete: {
+            message: "Are you sure you want to delete the account of ",
+            title: "Delete user account",
+            description: "You need to confirm for delete user account",
+            deleted_success: "User account deleted successfully"
         },
         errors: {
             password_required: "Password is required.",

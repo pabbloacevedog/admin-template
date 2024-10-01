@@ -50,6 +50,7 @@ const props = defineProps({
         default: () => ({}),
     },
 });
+const user = ref(props.user);
 const selectFile = () => {
     fileInput.value.click();
 };
@@ -63,7 +64,7 @@ const handleFileChange = async (event) => {
     }
 }
 const sendAvatarApi = async (fileAvatar) => {
-    await userStore.uploadAvatarUser(fileAvatar, user.user_id).then((response) => {
+    await userStore.uploadAvatarUser(fileAvatar, user.value.user_id).then((response) => {
         console.log('response: ' + response);
         // Actualiza el avatar en el objeto user
         user.value = { ...user.value, avatar: response };

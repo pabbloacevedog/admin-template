@@ -7,7 +7,8 @@ const RoleType = new GraphQLObjectType({
         role_id: { type: GraphQLString },
         name: { type: GraphQLString },
         title: { type: GraphQLString },
-        description: { type: GraphQLString }
+        description: { type: GraphQLString },
+        color: { type: GraphQLString }
     })
 });
 

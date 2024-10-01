@@ -1,7 +1,6 @@
 <template>
-    <q-page class="q-px-lg q-py-xs">
-        <TitlePages :title="$t('users.title') "
-        :description="$t('users.description')" :icon="'group_add'"  />
+    <q-page class="page-padding">
+        <TitlePages :title="$t('users.title')" :description="$t('users.description')" :icon="'group_add'" />
         <!-- <q-item class="q-mr-none" style="padding: 0px 0px;">
             <q-item-section class="q-pa-none">
                 <q-item-label class="title-panel-users">{{ $t('users.title') }}</q-item-label>
@@ -16,13 +15,14 @@
                 <q-card flat>
                     <q-card-section class="q-px-none">
                         <q-table class="q-px-none full-width" flat :rows="users" :columns="columns" row-key="name"
-                            hide-pagination>
+                            :pagination="pagination" :rows-per-page-options="[5, 10, 15, 20]" hide-pagination>
                             <template v-slot:top>
                                 <q-item class="q-px-none full-width">
                                     <q-item-section class="q-pa-none">
                                         <q-item-label class="title-table-users">Team members</q-item-label>
                                         <q-item-label>
-                                            <q-chip outline color="primary" size="12px" icon="people_outline" class="chip-total-users">
+                                            <q-chip outline color="primary" size="12px" icon="people_outline"
+                                                class="chip-total-users">
                                                 {{ totalUsers }} users
                                             </q-chip>
                                         </q-item-label>
@@ -39,7 +39,7 @@
                                         </q-input>
                                     </q-item-section>
 
-                                    <q-item-section class="q-pa-none" side>
+                                    <q-item-section class="q-pa-none" side v-if="!$q.platform.is.mobile">
                                         <q-btn :label="$t('users.btn_create')" icon="group_add" color="primary"
                                             class="btn-border-radius" @click="showCreateUserModal" />
                                     </q-item-section>
@@ -61,15 +61,20 @@
                                         <ItemUserTable :user="props.row" />
                                     </q-td>
                                     <q-td key="email" :props="props">{{ props.row.email }}</q-td>
+                                    <q-td key="verified" :props="props">
+                                        <q-icon name="verified"  v-if="props.row.verified" class="text-verified" size="24px"/>
+                                        <q-icon name="verified"  v-else color="second" size="24px"/>
+                                    </q-td>
                                     <q-td key="personal_phone" :props="props">{{ props.row.personal_phone || 'N/A'
                                         }}</q-td>
                                     <q-td key="role" :props="props">
                                         <ItemRoleTable :user="props.row" />
                                     </q-td>
                                     <q-td key="actions" :props="props">
-                                        <q-btn v-if="props.row.user_id != authStore.user?.user_id" round icon="edit" flat size="md" @click="editUser(props.row)" />
-                                        <q-btn flat v-if="props.row.user_id != authStore.user?.user_id" size="md" round icon="delete_outline"
-                                            @click="deleteUser(props.row)" />
+                                        <q-btn v-if="props.row.user_id != authStore.user?.user_id" round icon="edit"
+                                            flat size="md" @click="editUser(props.row)" />
+                                        <q-btn flat v-if="props.row.user_id != authStore.user?.user_id" size="md" round
+                                            icon="delete_outline" @click="showDeleteUserModal(props.row)" />
                                     </q-td>
                                 </q-tr>
                             </template>
@@ -86,15 +91,19 @@
             </div>
         </div>
 
-        <UserFormModal v-if="userStore.show_modal_user" :user="selectedUser" @close="closeModal"
-            @save="fetchUsers" />
+        <UserFormModal v-if="userStore.show_modal_user" :user="selectedUser" @close="closeModal" />
+        <UserDeleteModal v-if="userStore.show_modal_delete" :user="selectedUser" @close="closeModalDelete" />
+        <q-page-sticky position="bottom-right" :offset="[18, 18]" v-if="$q.platform.is.mobile">
+            <q-btn fab icon="group_add" color="primary" @click="showCreateUserModal" class="shadow-9" />
+        </q-page-sticky>
     </q-page>
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, computed, watch } from 'vue';
 import { useUserStore } from 'stores/user';
 import UserFormModal from 'components/Users/UserFormModal.vue';
+import UserDeleteModal from 'components/Users/UserDeleteModal.vue';
 import ItemUserTable from 'components/Users/ItemUserTable.vue';
 import ItemRoleTable from 'components/Users/ItemRoleTable.vue';
 import TitlePages from 'components/General/TitlePages.vue';
@@ -113,10 +122,17 @@ const pagination = ref({
 });
 
 const columns = ref([
-    { name: 'name', label: 'Nombre', align: 'left', field: 'name' },
-    { name: 'email', label: 'Correo', align: 'left', field: 'email' },
+    { name: 'name', label: 'Nombre', align: 'left', field: 'name', sortable: true },
+    { name: 'email', label: 'Correo', align: 'left', field: 'email', sortable: true },
+    { name: 'verified', label: 'Verified', align: 'left', field: 'verified', sortable: true },
     { name: 'personal_phone', label: 'Phone', align: 'left', field: 'personal_phone' },
-    { name: 'role', label: 'Role', align: 'left', field: 'role' },
+    {
+        name: 'role', label: 'Role', align: 'left', field: 'role', sortable: true, sort: (a, b) => {
+            const roleA = a.role_id ? parseInt(a.role_id, 10) : 0; // Cambia a.role_id según tu estructura de datos
+            const roleB = b.role_id ? parseInt(b.role_id, 10) : 0; // Cambia b.role_id según tu estructura de datos
+            return roleA - roleB;
+        }
+    },
     { name: 'actions', label: 'Acciones', align: 'center' },
 ]);
 
@@ -132,12 +148,15 @@ const fetchUsers = async () => {
     );
     users.value = response.users;
     totalUsers.value = response.totalUsers;
+    console.log('totalUsers: ' + totalUsers.value);
+    console.log('users: ', users.value);
+    console.log('pagination: ', pagination.value);
 };
 const onSearchChange = () => {
     console.log("onSearchChange users...");
     if (search.value.length > 2) {
         fetchUsers();
-    }else{
+    } else {
         if (search.value.length == 0) {
             fetchUsers();
         }
@@ -160,6 +179,10 @@ const showCreateUserModal = () => {
     selectedUser.value = null;
     userStore.show_modal_user = true;
 };
+const showDeleteUserModal = (user) => {
+    selectedUser.value = user;
+    userStore.show_modal_delete = true;
+};
 
 const editUser = (user) => {
     selectedUser.value = user;
@@ -173,9 +196,22 @@ const deleteUser = async (userId) => {
 
 const closeModal = () => {
     userStore.show_modal_user = false;
+    fetchUsers();
 };
-
+const closeModalDelete = () => {
+    userStore.show_modal_delete = false;
+    fetchUsers();
+};
 onMounted(fetchUsers);
+
+watch(
+    () => userStore.show_modal_user,
+    (newValue) => {
+        if (newValue === false) {
+            fetchUsers();
+        }
+    }
+);
 </script>
 
 <style scoped>
@@ -199,5 +235,4 @@ onMounted(fetchUsers);
     font-size: 18px !important;
     text-transform: none;
 }
-
 </style>

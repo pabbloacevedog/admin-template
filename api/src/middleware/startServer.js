@@ -6,13 +6,8 @@ async function syncDatabase() {
     console.info('SETUP - Sincronizando tablas de la base de datos...');
     const sequelizeOptions = {};
     console.info('ENV', DB_FORCE_RESTART, ENV);
-    if (DB_FORCE_RESTART === 'true' && ENV !== 'production') {
-        console.info('SETUP - Creando tablas');
-        // sequelizeOptions.alter = true;
-        // sequelizeOptions.force = true;
-    }
     // sequelizeOptions.alter = true;
-    // sequelizeOptions.force = true;
+    // sequelizeOptions.force = true; // esto elimina las tablas y las vuelve a crear
     await models.sequelize.sync(sequelizeOptions);
     //Inserta todos los datos necesarios para desplegar el modulo
     if (DB_FORCE_RESTART === 'true' && ENV !== 'production') {
