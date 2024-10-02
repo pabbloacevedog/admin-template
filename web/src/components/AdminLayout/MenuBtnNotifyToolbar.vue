@@ -1,5 +1,5 @@
 <template>
-    <q-menu auto-close fit class="btn-toolbar menu-user-top shadow-menu-user">
+    <q-menu auto-close fit class="btn-toolbar menu-user-top shadow-menu-user div-blur q-px-md">
         <q-list>
             <div class="q-px-md">
                 <q-item clickable class="item-menu-user">

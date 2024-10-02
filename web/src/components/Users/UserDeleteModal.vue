@@ -1,8 +1,8 @@
 <template>
     <q-dialog v-model="isOpen" persistent backdrop-filter="blur(4px) saturate(150%)" class="container-modal"
-        :fullscreen="isMobile">
-        <div class="q-py-lg form-modal-delete bg-second div-rounded-radius h-form" :style="dialogStyle">
-            <q-card class="bg-second" flat style="flex-grow: 1; display: flex; flex-direction: column;">
+        :fullscreen="isMobile" transition-show="none" transition-hide="none">
+        <div class="q-py-lg form-modal-view div-blur div-rounded-radius h-form" :style="dialogStyle">
+            <q-card flat style="flex-grow: 1; display: flex; flex-direction: column;background: #00000000 !important;">
                 <q-card-header>
                     <q-toolbar class="div-rounded-radius q-py-xs">
                         <q-toolbar-title>
@@ -32,15 +32,15 @@
 
             </q-card>
             <!-- Botones en posición fija usando q-page-sticky -->
-            <q-page-sticky position="bottom" :offset="[0, 36]" class="q-mb-md" v-if="isMobile">
-                <div class="flex justify-end">
-                    <q-btn label="Cancel" outline color="primary" class="btn-border-radius q-mr-lg" @click="close" />
-                    <q-btn label="DELETE" color="negative" class="btn-border-radius" @click="deleteUser" />
+            <!-- <q-page-sticky position="bottom" :offset="[0, 36]" class="q-mb-md" v-if="isMobile"> -->
+                <div class="flex justify-center q-pt-lg" v-if="isMobile">
+                    <q-btn :label="$t('users.delete.btn_cancel')" outline color="primary" class="btn-border-radius q-mr-lg" @click="close" />
+                    <q-btn :label="$t('users.delete.btn_action')"  color="negative" class="btn-border-radius" @click="deleteUser" />
                 </div>
-            </q-page-sticky>
+            <!-- </q-page-sticky> -->
             <div class="flex justify-center q-pb-lg" v-else>
-                <q-btn label="Cancel" outline color="primary" class="btn-border-radius q-mr-lg" @click="close" />
-                <q-btn label="DELETE" color="negative" class="btn-border-radius" @click="deleteUser" />
+                <q-btn :label="$t('users.delete.btn_cancel')" outline color="primary" class="btn-border-radius q-mr-lg" @click="close" />
+                <q-btn :label="$t('users.delete.btn_action')" color="negative" class="btn-border-radius" @click="deleteUser" />
             </div>
         </div>
     </q-dialog>

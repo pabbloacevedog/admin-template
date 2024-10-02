@@ -13,6 +13,7 @@ export const useUserStore = defineStore("user", {
         error: null,
         show_modal_user: false,
         show_modal_delete: false,
+        show_modal_view: false,
         new_avatar: null,
         pagination: {
             page: 1,
@@ -109,6 +110,7 @@ export const useUserStore = defineStore("user", {
                             avatar
                             role_id
                             verified
+                            state
                             role {
                                 role_id
                                 name

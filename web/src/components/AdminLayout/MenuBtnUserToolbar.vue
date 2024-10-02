@@ -1,7 +1,7 @@
 <template>
-    <q-menu auto-close class="btn-toolbar menu-user-top shadow-menu-user" transition-show="jump-down" transition-hide="jump-up">
+    <q-menu auto-close class="btn-toolbar shadow-menu-user div-blur q-px-lg menu-user-top" transition-show="jump-down" transition-hide="jump-up">
         <q-lis>
-            <div class="q-pa-md">
+            <div class="q-py-md">
                 <CardUser />
                 <q-separator class="q-my-xs" />
                 <q-item clickable @click="goUserSettings" class="item-menu-user">

@@ -14,7 +14,7 @@ const UserType = new GraphQLObjectType({
         personal_phone: { type: GraphQLString },
         verification_code: { type: GraphQLString },
         verified: { type: GraphQLBoolean },
-        state: { type: GraphQLString },
+        state: { type: GraphQLBoolean },
         avatar: { type: GraphQLString },
         role_id: { type: GraphQLInt },
         role: {
@@ -54,7 +54,7 @@ const UserInputType = new GraphQLInputObjectType({
         password: { type: GraphQLString },
         email: { type: GraphQLString },
         personal_phone: { type: GraphQLString },
-        state: { type: GraphQLString },
+        state: { type: GraphQLBoolean },
         role_id: { type: GraphQLInt },
     }
 });
@@ -68,7 +68,7 @@ const UserUpdateInputType = new GraphQLInputObjectType({
         password: { type: GraphQLString },
         email: { type: GraphQLString },
         personal_phone: { type: GraphQLString },
-        state: { type: GraphQLString },
+        state: { type: GraphQLBoolean },
         role_id: { type: GraphQLInt },
         message: { type: GraphQLString },
         user: { type: UserInputType } // Asegúrate de que sea UserInputType

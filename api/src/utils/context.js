@@ -24,7 +24,7 @@ const getUserToken = async (token, res) => {
         return null;
     }
 };
-
+//Funcion para validar acciones e incluirla en el return del context
 // Función de contexto para Apollo Server
 const context = async ({ req, res }) => {
     const operationName = req.body.operationName;

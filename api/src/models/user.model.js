@@ -66,7 +66,7 @@ const initializeUser = (sequelize) => {
             type: DataTypes.STRING(255)
         },
         state: {
-            type: DataTypes.STRING(20)
+            type: DataTypes.BOOLEAN
         },
         role_id: {
             type: DataTypes.INTEGER

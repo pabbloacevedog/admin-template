@@ -19,7 +19,8 @@ const errorTranslations = {
         EXPIRED_VERIFY_CODE: 'The verify code has expired.',
         WRONG_CURRENT_PASSWORD: 'Wrong current password',
         EMAIL_NOT_VERIFIED:'Email not verified, please verify your email before logging in.',
-        EMAIL_ALREADY_IN_USE:'Email already in use by another user.'
+        EMAIL_ALREADY_IN_USE:'Email already in use by another user.',
+        USER_INACTIVE:'Your account is disabled, please contact an administrator to resolve the issue.'
     },
     es: {
         BAD_USER_PASSWORD: 'Lo sentimos, la contraseña que ingresaste es incorrecta. Inténtalo de nuevo.',
@@ -40,6 +41,7 @@ const errorTranslations = {
         WRONG_CURRENT_PASSWORD: 'contraseña actual incorrecta',
         EMAIL_NOT_VERIFIED:'Email no verificado, verificalo desde tu correo para continuar.',
         EMAIL_ALREADY_IN_USE:'El email esta siendo usado por otro usuario.',
+        USER_INACTIVE:'Tu cuenta esta desactivada, contacta a un administrador para solucionar.'
     },
     // Agrega más idiomas aquí
 };

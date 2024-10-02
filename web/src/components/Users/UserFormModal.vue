@@ -1,17 +1,15 @@
 <template>
     <q-dialog v-model="userStore.show_modal_user" @hide="resetForm" backdrop-filter="blur(4px) saturate(150%)"
-        class="container-modal" :fullscreen="isMobile">
-        <div class="q-py-lg form-modal bg-second div-rounded-radius h-form" :style="dialogStyle">
-            <q-card class="bg-second" flat style="flex-grow: 1; display: flex; flex-direction: column;">
+        class="container-modal" :fullscreen="isMobile" transition-show="none" transition-hide="none" >
+        <div class="q-py-lg form-modal-view div-blur div-rounded-radius h-form" :style="dialogStyle">
+            <q-card flat style="flex-grow: 1; display: flex; flex-direction: column;  background: #00000000 !important;">
                 <q-card-header>
                     <q-toolbar class="div-rounded-radius">
-                        <q-toolbar-title v-if="isEdit">
-                            <SubTitleSettingsPanel :subtitle="$t('users.edit.title')"
-                                :description="$t('users.edit.description')" :icon="'supervisor_account'" />
-                        </q-toolbar-title>
-                        <q-toolbar-title v-else>
-                            <SubTitleSettingsPanel :subtitle="$t('users.create.title')"
-                                :description="$t('users.create.description')" :icon="'person_add'" />
+                        <q-toolbar-title>
+                            <SubTitleSettingsPanel
+                                :subtitle="isEdit ? $t('users.edit.title') : $t('users.create.title')"
+                                :description="isEdit ? $t('users.edit.description') : $t('users.create.description')"
+                                :icon="isEdit ? 'supervisor_account' : 'person_add'" />
                         </q-toolbar-title>
                         <q-btn round flat icon="close" @click="close" />
                     </q-toolbar>
@@ -27,11 +25,13 @@
                         <InputTitleModal :title="$t('users.account.email.title')"
                             :description="$t('users.account.email.description')" />
                         <InputTitleModal :title="$t('users.account.password.title')"
-                            :description="$t('users.account.email.description')" />
+                            :description="$t('users.account.password.description')" />
                         <InputTitleModal :title="$t('users.account.personal_phone.title')"
                             :description="$t('users.account.personal_phone.description')" />
                         <InputTitleModal :title="$t('users.account.verified.title')"
                             :description="$t('users.account.verified.description')" />
+                        <InputTitleModal :title="$t('users.account.state.title')"
+                            :description="$t('users.account.state.description')" />
                         <InputTitleModal :title="$t('users.account.role.title')"
                             :description="$t('users.account.role.description')" />
                         <!-- <InputTitleModal :title="$t('users.account.rut_user.title')"
@@ -86,8 +86,8 @@
                                     </q-avatar>
                                 </q-item-section>
                                 <q-item-section class="q-pa-none">
-                                    <q-item-label
-                                        class="text-weight-bold">{{ $t('users.account.verified.title') }}</q-item-label>
+                                    <q-item-label class="text-weight-bold">{{ $t('users.account.verified.title')
+                                        }}</q-item-label>
                                 </q-item-section>
                             </q-item>
                             <q-item class="q-pa-none" v-else>
@@ -102,7 +102,10 @@
                                 </q-item-section>
                             </q-item>
                         </div>
-
+                        <div class="btn-verified-edit input-bottom">
+                            <q-toggle size="lg" v-model="form.state" color="green"
+                                :label="form.state ? 'Active' : 'Inactive'" />
+                        </div>
                         <!-- q-select para los roles -->
                         <q-select :dense="isMobile" class="input-bottom" filled v-model="selectedRole" :options="roles"
                             :error="errors.role" :error-message="errors.roleMsg" option-label="label"
@@ -116,15 +119,19 @@
             </q-card>
 
             <!-- Botones en posición fija usando q-page-sticky -->
-            <q-page-sticky position="bottom" :offset="[0, 36]" class="q-mb-md" v-if="isMobile">
-                <div class="flex justify-end">
-                    <q-btn label="Cancel" outline color="primary" class="btn-border-radius q-mr-lg" @click="close" />
-                    <q-btn label="Save Changes" color="primary" class="btn-border-radius" @click="submit" />
+            <!-- <q-page-sticky position="bottom" :offset="[0, 36]" class="q-mb-md" v-if="isMobile"> -->
+                <div class="flex justify-center q-pt-lg" v-if="isMobile">
+                    <q-btn :label="$t('users.create.btn_cancel')" outline color="primary"
+                        class="btn-border-radius q-mr-lg" @click="close" />
+                    <q-btn :label="isEdit ? $t('users.edit.btn_action') : $t('users.create.btn_action')" color="primary" class="btn-border-radius"
+                        @click="submit" />
                 </div>
-            </q-page-sticky>
+            <!-- </q-page-sticky> -->
             <div class="flex justify-center q-pb-lg" v-else>
-                <q-btn label="Cancel" outline color="primary" class="btn-border-radius q-mr-lg" @click="close" />
-                <q-btn label="Save Changes" color="primary" class="btn-border-radius" @click="submit" />
+                <q-btn :label="$t('users.create.btn_cancel')" outline color="primary"
+                    class="btn-border-radius q-mr-lg" @click="close" />
+                <q-btn :label="isEdit ? $t('users.edit.btn_action') : $t('users.create.btn_action')" color="primary" class="btn-border-radius"
+                    @click="submit" />
             </div>
         </div>
     </q-dialog>
@@ -161,6 +168,7 @@ const form = ref({
     email: '',
     personal_phone: '',
     password: '',
+    state: true,
     // rut_user: '',
     role_id: '',  // Inicializa con vacío para evitar conflictos
 });
@@ -424,7 +432,7 @@ const submit = async () => {
     }
 
     .btn-verified-edit {
-        height: 66px !important;
+        height: 76px !important;
         width: 100%;
     }
 

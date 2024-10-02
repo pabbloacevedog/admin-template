@@ -15,7 +15,7 @@ export const roleResolver = {
         updateRole: async (_, { roleId, input }) => {
             const role = await models.Role.findByPk(roleId);
             if (!role) throwCustomError(ErrorTypes.ROLE_NOT_FOUND);
-
+ 
             await role.update(input);
             return role;
         },

@@ -80,6 +80,10 @@ export const ErrorTypes = {
         errorCode: 'EMAIL_NOT_VERIFIED',
         statusCode: 403,
     },
+    USER_INACTIVE: {
+        errorCode: 'USER_INACTIVE',
+        statusCode: 403,
+    },
 
 };
 const getCurrentLanguage = () => {

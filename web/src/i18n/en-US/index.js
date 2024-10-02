@@ -95,7 +95,7 @@ export default {
     users: {
         title: "User Management",
         description: "Manage your team members and their account permissions.",
-        icon:'supervised_user_circle',
+        icon: 'supervised_user_circle',
         btn_create: "Add user",
         account: {
             rut_user: {
@@ -126,6 +126,10 @@ export default {
                 title: "Verified",
                 description: "shows if the email has been verified",
             },
+            state: {
+                title: "State",
+                description: "Show if the account is active or inactive.",
+            },
             avatar: {
                 title: "Avatar",
                 description: "The profile photo",
@@ -138,18 +142,27 @@ export default {
         edit: {
             title: "Update data user",
             description: "Complete all data user",
-            upload_avatar: "Avatar update successfully"
+            upload_avatar: "Avatar update successfully",
+            btn_action: "Update",
+            btn_cancel: "Cancel"
         },
         create: {
             title: "Create a new user",
             description: "Complete all data user",
-            upload_avatar: "Avatar upload successfully"
+            upload_avatar: "Avatar upload successfully",
+            btn_action: "Create Account",
+            btn_cancel: "Cancel"
         },
         delete: {
             message: "Are you sure you want to delete the account of ",
             title: "Delete user account",
             description: "You need to confirm for delete user account",
-            deleted_success: "User account deleted successfully"
+            deleted_success: "User account deleted successfully",
+            btn_action: "Delete",
+            btn_cancel: "Cancel"
+        },
+        view: {
+            btn_action: "Close"
         },
         errors: {
             password_required: "Password is required.",
@@ -165,7 +178,7 @@ export default {
     roles: {
         title: "Role Management",
         description: "Manage your roles and their routes and actions",
-        icon:'attribution',
+        icon: 'attribution',
     },
     settings: {
         title: "Settings",
@@ -226,7 +239,7 @@ export default {
         tabs: {
             title: "Account Settings",
             description: "Personal Information",
-            icon:'manage_accounts',
+            icon: 'manage_accounts',
             general: {
                 personal: {
                     subtitle: "Personal Information",

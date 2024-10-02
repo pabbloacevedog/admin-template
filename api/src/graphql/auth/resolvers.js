@@ -27,6 +27,7 @@ export const authResolver = {
                 password,
                 avatar: defaultAvatar,
                 role_id: 2, // rol por defecto
+                state: true, // por defecto es una cuenta activa
                 verification_email: verificationToken,  // Guardamos el token
                 verification_email_expires: Date.now() + 3600000, // Expira en 1 hora
                 verified: false, // Por defecto, el usuario no está verificado
@@ -261,7 +262,8 @@ export const authResolver = {
 
             // Verificar si el correo electrónico está verificado
             if (!user.verified) throwCustomError(ErrorTypes.EMAIL_NOT_VERIFIED);
-
+            // Verificar si el estado de la cuenta
+            if (!user.state) throwCustomError(ErrorTypes.USER_INACTIVE);
             // Verificar si la contraseña es correcta
             const passwordMatch = await bcrypt.compare(userPassword, user.password);
             if (!passwordMatch) throwCustomError(ErrorTypes.BAD_USER_PASSWORD);

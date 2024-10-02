@@ -68,7 +68,7 @@ export const userResolver = {
                     username: input.username || user.username,
                     email: input.email || user.email,
                     personal_phone: input.personal_phone || user.personal_phone,
-                    state: input.state || user.state,
+                    state: input.state !== undefined ? input.state : user.state,
                     // avatar: input.avatar || user.avatar,
                     role_id: input.role_id !== undefined ? input.role_id : user.role_id
                 });

@@ -294,6 +294,13 @@ $role-color-10: #8338EC; // Electric Violet
     .chip-total-users .q-chip__content{
         color: $light;
     }
+    .div-blur {
+        background: #0e0e1e85  !important;
+        backdrop-filter: blur(10px) !important;
+    }
+    .form-modal-view {
+        padding: 16px 5%;
+    }
 }
 .q-avatar {
     border: 0px solid #fff !important;
@@ -349,9 +356,9 @@ $role-color-10: #8338EC; // Electric Violet
         border-radius: 20px;
     }
     .shadow-menu-user {
-        -webkit-box-shadow: 0px 0px 5px 4px $light;
-        -moz-box-shadow: 0px 0px 5px 4px $light;
-        box-shadow: 0px 0px 5px 4px $light;
+        -webkit-box-shadow: 0px 0px 5px 4px #e1e1e1;
+        -moz-box-shadow: 0px 0px 5px 4px #e1e1e1;
+        box-shadow: 0px 0px 5px 4px #e1e1e1;
     }
     .active-drawer-item {
         background-color: $light !important;
@@ -361,6 +368,13 @@ $role-color-10: #8338EC; // Electric Violet
     }
     .chip-total-users .q-chip__content{
         color: $dark;
+    }
+    .div-blur {
+        background: #ffffff9e !important;
+        backdrop-filter: blur(8px) !important;
+    }
+    .form-modal-view {
+        padding: 16px 5%;
     }
 }
 
@@ -396,5 +410,12 @@ $role-color-10: #8338EC; // Electric Violet
     .q-dialog__inner--minimized {
         padding: 0px !important;
     }
+    .form-modal-view {
+        padding: 24px 24px;
+    }
 }
 
+
+.chip-verified-view .q-chip__icon {
+    color: $verified !important;
+}
