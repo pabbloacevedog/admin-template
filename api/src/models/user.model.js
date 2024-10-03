@@ -63,7 +63,12 @@ const initializeUser = (sequelize) => {
             type: DataTypes.BOOLEAN
         },
         avatar: {
-            type: DataTypes.STRING(255)
+            type: DataTypes.STRING(255),
+            allowNull: true,
+        },
+        birthdate: {
+            type: DataTypes.DATE,
+            allowNull: true,
         },
         state: {
             type: DataTypes.BOOLEAN

@@ -2,9 +2,10 @@ import { Model, DataTypes } from 'sequelize';
 
 class Role extends Model {
     static associate(models) {
-        this.belongsToMany(models.Action, { through: models.RoleAction, foreignKey: 'role_id', otherKey: 'action_id' });
-        this.belongsToMany(models.Route, { through: models.RoleRoute, foreignKey: 'role_id', otherKey: 'route_id' });
+        // this.belongsToMany(models.Action, { through: models.RoleAction, foreignKey: 'role_id', otherKey: 'action_id' });
+        // this.belongsToMany(models.Route, { through: models.RoleRoute, foreignKey: 'role_id', otherKey: 'route_id' });
         this.hasMany(models.User, { foreignKey: 'role_id'});
+        this.hasMany(models.Permission, { foreignKey: 'role_id' });
     }
 }
 
@@ -35,7 +36,7 @@ const initializeRole = (sequelize) => {
         sequelize,
         tableName: 'role',
         modelName: 'Role',
-        timestamps: false,
+        timestamps: true,
     });
 
     return Role;

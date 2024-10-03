@@ -2,7 +2,7 @@ import { Model, DataTypes } from 'sequelize';
 
 class Route extends Model {
     static associate(models) {
-        this.belongsToMany(models.Role, { through: models.RoleRoute, foreignKey: 'route_id' });
+        // this.belongsToMany(models.Role, { through: models.RoleRoute, foreignKey: 'route_id' });
         this.belongsTo(models.Module, { foreignKey: 'module_id' });
     }
 }

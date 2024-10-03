@@ -44,6 +44,8 @@ export const userResolver = {
         // Actualizar un usuario existente
         async updateUser(_, { userId, input }) {
             try {
+                // Verificar que el usuario tenga la acción de editar usuarios
+                await validateAction(user.id, 'edit', 'users'); // Agrega la ruta correspondiente
                 console.log('input', input);
                 const user = await models.User.findByPk(userId);
                 if (!user) throwCustomError(ErrorTypes.USER_NOT_FOUND);
@@ -59,7 +61,7 @@ export const userResolver = {
                 }
                 // Si el input.password está presente, usa set() para que se active el middleware
                 if (input.password) {
-                    await user.update({password: input.password});
+                    await user.update({ password: input.password });
                     console.log('password updated', input.password);
                 }
                 // Actualizamos los campos proporcionados

@@ -10,10 +10,11 @@ async function syncDatabase() {
     // sequelizeOptions.force = true; // esto elimina las tablas y las vuelve a crear
     await models.sequelize.sync(sequelizeOptions);
     //Inserta todos los datos necesarios para desplegar el modulo
-    if (DB_FORCE_RESTART === 'true' && ENV !== 'production') {
-        console.info('SETUP - Creando tablas');
-        await initializeModule(models)
-    }
+    // await initializeModule(models)
+    // if (DB_FORCE_RESTART === 'true' && ENV !== 'production') {
+    //     console.info('SETUP - Creando tablas');
+    //     await initializeModule(models)
+    // }
     console.info('INFO - Base de datos sincronizada correctamente.');
 }
 export async function startServer(httpServer) {

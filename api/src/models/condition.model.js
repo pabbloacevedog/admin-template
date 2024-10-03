@@ -1,14 +1,14 @@
 import { Model, DataTypes } from 'sequelize';
 
-class Module extends Model {
+class Condition extends Model {
     static associate(models) {
-        this.belongsToMany(models.Route, { through: models.Route, foreignKey: 'module_id', otherKey: 'route_id' });
+        this.belongsTo(models.Permission, { foreignKey: 'permission_id' });
     }
 }
 
-const initializeModule = (sequelize) => {
-    Module.init({
-        module_id: {
+const initializeCondition = (sequelize) => {
+    Condition.init({
+        condition_id: {
             type: DataTypes.INTEGER,
             primaryKey: true,
             autoIncrement: true
@@ -23,16 +23,16 @@ const initializeModule = (sequelize) => {
         },
         description: {
             type: DataTypes.STRING,
-            allowNull: false
+            allowNull: true
         },
     }, {
         sequelize,
-        tableName: 'module',
-        modelName: 'Module',
+        tableName: 'condition',
+        modelName: 'Condition',
         timestamps: true,
     });
 
-    return Module;
+    return Condition;
 };
 
-export default initializeModule;
+export default initializeCondition;

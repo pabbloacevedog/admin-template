@@ -1,5 +1,5 @@
 // src/graphql/user/mutations.js
-import { GraphQLString, GraphQLBoolean, GraphQLNonNull, GraphQLInputObjectType, GraphQLInt, GraphQLObjectType } from 'graphql';
+import { GraphQLString, GraphQLNonNull, GraphQLInt } from 'graphql';
 import { UserType, UserUpdateInputType, UpdateUserResponseType }  from './type.js'; // Asegúrate de tener definido el UserType
 import { userResolver } from './resolvers.js';
 

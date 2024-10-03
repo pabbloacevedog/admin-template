@@ -10,7 +10,6 @@ export async function initializeModule(models) {
         }
     });
 
-    // Obtener el ID del módulo (puede ser de un módulo encontrado o recién creado)
     const moduleId = adminModule.module_id;
 
     // Insertar rutas
@@ -34,7 +33,7 @@ export async function initializeModule(models) {
         {
             name: 'roles',
             title: 'Roles',
-            description: 'Access and manage your account settings, including personal information, security options, and notification preferences.',
+            description: 'Manage roles and permissions.',
             path: '/admin/roles',
             icon: 'attribution',
             module_id: moduleId
@@ -63,7 +62,7 @@ export async function initializeModule(models) {
             })
         )
     );
-    /////////////////////> Dependecias fijas de todos los modulos </////////////////////////////////////////
+
     /////////////////////> Dependecias necesarias del modulo </////////////////////////////////////////
 
     // Insertar acciones
@@ -101,18 +100,49 @@ export async function initializeModule(models) {
             })
         )
     );
+    // Insertar Condiciones
+    const conditionsArray = [
+        {
+            name: 'owner_only',
+            title: 'owner_only',
+            description: 'Allows the user to access only if the user is the owner of the resource.'
+        },
+        {
+            name: 'none',
+            title: 'None',
+            description: 'None access'
+        },
+        {
+            name: 'all',
+            title: 'All',
+            description: 'Allows the user to access all resources.'
+        }
+    ];
 
+    const conditions = await Promise.all(
+        conditionsArray.map(condition =>
+            models.Condition.findOrCreate({
+                where: { name: condition.name },
+                defaults: {
+                    title: condition.title,
+                    description: condition.description
+                }
+            })
+        )
+    );
     // Insertar roles
     const rolesArray = [
         {
             name: 'admin',
             title: 'Administrator',
-            description: 'The administrator role has full access to all features and settings in the system, including user management and system configuration.'
+            description: 'The administrator role has full access to all features and settings in the system, including user management and system configuration.',
+            color: 'admin'
         },
         {
             name: 'user',
             title: 'User',
-            description: 'The user role provides access to basic system functionalities, allowing the user to interact with the platform but with limited permissions.'
+            description: 'The user role provides access to basic system functionalities, allowing the user to interact with the platform but with limited permissions.',
+            color: 'role-color-3'
         }
     ];
 
@@ -122,13 +152,13 @@ export async function initializeModule(models) {
                 where: { name: role.name },
                 defaults: {
                     title: role.title,
-                    description: role.description
+                    description: role.description,
+                    color: role.color
                 }
             })
         )
     );
 
-    // Crear índices para roles, acciones y rutas
     const roleIndex = roles.reduce((acc, [role]) => {
         acc[role.name] = role;
         return acc;
@@ -139,50 +169,55 @@ export async function initializeModule(models) {
         return acc;
     }, {});
 
+    const conditionIndex = conditions.reduce((acc, [condition]) => {
+        acc[condition.name] = condition;
+        return acc;
+    }, {});
     const routeIndex = routes.reduce((acc, [route]) => {
         acc[route.name] = route;
         return acc;
     }, {});
-    // Obtener los IDs de roles y acciones a través del índice
+
+    // Obtener los IDs de roles, acciones y rutas
     const adminRole = roleIndex['admin'];
     const userRole = roleIndex['user'];
     const createAction = actionIndex['create'];
     const readAction = actionIndex['read'];
     const updateAction = actionIndex['update'];
     const deleteAction = actionIndex['delete'];
-    // Insertar relaciones en RoleAction
-    const roleActions = [
-        { role_id: adminRole.dataValues.role_id, action_id: createAction.dataValues.action_id },
-        { role_id: adminRole.dataValues.role_id, action_id: readAction.dataValues.action_id },
-        { role_id: adminRole.dataValues.role_id, action_id: updateAction.dataValues.action_id },
-        { role_id: adminRole.dataValues.role_id, action_id: deleteAction.dataValues.action_id },
-        { role_id: userRole.dataValues.role_id, action_id: readAction.dataValues.action_id } // Por ejemplo, los usuarios solo pueden leer
-    ];
-    // Inserción en la tabla RoleAction
-    await Promise.all(roleActions.map(roleAction =>{
-        models.RoleAction.findOrCreate({ where: roleAction })
-    }));
 
-    // Obtener rutas desde el índice
+    const noneCondition = conditionIndex['none'];
+    const ownerCondition = conditionIndex['owner_only'];
+    const allCondition = conditionIndex['all'];
+
     const dashboardRoute = routeIndex['dashboard'];
     const settingsRoute = routeIndex['account_settings'];
     const userRoute = routeIndex['users'];
     const roleRoute = routeIndex['roles'];
-    // Insertar relaciones en RoleRoute
-    const roleRoutes = [
-        { role_id: adminRole.dataValues.role_id, route_id: dashboardRoute.dataValues.route_id },
-        { role_id: adminRole.dataValues.role_id, route_id: settingsRoute.dataValues.route_id },
-        { role_id: adminRole.dataValues.role_id, route_id: userRoute.dataValues.route_id },
-        { role_id: adminRole.dataValues.role_id, route_id: roleRoute.dataValues.route_id },
-        { role_id: userRole.dataValues.role_id, route_id: dashboardRoute.dataValues.route_id },
-        { role_id: userRole.dataValues.role_id, route_id: settingsRoute.dataValues.route_id }
+
+    // Insertar permisos en la tabla Permission
+    const permissions = [
+        // Permisos para el rol admin
+        { role_id: adminRole.dataValues.role_id, route_id: dashboardRoute.dataValues.route_id, action_id: createAction.dataValues.action_id, condition_id: allCondition.dataValues.condition_id },
+        { role_id: adminRole.dataValues.role_id, route_id: dashboardRoute.dataValues.route_id, action_id: readAction.dataValues.action_id, condition_id: allCondition.dataValues.condition_id },
+        { role_id: adminRole.dataValues.role_id, route_id: dashboardRoute.dataValues.route_id, action_id: updateAction.dataValues.action_id, condition_id: allCondition.dataValues.condition_id },
+        { role_id: adminRole.dataValues.role_id, route_id: dashboardRoute.dataValues.route_id, action_id: deleteAction.dataValues.action_id, condition_id: allCondition.dataValues.condition_id },
+        { role_id: adminRole.dataValues.role_id, route_id: userRoute.dataValues.route_id, action_id: createAction.dataValues.action_id, condition_id: allCondition.dataValues.condition_id },
+        { role_id: adminRole.dataValues.role_id, route_id: userRoute.dataValues.route_id, action_id: readAction.dataValues.action_id, condition_id: allCondition.dataValues.condition_id },
+        { role_id: adminRole.dataValues.role_id, route_id: roleRoute.dataValues.route_id, action_id: createAction.dataValues.action_id, condition_id: allCondition.dataValues.condition_id },
+        { role_id: adminRole.dataValues.role_id, route_id: roleRoute.dataValues.route_id, action_id: readAction.dataValues.action_id, condition_id: allCondition.dataValues.condition_id },
+        // Permisos para el rol user
+        { role_id: userRole.dataValues.role_id, route_id: dashboardRoute.dataValues.route_id, action_id: readAction.dataValues.action_id, condition_id: allCondition.dataValues.condition_id },
+        { role_id: userRole.dataValues.role_id, route_id: settingsRoute.dataValues.route_id, action_id: readAction.dataValues.action_id, condition_id: allCondition.dataValues.condition_id },
+        { role_id: userRole.dataValues.role_id, route_id: userRoute.dataValues.route_id, action_id: readAction.dataValues.action_id, condition_id: allCondition.dataValues.condition_id }
     ];
 
-    // Inserción en la tabla RoleRoute
-    await Promise.all(roleRoutes.map(roleRoute =>
-        models.RoleRoute.findOrCreate({ where: roleRoute })
-    ));
+    // Crear todos los permisos en la tabla Permission
+    const createdPermissions = await Promise.all(
+        permissions.map(permission =>
+            models.Permission.findOrCreate({ where: permission })
+        )
+    );
 
     console.log('Datos iniciales insertados con éxito.');
-
 }
