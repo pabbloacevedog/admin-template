@@ -4,13 +4,14 @@ import crypto from 'crypto';
 import { Op } from 'sequelize';
 import models from '../../models/index.js';
 import { sendEmail } from '../../utils/emailService.js';
+import validatePermission from '../../utils/permissionValidator.js';
 import throwCustomError, { ErrorTypes } from '../../helpers/error-handler.helper.js';
 import { getSuccessMessage } from '../../helpers/success-handler.helper.js';
 import { CLIENT } from '../../config/config.js';
 export const userResolver = {
     Mutation: {
         // Crear un nuevo usuario
-        createUser: async (_, args) => {
+        createUser: async (_, args, { user }) => {
             const { email, ...rest } = args;
             const existingUser = await models.User.findOne({ where: { email } });
             console.log('rest', rest);
@@ -23,6 +24,7 @@ export const userResolver = {
                 verification_email: verificationToken,  // Guardamos el token
                 verification_email_expires: Date.now() + 3600000, // Expira en 1 hora
                 verified: false, // Por defecto, el usuario no está verificado
+                owner_id: user.user_id
             });
 
             // Enviar el correo con el token de verificación
@@ -42,13 +44,15 @@ export const userResolver = {
         },
 
         // Actualizar un usuario existente
-        async updateUser(_, { userId, input }) {
+        async updateUser(_, { userId, input }, { user }) {
             try {
                 // Verificar que el usuario tenga la acción de editar usuarios
-                await validateAction(user.id, 'edit', 'users'); // Agrega la ruta correspondiente
+                const userIdEditor = user.user_id;
+                console.log('userIdEditor: ', userIdEditor);
+                await validatePermission(userIdEditor, 'update', 'users', userId); // Agrega la ruta correspondiente
                 console.log('input', input);
-                const user = await models.User.findByPk(userId);
-                if (!user) throwCustomError(ErrorTypes.USER_NOT_FOUND);
+                const usertoedit = await models.User.findByPk(userId);
+                if (!usertoedit) throwCustomError(ErrorTypes.USER_NOT_FOUND);
 
                 // Verificar si el nuevo correo ya pertenece a otro usuario
                 if (input.email) {
@@ -61,22 +65,22 @@ export const userResolver = {
                 }
                 // Si el input.password está presente, usa set() para que se active el middleware
                 if (input.password) {
-                    await user.update({ password: input.password });
+                    await usertoedit.update({ password: input.password });
                     console.log('password updated', input.password);
                 }
                 // Actualizamos los campos proporcionados
-                await user.update({
-                    name: input.name || user.name,
-                    username: input.username || user.username,
-                    email: input.email || user.email,
-                    personal_phone: input.personal_phone || user.personal_phone,
-                    state: input.state !== undefined ? input.state : user.state,
+                await usertoedit.update({
+                    name: input.name || usertoedit.name,
+                    username: input.username || usertoedit.username,
+                    email: input.email || usertoedit.email,
+                    personal_phone: input.personal_phone || usertoedit.personal_phone,
+                    state: input.state !== undefined ? input.state : usertoedit.state,
                     // avatar: input.avatar || user.avatar,
-                    role_id: input.role_id !== undefined ? input.role_id : user.role_id
+                    role_id: input.role_id !== undefined ? input.role_id : usertoedit.role_id
                 });
 
                 const successMessage = getSuccessMessage('USER_DATA_UPDATE_SUCCESS');
-                return { user: user.get(), message: successMessage };
+                return { user: usertoedit.get(), message: successMessage };
 
             } catch (error) {
                 throw new Error("Error updating user: " + error.message);
@@ -136,6 +140,43 @@ export const userResolver = {
                 throw new Error('Error al obtener los usuarios' + error);
             }
         },
+        getUsersByOwner : async (_, { filter, pagination }, { user }) => {
+            try {
+                // Definir condiciones de búsqueda
+                const conditions = {
+                    [Op.or]: [
+                        { owner_id: user.user_id }, // Traer usuarios cuyo owner_id sea igual al user_id autenticado
+                        { user_id: user.user_id }  // Traer el usuario autenticado
+                    ],
+                    name: {
+                        [Op.like]: `%${filter.search || ''}%` // Asegura que el filtro de búsqueda sea seguro
+                    }
+                };
+
+                // Obtener usuarios de la base de datos con Sequelize
+                const users = await models.User.findAll({
+                    where: conditions,
+                    limit: pagination.rowsPerPage,
+                    offset: (pagination.page - 1) * pagination.rowsPerPage,
+                    include: [models.Role] // Incluir el rol si es necesario
+                });
+
+                // Contar total de usuarios que cumplen las condiciones
+                const totalUsers = await models.User.count({
+                    where: conditions
+                });
+
+                return {
+                    users,
+                    totalUsers
+                };
+            } catch (error) {
+                console.error('Error al obtener los usuarios:', error); // Log para diagnóstico
+                throw new Error('Error al obtener los usuarios: ' + error.message);
+            }
+        },
+
+
         // Obtener un usuario por ID
         getUserById: async (_, { userId }) => {
             const user = await models.User.findByPk(userId, {

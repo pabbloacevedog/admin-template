@@ -12,9 +12,9 @@
                         </div>
 
                         <q-item-label caption style="font-size: 16px;" class="text-theme q-mb-md ellipsis">
-                            {{ user?.email }}
+                            <q-icon name="mail_outline" color="primary" size="sm" /> {{ user?.email }}
                         </q-item-label>
-                        <q-chip :color="user?.role?.color" text-color="white" icon="attribution">
+                        <q-chip :color="user?.role?.color" text-color="white" icon="attribution" class="text-center">
                             {{ user?.role?.title }}
                         </q-chip>
                     </div>

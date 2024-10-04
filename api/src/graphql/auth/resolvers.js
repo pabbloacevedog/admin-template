@@ -10,6 +10,7 @@ import throwCustomError, { ErrorTypes } from '../../helpers/error-handler.helper
 import { getSuccessMessage } from '../../helpers/success-handler.helper.js';
 import { createWriteStream, existsSync, mkdirSync } from 'fs';
 import path from 'path'; // Importa path para manejar rutas de manera segura
+import { title } from 'process';
 
 export const authResolver = {
     Mutation: {
@@ -31,6 +32,7 @@ export const authResolver = {
                 verification_email: verificationToken,  // Guardamos el token
                 verification_email_expires: Date.now() + 3600000, // Expira en 1 hora
                 verified: false, // Por defecto, el usuario no está verificado
+                owner_id: '1'
             });
 
             // Enviar el correo con el token de verificación
@@ -183,21 +185,26 @@ export const authResolver = {
         },
         async updateUser(_, { userId, input }) {
             try {
-                const user = await models.User.findByPk(userId);
+                const user = await models.User.findOne({
+                    where: { user_id: userId },
+                    include: [
+                        {
+                            model: models.Role,
+                        },
+                    ],
+                    // attributes: { exclude: ['role_id'] } // Opcional: Excluye el role_id
+                });
                 if (!user) throwCustomError(ErrorTypes.USER_NOT_FOUND);
 
                 // Actualizamos los campos proporcionados
                 await user.update({
-                    // rut_user: input.rut_user || user.rut_user,
-                    name: input.name || user.name,
-                    username: input.username || user.username,
-                    email: input.email || user.email,
-                    personal_phone: input.personal_phone || user.personal_phone,
-                    // verification_code: input.verification_code || user.verification_code,
-                    // verified: input.verified !== undefined ? input.verified : user.verified,
-                    // state: input.state || user.state,
-                    avatar: input.avatar || user.avatar,
-                    role_id: input.role_id !== undefined ? input.role_id : user.role_id
+                    name: input.name || usertoedit.name,
+                    username: input.username || usertoedit.username,
+                    email: input.email || usertoedit.email,
+                    personal_phone: input.personal_phone || usertoedit.personal_phone,
+                    state: input.state !== undefined ? input.state : usertoedit.state,
+                    // avatar: input.avatar || user.avatar,
+                    role_id: input.role_id !== undefined ? input.role_id : usertoedit.role_id
                 });
                 const successMessage = getSuccessMessage('USER_DATA_UPDATE_SUCCESS');
                 return { user: user.get(), message: successMessage };
@@ -320,35 +327,81 @@ export const authResolver = {
                 user: userWithoutPassword,
             };
         },
-        // Obtener Acciones de usuario
-        userActions: async (_, __, { user }) => {
-            if (!user) throwCustomError(ErrorTypes.UNAUTHORIZED);
-
-            // Buscar el rol y las acciones asociadas
-            const roleActions = await models.Role.findByPk(user.role_id, {
-                include: { model: models.Action, through: { attributes: [] } },
-            });
-            if (!roleActions || !roleActions.Actions) throwCustomError(ErrorTypes.NO_ACTIONS_FOR_ROLE);
-            // Mapear las acciones
-            const actions = roleActions.Actions.map(action => action);
-            // console.log(actions, 'actions')
-            return actions
-        },
-        // Obtener Routes de usuario
+        // Obtener Routes, acciones y condiciones asociadas al rol del usuario en la tabla de permisos
         userRoutes: async (_, __, { user }) => {
             if (!user) throwCustomError(ErrorTypes.UNAUTHORIZED);
 
-            // Buscar el rol y las acciones asociadas
-            const roleRoutes = await models.Role.findByPk(user.role_id, {
-                include: { model: models.Route, through: { attributes: [] } },
+            // Buscar las rutas, acciones y condiciones asociadas al rol del usuario en la tabla de permisos
+            const permissions = await models.Permission.findAll({
+                where: { role_id: user.role_id },
+                include: [
+                    {
+                        model: models.Route,
+                    },
+                    {
+                        model: models.Action,
+                    },
+                    {
+                        model: models.Condition,
+                    },
+                ],
             });
-            if (!roleRoutes || !roleRoutes.Routes) throwCustomError(ErrorTypes.NO_ACTIONS_FOR_ROLE);
+            if (!permissions || permissions.length === 0) {
+                throwCustomError(ErrorTypes.NO_ACTIONS_FOR_ROLE);
+            }
 
-            // Mapear las acciones
-            const routes = roleRoutes.Routes.map(route => route);
-            // console.log(routes, 'routes')
-            return routes
+            // Agrupar rutas y sus acciones, incluyendo las condiciones
+            const routesWithActions = permissions.reduce((result, permission) => {
+                const { Route, Action, Condition } = permission;
+
+                // Si la ruta ya está en el resultado, añadimos la acción y condición
+                const existingRoute = result.find(route => route.route_id === Route.route_id);
+                if (existingRoute) {
+                    existingRoute.action.push({
+                        action_id: Action.action_id,
+                        name: Action.name,
+                        title: Action.title,
+                        description: Action.description,
+                        condition: Condition ? {
+                            condition_id: Condition.condition_id,
+                            name: Condition.name,
+                            title: Condition.title,
+                            description: Condition.description
+                        } : null,
+                    });
+                } else {
+                    // Si no existe, creamos una nueva entrada para la ruta con sus acciones
+                    result.push({
+                        route_id: Route.route_id,
+                        name: Route.name,
+                        title: Route.title,
+                        description: Route.description,
+                        path: Route.path,
+                        icon: Route.icon,
+                        module_id: Route.module_id,
+                        action: [
+                            {
+                                action_id: Action.action_id,
+                                name: Action.name,
+                                title: Action.title,
+                                description: Action.description,
+                                condition: Condition ? {
+                                    condition_id: Condition.condition_id,
+                                    name: Condition.name,
+                                    title: Condition.title,
+                                    description: Condition.description
+                                } : null,
+                            }
+                        ]
+                    });
+                }
+
+                return result;
+            }, []);
+            // console.log('routesWithActions', routesWithActions)
+            return routesWithActions;
         },
+
         // Verificar autenticación
         isAuth: async (_, __, { user }) => {
             // console.log('user is authenticated', user);
@@ -359,7 +412,6 @@ export const authResolver = {
         },
         // Verificar autenticación true o false
         isAuthBool: async (_, __, { user }) => {
-            console.log('user is authenticated', user);
             var result = false;
             if (user) {
                 result = true;

@@ -163,7 +163,7 @@ const validateForm = () => {
         errors.value.passwordMsg = t('login.errors.password_required');
         isValid = false;
     }
-    // else if (!passwordPattern.test(password)) {
+    // else if (!passwordPattern.test(password.value)) {
     //     errors.value.password = true;
     //     errors.value.passwordMsg = t('login.errors.password_invalid');
     //     isValid = false;

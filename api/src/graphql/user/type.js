@@ -17,6 +17,7 @@ const UserType = new GraphQLObjectType({
         state: { type: GraphQLBoolean },
         avatar: { type: GraphQLString },
         role_id: { type: GraphQLInt },
+        owner_id: { type: GraphQLString },
         role: {
             type: RoleType,
             resolve: (user) => {

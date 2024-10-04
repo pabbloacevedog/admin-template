@@ -30,9 +30,16 @@ const initializeRoute = (sequelize) => {
             type: DataTypes.STRING,
             allowNull: true
         },
+        resource: {
+            type: DataTypes.STRING,
+            allowNull: true
+        },
         icon: {
             type: DataTypes.STRING,
             allowNull: true
+        },
+        public: {
+            type: DataTypes.BOOLEAN
         },
         module_id: {
             type: DataTypes.INTEGER,

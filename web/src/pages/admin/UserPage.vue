@@ -13,7 +13,7 @@
         <div class="col-12 q-py-none">
             <div class="div-rounded-radius">
                 <q-card flat>
-                    <q-card-section class="q-px-none">
+                    <q-card-section class="q-pa-none">
                         <q-table class="q-px-none full-width" flat :rows="users" :columns="columns" row-key="name"
                             :pagination="pagination" :rows-per-page-options="[5, 10, 15, 20]" hide-pagination>
                             <template v-slot:top>
@@ -39,9 +39,9 @@
                                         </q-input>
                                     </q-item-section>
 
-                                    <q-item-section class="q-pa-none" side v-if="!$q.platform.is.mobile">
+                                    <q-item-section class="q-pa-none" side v-if="!$q.platform.is.mobile" >
                                         <q-btn :label="$t('users.btn_create')" icon="group_add" color="primary"
-                                            class="btn-border-radius" @click="showCreateUserModal" />
+                                            class="btn-border-radius" @click="showCreateUserModal" v-if="canCreate()" />
                                     </q-item-section>
                                 </q-item>
                             </template>
@@ -57,13 +57,14 @@
 
                             <template v-slot:body="props">
                                 <q-tr :props="props">
-                                    <q-td key="name" :props="props" @click="showViewUserModal(props.row)" class="cursor-pointer">
+                                    <q-td key="name" :props="props" @click="showViewUserModal(props.row)"
+                                        class="cursor-pointer">
                                         <ItemUserTable :user="props.row" />
                                     </q-td>
-                                    <q-td key="email" :props="props">{{ props.row.email }}</q-td>
                                     <q-td key="verified" :props="props" class="cursor-pointer">
-                                        <q-icon name="verified"  v-if="props.row.verified" class="text-verified cursor-pointer" size="24px"/>
-                                        <q-icon name="verified"  v-else color="second" size="24px"/>
+                                        <q-icon name="verified" v-if="props.row.verified"
+                                            class="text-verified cursor-pointer" size="24px" />
+                                        <q-icon name="verified" v-else color="second" size="24px" />
                                     </q-td>
                                     <q-td key="personal_phone" :props="props">{{ props.row.personal_phone || 'N/A'
                                         }}</q-td>
@@ -71,14 +72,14 @@
                                         <ItemRoleTable :user="props.row" />
                                     </q-td>
                                     <q-td key="state" :props="props">
-                                        <q-chip square outline dense  color="negative" text-color="white" v-if="!props.row.state" label="Inactive" class="chip-status" icon-right="fiber_manual_record"/>
-                                        <q-chip square outline dense color="positive" text-color="white" v-else label="Active" class="chip-status" icon-right="fiber_manual_record"/>
+                                        <q-chip square outline dense color="negative" text-color="white"
+                                            v-if="!props.row.state" label="Inactive" class="chip-status"
+                                            icon-right="fiber_manual_record" />
+                                        <q-chip square outline dense color="positive" text-color="white" v-else
+                                            label="Active" class="chip-status" icon-right="fiber_manual_record" />
                                     </q-td>
                                     <q-td key="actions" :props="props">
-                                        <q-btn v-if="props.row.user_id != authStore.user?.user_id" round icon="edit"
-                                            flat size="md" @click="editUser(props.row)" />
-                                        <q-btn flat v-if="props.row.user_id != authStore.user?.user_id" size="md" round
-                                            icon="delete_outline" @click="showDeleteUserModal(props.row)" />
+                                        <ItemActionsTable :user="props.row" :editUser="editUser" :showDeleteUserModal="showDeleteUserModal" :showViewUserModal="showViewUserModal" :userPermissions="availableActions"/>
                                     </q-td>
                                 </q-tr>
                             </template>
@@ -112,6 +113,7 @@ import UserDeleteModal from 'components/Users/UserDeleteModal.vue';
 import UserViewModal from 'components/Users/UserViewModal.vue';
 import ItemUserTable from 'components/Users/ItemUserTable.vue';
 import ItemRoleTable from 'components/Users/ItemRoleTable.vue';
+import ItemActionsTable from 'components/Users/ItemActionsTable.vue';
 import TitlePages from 'components/General/TitlePages.vue';
 import { useAuthStore } from 'stores/auth';
 const authStore = useAuthStore();
@@ -126,10 +128,13 @@ const pagination = ref({
     page: 1,
     rowsPerPage: 10,
 });
+// Extraer acciones para la ruta actual
+const routeName = 'users'; // Cambia esto según el nombre de la ruta actual
+const actions = ref([]);
+const routes = ref([]);
 
 const columns = ref([
-    { name: 'name', label: 'Nombre', align: 'left', field: 'name', sortable: true },
-    { name: 'email', label: 'Correo', align: 'left', field: 'email', sortable: true },
+    { name: 'name', label: 'User Name', align: 'left', field: 'name', sortable: true },
     { name: 'verified', label: 'Verified', align: 'left', field: 'verified', sortable: true },
     { name: 'personal_phone', label: 'Phone', align: 'left', field: 'personal_phone' },
     {
@@ -144,21 +149,52 @@ const columns = ref([
 ]);
 
 const pagesNumber = computed(() => Math.ceil(totalUsers.value / pagination.value.rowsPerPage));
-
+// Computed para obtener las acciones de la ruta
+const availableActions = computed(() => {
+    const route = routes.value.find(route => route.name === routeName);
+    return route ? route.action : [];
+});
 // Función para buscar usuarios, incluyendo filtros y paginación
 const fetchUsers = async () => {
     console.log("Fetching users...");
-    const response = await userStore.getAllUsers(
-        search.value,
-        pagination.value.page,
-        pagination.value.rowsPerPage
-    );
+
+    // Llama a la función para encontrar la acción de 'view'
+    // const viewAction = findViewAction();
+    const viewAction = availableActions.value.find(permission => permission.name === 'view');
+    console.log(viewAction, 'viewAction')
+    // Almacena la respuesta de los usuarios
+    let response;
+
+    // Verifica la condición del permiso
+    if (viewAction && viewAction.condition.name === 'all') {
+        // Si la condición es 'all', traer todos los usuarios
+        response = await userStore.getAllUsers(
+            search.value,
+            pagination.value.page,
+            pagination.value.rowsPerPage
+        );
+    } else if (viewAction && viewAction.condition.name === 'owner_only') {
+        // Si la condición es 'owner_only', traer solo los usuarios que ha creado el usuario actual
+        response = await userStore.getUsersByOwner(
+            search.value,
+            pagination.value.page,
+            pagination.value.rowsPerPage
+        );
+    } else {
+        console.log("No tiene permisos para ver usuarios.");
+        return; // Salir si no hay permisos
+    }
+
+    // Almacena los usuarios y el total de usuarios en el estado
     users.value = response.users;
     totalUsers.value = response.totalUsers;
+
+    // Debugging logs
     console.log('totalUsers: ' + totalUsers.value);
     console.log('users: ', users.value);
     console.log('pagination: ', pagination.value);
 };
+
 const onSearchChange = () => {
     console.log("onSearchChange users...");
     if (search.value.length > 2) {
@@ -184,7 +220,9 @@ const clearSearch = () => {
 
 const showCreateUserModal = () => {
     selectedUser.value = null;
-    userStore.show_modal_user = true;
+    if(canView()) {
+        userStore.show_modal_user = true;
+    }
 };
 const showDeleteUserModal = (user) => {
     selectedUser.value = user;
@@ -192,7 +230,9 @@ const showDeleteUserModal = (user) => {
 };
 const showViewUserModal = (user) => {
     selectedUser.value = user;
-    userStore.show_modal_view = true;
+    if(canView(user)) {
+        userStore.show_modal_view = true;
+    }
 };
 const editUser = (user) => {
     selectedUser.value = user;
@@ -216,8 +256,18 @@ const closeModalView = () => {
     userStore.show_modal_view = false;
     fetchUsers();
 };
-onMounted(fetchUsers);
 
+onMounted(async () => {
+    try {
+
+        routes.value = await authStore.userRoutes();
+        actions.value = availableActions.value;
+        fetchUsers()
+        console.log('Available Actions:', actions.value);
+    } catch (error) {
+        console.error('Error fetching user:', error);
+    }
+});
 watch(
     () => userStore.show_modal_user,
     (newValue) => {
@@ -226,6 +276,37 @@ watch(
         }
     }
 );
+// Función para verificar si el usuario puede ver
+function canView(user) {
+    const viewPermission = availableActions.value.find(permission => permission.name === 'view');
+
+    if (!viewPermission) return false; // Si no tiene permiso de visualización, no puede ver
+
+    const condition = viewPermission.condition;
+    if (condition.name === 'all') {
+        return true; // Puede ver cualquier recurso
+    }
+
+    if (condition.name === 'owner_only') {
+        return userIsOwner(user); // Pasa el usuario como argumento
+    }
+
+    return false; // Por defecto, no puede ver
+}
+function canCreate(user) {
+    const createPermission = availableActions.value.find(permission => permission.name === 'create');
+
+    if (!createPermission) return false; // Si no tiene permiso de creación, no puede crear
+
+    return true; // Por defecto, no puede crear
+}
+
+// Implementa esta función según la lógica de tu aplicación
+function userIsOwner(user) {
+    // Lógica para determinar si el usuario actual es el propietario del recurso
+    // Por ejemplo, comparar IDs de usuario o cualquier otro método necesario
+    return user.user_id === authStore.user?.user_id || user.owner_id === authStore.user?.user_id; // Ajusta esto según tu lógica
+}
 </script>
 
 <style scoped>
@@ -249,7 +330,8 @@ watch(
     font-size: 18px !important;
     text-transform: none;
 }
-.chip-status{
+
+.chip-status {
     font-size: 12px;
     padding: 9px 10px;
 }

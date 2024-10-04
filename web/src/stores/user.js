@@ -118,6 +118,7 @@ export const useUserStore = defineStore("user", {
                                 description
                                 color
                             }
+                            owner_id
                         }
                         totalUsers
                     }
@@ -140,6 +141,64 @@ export const useUserStore = defineStore("user", {
                     fetchPolicy: 'network-only',
                 });
                 const { users, totalUsers } = response.data.getAllUsers
+                // Almacenamos los usuarios en el estado
+                this.users = users
+
+                // Almacenamos el número total de usuarios
+                this.totalUsers = totalUsers
+
+                return { users: this.users, totalUsers: this.totalUsers };
+            } catch (error) {
+                this.error = error.message;
+                throw error;
+            }
+        },
+        async getUsersByOwner(search, page, rowsPerPage) {
+            // Modificamos el query para aceptar los parámetros de búsqueda y paginación
+            const ALL_USERS_QUERY = gql`
+                query getUsersByOwner ($filter: FilterInput, $pagination: PaginationInput!) {
+                    getUsersByOwner(pagination: $pagination, filter: $filter) {
+                        users {
+                            user_id
+                            # rut_user
+                            name
+                            username
+                            email
+                            personal_phone
+                            avatar
+                            role_id
+                            verified
+                            state
+                            role {
+                                role_id
+                                name
+                                title
+                                description
+                                color
+                            }
+                            owner_id
+                        }
+                        totalUsers
+                    }
+                }
+                `;
+            const variables = {
+                pagination: {
+                    page,
+                    rowsPerPage
+                },
+                filter: {
+                    search
+                },
+            };
+            try {
+                // Ejecutamos la consulta con el filtro de búsqueda y paginación
+                const response = await apolloClient.query({
+                    query: ALL_USERS_QUERY,
+                    variables,
+                    fetchPolicy: 'network-only',
+                });
+                const { users, totalUsers } = response.data.getUsersByOwner
                 // Almacenamos los usuarios en el estado
                 this.users = users
 

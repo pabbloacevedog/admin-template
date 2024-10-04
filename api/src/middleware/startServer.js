@@ -6,6 +6,7 @@ async function syncDatabase() {
     console.info('SETUP - Sincronizando tablas de la base de datos...');
     const sequelizeOptions = {};
     console.info('ENV', DB_FORCE_RESTART, ENV);
+    sequelizeOptions.alter = false;
     // sequelizeOptions.alter = true;
     // sequelizeOptions.force = true; // esto elimina las tablas y las vuelve a crear
     await models.sequelize.sync(sequelizeOptions);

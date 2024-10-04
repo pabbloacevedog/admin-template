@@ -120,7 +120,6 @@ export const useAuthStore = defineStore("auth", {
                             username
                             email
                             personal_phone
-                            verification_code
                             verified
                             state
                             avatar
@@ -177,7 +176,7 @@ export const useAuthStore = defineStore("auth", {
             }
         },
         async userRoutes() {
-            const USERACTIONS_QUERY = gql`
+            const USER_ROUTER_QUERY = gql`
                 query userRoutes {
                     userRoutes {
                         route_id
@@ -187,12 +186,24 @@ export const useAuthStore = defineStore("auth", {
                         path
                         icon
                         module_id
+                        action {
+                            action_id
+                            name
+                            title
+                            description
+                            condition {
+                                condition_id
+                                name
+                                title
+                                description
+                            }
+                        }
                     }
                 }
             `;
             try {
                 const response = await apolloClient.query({
-                    query: USERACTIONS_QUERY,
+                    query: USER_ROUTER_QUERY,
                     fetchPolicy: "network-only",
                 });
                 // console.log(response.data);
@@ -205,6 +216,7 @@ export const useAuthStore = defineStore("auth", {
             }
         },
         async updateUserSettings(updatedUser) {
+            console.log("updateUserSettings", updatedUser);
             const UPDATE_ACCOUNT_MUTATION = gql`
                 mutation updateAccount(
                     $userId: String!
@@ -218,11 +230,17 @@ export const useAuthStore = defineStore("auth", {
                             username
                             email
                             personal_phone
-                            verification_code
                             verified
                             state
                             avatar
                             role_id
+                            role {
+                                role_id
+                                name
+                                title
+                                description
+                                color
+                            }
                         }
                         message
                     }
@@ -233,16 +251,7 @@ export const useAuthStore = defineStore("auth", {
                     mutation: UPDATE_ACCOUNT_MUTATION,
                     variables: {
                         userId: updatedUser.user_id,
-                        input: {
-                            name: updatedUser.name,
-                            username: updatedUser.username,
-                            email: updatedUser.email,
-                            personal_phone: updatedUser.personal_phone,
-                            // rut_user: updatedUser.rut_user,
-                            verified: updatedUser.verified,
-                            avatar: updatedUser.avatar,
-                            role_id: updatedUser.role_id,
-                        },
+                        input: updatedUser,
                     },
                 });
                 const { user, message } =  response.data.updateAccount;

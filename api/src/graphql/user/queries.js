@@ -23,6 +23,14 @@ export const getAllUsers = {
     },
     resolve: userResolver.Query.getAllUsers
 };
+export const getUsersByOwner = {
+    type: UsersResultType, // Retorna una lista de usuarios
+    args: {
+        pagination: { type: PaginationInput },
+        filter: { type: FilterInput }
+    },
+    resolve: userResolver.Query.getUsersByOwner
+};
 export const getUserById = {
     type: UserType,  // Retorna un solo usuario
     args: {

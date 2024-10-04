@@ -20,7 +20,8 @@ const errorTranslations = {
         WRONG_CURRENT_PASSWORD: 'Wrong current password',
         EMAIL_NOT_VERIFIED:'Email not verified, please verify your email before logging in.',
         EMAIL_ALREADY_IN_USE:'Email already in use by another user.',
-        USER_INACTIVE:'Your account is disabled, please contact an administrator to resolve the issue.'
+        USER_INACTIVE:'Your account is disabled, please contact an administrator to resolve the issue.',
+        UNAUTHORIZED_ACTION: 'You are not authorized to perform this action.'
     },
     es: {
         BAD_USER_PASSWORD: 'Lo sentimos, la contraseña que ingresaste es incorrecta. Inténtalo de nuevo.',
@@ -41,7 +42,8 @@ const errorTranslations = {
         WRONG_CURRENT_PASSWORD: 'contraseña actual incorrecta',
         EMAIL_NOT_VERIFIED:'Email no verificado, verificalo desde tu correo para continuar.',
         EMAIL_ALREADY_IN_USE:'El email esta siendo usado por otro usuario.',
-        USER_INACTIVE:'Tu cuenta esta desactivada, contacta a un administrador para solucionar.'
+        USER_INACTIVE:'Tu cuenta esta desactivada, contacta a un administrador para solucionar.',
+        UNAUTHORIZED_ACTION: 'No tienes autorizacion para realizar esta acción.'
     },
     // Agrega más idiomas aquí
 };

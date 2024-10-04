@@ -1,9 +1,7 @@
 
 import { GraphQLString, GraphQLObjectType, GraphQLList } from 'graphql';
 import AuthType from './type.js';
-import { UserType } from '../user/type.js';  // Asegúrate de tener definido el UserType
-import actionType from '../action/type.js';
-import routeType from '../route/type.js';
+import { RouteType } from '../route/type.js';
 import { authResolver } from './resolvers.js';
 
 export const login = {
@@ -22,12 +20,9 @@ export const userSettings = {
     },
     resolve: authResolver.Query.userSettings,
 };
-export const userActions = {
-    type: new GraphQLList(actionType),
-    resolve: authResolver.Query.userActions,
-};
+
 export const userRoutes = {
-    type: new GraphQLList(routeType),
+    type: new GraphQLList(RouteType),
     resolve: authResolver.Query.userRoutes,
 };
 export const isAuth = {

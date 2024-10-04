@@ -1,57 +1,74 @@
 import models from '../models/index.js';
+import { QueryTypes } from 'sequelize';
 import throwCustomError, { ErrorTypes } from '../helpers/error-handler.helper.js';
 
 // Función para validar condiciones
-const validateConditions = async (userId, permissionId, resource) => {
+const validateConditions = async (userIdEditor, conditionId, resource, resourceId) => {
     // Obtener las condiciones asociadas al permiso
-    const conditions = await models.Condition.findAll({
-        where: { permission_id: permissionId },
-        include: [models.Rule] // Incluir la regla asociada
+    console.log(userIdEditor, conditionId, resource)
+    const condition = await models.Condition.findOne({
+        where: { condition_id: conditionId },
     });
-
-    if (!conditions.length) {
+    console.log(`condition: ${condition}`)
+    if (!condition) {
         return true; // Si no hay condiciones, se permite el acceso por defecto
     }
 
-    for (const condition of conditions) {
-        const { Rule, value } = condition;
 
-        // Validar según la regla predefinida
-        const isValid = await validateRule(Rule.logic, userId, value, resource);
-        if (!isValid) {
-            return false; // La condición no se cumple
-        }
+
+    // Validar según la regla predefinida
+    const isValid = await validateRule(userIdEditor, condition.name, resource, resourceId);
+    if (!isValid) {
+        return false; // La condición no se cumple
     }
+
 
     return true; // Todas las condiciones se cumplen
 };
 
 // Función para validar según la regla
-const validateRule = async (ruleLogic, userId, expectedValue, resource) => {
-    switch (ruleLogic) {
+const validateRule = async (userIdEditor, name,  resource, resourceId) => {
+    console.log('validateRule', name, resource);
+    switch (name) {
         case 'owner_only':
-            const isOwner = await isUserOwner(userId, resource);
-            return isOwner === (expectedValue === 'true');
+            const isOwner = await isUserOwner(userIdEditor,resource, resourceId);
+            return isOwner;
 
         case 'all':
             return true;
         // Agrega más reglas predefinidas según sea necesario
 
         default:
-            throwCustomError(ErrorTypes.INVALID_RULE);
+            throwCustomError(ErrorTypes.UNAUTHORIZED_ACTION);
     }
 };
 
 // Verifica si el usuario es el propietario del recurso
-async function isUserOwner(userId, resource) {
-    const resource = await models.sequelize.query(
-        ' SELECT * FROM :resource WHERE owner_id = :user_id LIMIT 1 ',
-        {
-            replacements: { user_id: userId, resource: resource },
-            type: QueryTypes.SELECT
-        }
-    );
-    return !!resource; // Devuelve true si el recurso pertenece al usuario
+async function isUserOwner(userIdEditor, resource, resourceId) {
+    let result = false;
+
+    if (resource === 'user') {
+        // Para el recurso 'user', el userId debe coincidir con el resourceId
+        result = await models.sequelize.query(
+            'SELECT * FROM user WHERE user_id = :resourceId AND user_id = :userIdEditor LIMIT 1', // Verificamos que el usuario que edita es el mismo que se está editando
+            {
+                replacements: { userIdEditor: userIdEditor, resourceId: resourceId },
+                type: QueryTypes.SELECT
+            }
+        );
+    } else {
+        // Para otros recursos, el owner_id debe coincidir con el userId
+        result = await models.sequelize.query(
+            'SELECT * FROM ' + resource + ' WHERE owner_id = :userIdEditor AND ' + resource + '_id = :resourceId LIMIT 1', // Verificamos que el usuario que edita es el propietario del recurso
+            {
+                replacements: { userIdEditor: userIdEditor, resourceId: resourceId },
+                type: QueryTypes.SELECT
+            }
+        );
+    }
+
+    console.log(result, 'result');
+    return result.length > 0; // Devuelve true si el recurso pertenece al usuario o es el mismo usuario editado
 }
 
 // // Verifica si el usuario es mayor de edad

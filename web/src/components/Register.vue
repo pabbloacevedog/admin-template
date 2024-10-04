@@ -12,8 +12,14 @@
                             autocomplete="name" :error="errors.name" :error-message="errors.nameMsg" />
                         <q-input v-model="email" :label="$t('register.email')" type="email" filled class="q-mb-md"
                             autocomplete="email" :error="errors.email" :error-message="errors.emailMsg" />
-                        <q-input v-model="password" :label="$t('register.pass')" type="password" filled class="q-mb-md"
-                            :error="errors.password" :error-message="errors.passwordMsg" />
+                        <q-input v-model="password" filled :type="isPwd ? 'password' : 'text'"
+                            :label="$t('login.password')" autocomplete="new-password" :error="errors.password"
+                            :error-message="errors.passwordMsg" class="q-mb-md">
+                            <template v-slot:append>
+                                <q-icon :name="isPwd ? 'visibility_off' : 'visibility'" class="cursor-pointer"
+                                    @click="isPwd = !isPwd" />
+                            </template>
+                        </q-input>
                         <q-btn :label="$t('register.btn_signup')" type="submit" color="primary"
                             class="full-width q-mb-md btn-border-radius" />
                         <div class="row justify-center q-mb-md">
@@ -45,7 +51,7 @@ const { t } = useI18n();
 const name = ref('');
 const email = ref('');
 const password = ref('');
-
+const isPwd = ref(true);
 const authStore = useAuthStore();
 const router = useRouter();
 const $q = useQuasar();
@@ -95,7 +101,7 @@ const validateForm = () => {
         errors.value.password = true;
         errors.value.passwordMsg = t('register.errors.password_required');
         isValid = false;
-    } else if (!passwordPattern.test(password)) {
+    } else if (!passwordPattern.test(password.value)) {
         errors.value.password = true;
         errors.value.passwordMsg = t('register.errors.password_invalid');
         isValid = false;
@@ -215,6 +221,7 @@ onMounted(() => {
         flex: none;
     }
 }
+
 /* Estilo para pantallas grandes: ratio de 1 */
 @media (min-width: 856px) {
     .img-register {
@@ -230,6 +237,7 @@ onMounted(() => {
         /* Ratio libre en pantallas móviles */
     }
 }
+
 @media (max-width: 855px) {
 
     .form-register {

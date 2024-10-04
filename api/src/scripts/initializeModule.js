@@ -20,6 +20,8 @@ export async function initializeModule(models) {
             description: 'View an overview of system metrics and important information. Provides quick access to the main features and statistics.',
             path: '/admin',
             icon: 'dashboard',
+            public: true,
+            resource: 'dashboard',
             module_id: moduleId
         },
         {
@@ -28,6 +30,8 @@ export async function initializeModule(models) {
             description: 'Access and manage your account settings, including personal information, security options, and notification preferences.',
             path: '/admin/users',
             icon: 'supervised_user_circle',
+            public: false,
+            resource: 'user',
             module_id: moduleId
         },
         {
@@ -36,6 +40,8 @@ export async function initializeModule(models) {
             description: 'Manage roles and permissions.',
             path: '/admin/roles',
             icon: 'attribution',
+            public: false,
+            resource: 'role',
             module_id: moduleId
         },
         {
@@ -44,6 +50,8 @@ export async function initializeModule(models) {
             description: 'Access and manage your account settings, including personal information, security options, and notification preferences.',
             path: '/admin/settings',
             icon: 'manage_accounts',
+            public: false,
+            resource: 'user',
             module_id: moduleId
         },
     ];
@@ -57,6 +65,8 @@ export async function initializeModule(models) {
                     description: route.description,
                     path: route.path,
                     icon: route.icon,
+                    public: route.public,
+                    resource: route.resource,
                     module_id: route.module_id
                 }
             })
@@ -73,8 +83,8 @@ export async function initializeModule(models) {
             description: 'Allows the user to create new records or entries in the system, giving them permission to add new data.'
         },
         {
-            name: 'read',
-            title: 'Read',
+            name: 'view',
+            title: 'View',
             description: 'Grants the user access to view and retrieve data or records from the system without making modifications.'
         },
         {
@@ -108,11 +118,6 @@ export async function initializeModule(models) {
             description: 'Allows the user to access only if the user is the owner of the resource.'
         },
         {
-            name: 'none',
-            title: 'None',
-            description: 'None access'
-        },
-        {
             name: 'all',
             title: 'All',
             description: 'Allows the user to access all resources.'
@@ -136,13 +141,15 @@ export async function initializeModule(models) {
             name: 'admin',
             title: 'Administrator',
             description: 'The administrator role has full access to all features and settings in the system, including user management and system configuration.',
-            color: 'admin'
+            color: 'admin',
+            owner_id: '1'
         },
         {
             name: 'user',
             title: 'User',
             description: 'The user role provides access to basic system functionalities, allowing the user to interact with the platform but with limited permissions.',
-            color: 'role-color-3'
+            color: 'role-color-3',
+            owner_id: '1'
         }
     ];
 
@@ -153,7 +160,8 @@ export async function initializeModule(models) {
                 defaults: {
                     title: role.title,
                     description: role.description,
-                    color: role.color
+                    color: role.color,
+                    owner_id: role.owner_id
                 }
             })
         )
@@ -182,11 +190,10 @@ export async function initializeModule(models) {
     const adminRole = roleIndex['admin'];
     const userRole = roleIndex['user'];
     const createAction = actionIndex['create'];
-    const readAction = actionIndex['read'];
+    const viewAction = actionIndex['view'];
     const updateAction = actionIndex['update'];
     const deleteAction = actionIndex['delete'];
 
-    const noneCondition = conditionIndex['none'];
     const ownerCondition = conditionIndex['owner_only'];
     const allCondition = conditionIndex['all'];
 
@@ -199,17 +206,23 @@ export async function initializeModule(models) {
     const permissions = [
         // Permisos para el rol admin
         { role_id: adminRole.dataValues.role_id, route_id: dashboardRoute.dataValues.route_id, action_id: createAction.dataValues.action_id, condition_id: allCondition.dataValues.condition_id },
-        { role_id: adminRole.dataValues.role_id, route_id: dashboardRoute.dataValues.route_id, action_id: readAction.dataValues.action_id, condition_id: allCondition.dataValues.condition_id },
+        { role_id: adminRole.dataValues.role_id, route_id: dashboardRoute.dataValues.route_id, action_id: viewAction.dataValues.action_id, condition_id: allCondition.dataValues.condition_id },
         { role_id: adminRole.dataValues.role_id, route_id: dashboardRoute.dataValues.route_id, action_id: updateAction.dataValues.action_id, condition_id: allCondition.dataValues.condition_id },
         { role_id: adminRole.dataValues.role_id, route_id: dashboardRoute.dataValues.route_id, action_id: deleteAction.dataValues.action_id, condition_id: allCondition.dataValues.condition_id },
         { role_id: adminRole.dataValues.role_id, route_id: userRoute.dataValues.route_id, action_id: createAction.dataValues.action_id, condition_id: allCondition.dataValues.condition_id },
-        { role_id: adminRole.dataValues.role_id, route_id: userRoute.dataValues.route_id, action_id: readAction.dataValues.action_id, condition_id: allCondition.dataValues.condition_id },
+        { role_id: adminRole.dataValues.role_id, route_id: userRoute.dataValues.route_id, action_id: viewAction.dataValues.action_id, condition_id: allCondition.dataValues.condition_id },
+        { role_id: adminRole.dataValues.role_id, route_id: userRoute.dataValues.route_id, action_id: updateAction.dataValues.action_id, condition_id: allCondition.dataValues.condition_id },
+        { role_id: adminRole.dataValues.role_id, route_id: roleRoute.dataValues.route_id, action_id: deleteAction.dataValues.action_id, condition_id: allCondition.dataValues.condition_id },
+
         { role_id: adminRole.dataValues.role_id, route_id: roleRoute.dataValues.route_id, action_id: createAction.dataValues.action_id, condition_id: allCondition.dataValues.condition_id },
-        { role_id: adminRole.dataValues.role_id, route_id: roleRoute.dataValues.route_id, action_id: readAction.dataValues.action_id, condition_id: allCondition.dataValues.condition_id },
+        { role_id: adminRole.dataValues.role_id, route_id: roleRoute.dataValues.route_id, action_id: viewAction.dataValues.action_id, condition_id: allCondition.dataValues.condition_id },
+        { role_id: adminRole.dataValues.role_id, route_id: settingsRoute.dataValues.route_id, action_id: viewAction.dataValues.action_id, condition_id: allCondition.dataValues.condition_id },
+        { role_id: adminRole.dataValues.role_id, route_id: settingsRoute.dataValues.route_id, action_id: viewAction.dataValues.action_id, condition_id: allCondition.dataValues.condition_id },
         // Permisos para el rol user
-        { role_id: userRole.dataValues.role_id, route_id: dashboardRoute.dataValues.route_id, action_id: readAction.dataValues.action_id, condition_id: allCondition.dataValues.condition_id },
-        { role_id: userRole.dataValues.role_id, route_id: settingsRoute.dataValues.route_id, action_id: readAction.dataValues.action_id, condition_id: allCondition.dataValues.condition_id },
-        { role_id: userRole.dataValues.role_id, route_id: userRoute.dataValues.route_id, action_id: readAction.dataValues.action_id, condition_id: allCondition.dataValues.condition_id }
+        { role_id: userRole.dataValues.role_id, route_id: dashboardRoute.dataValues.route_id, action_id: viewAction.dataValues.action_id, condition_id: allCondition.dataValues.condition_id },
+        { role_id: userRole.dataValues.role_id, route_id: settingsRoute.dataValues.route_id, action_id: viewAction.dataValues.action_id, condition_id: allCondition.dataValues.condition_id },
+        { role_id: userRole.dataValues.role_id, route_id: userRoute.dataValues.route_id, action_id: viewAction.dataValues.action_id, condition_id: allCondition.dataValues.condition_id },
+        { role_id: userRole.dataValues.role_id, route_id: userRoute.dataValues.route_id, action_id: updateAction.dataValues.action_id, condition_id: ownerCondition.dataValues.condition_id }
     ];
 
     // Crear todos los permisos en la tabla Permission

@@ -32,6 +32,10 @@ const initializeRole = (sequelize) => {
             type: DataTypes.STRING,
             allowNull: false
         },
+        owner_id: {
+            type: DataTypes.STRING,
+            allowNull: false
+        },
     }, {
         sequelize,
         tableName: 'role',

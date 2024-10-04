@@ -163,6 +163,7 @@ const props = defineProps({
 const selectedRole = ref(null); // nuevo ref para el select
 const user = ref(props.user);
 const form = ref({
+    user_id: '',
     name: '',
     username: '',
     email: '',

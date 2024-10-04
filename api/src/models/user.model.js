@@ -3,7 +3,7 @@ import { hashPassword } from '../utils/index.js';
 
 class User extends Model {
     static associate(models) {
-        this.belongsTo(models.Role, { foreignKey: 'role_id'});
+        this.belongsTo(models.Role, { foreignKey: 'role_id' });
     }
 }
 
@@ -34,7 +34,7 @@ const initializeUser = (sequelize) => {
         username: {
             type: DataTypes.STRING(255),
             unique: true,
-            llowNull: true,
+            allowNull: true,
             validate: {
                 is: /^[a-zA-Z0-9_]+$/, // Solo letras, números y guiones bajos
             }
@@ -76,6 +76,10 @@ const initializeUser = (sequelize) => {
         role_id: {
             type: DataTypes.INTEGER
         },
+        owner_id: {
+            type: DataTypes.STRING,
+            allowNull: false
+        },
     }, {
         timestamps: true,
         tableName: 'user',
@@ -101,10 +105,13 @@ const initializeUser = (sequelize) => {
         indexes: [
             {
                 unique: true,
-                fields: ['email']
+                fields: ['email'], // Definir un índice único si no se usa 'unique' en el campo
             },
-            // Otros índices según sea necesario
-        ]
+            {
+                unique: true,
+                fields: ['username'], // Definir un índice único si no se usa 'unique' en el campo
+            },
+        ],
     });
 
     return User;

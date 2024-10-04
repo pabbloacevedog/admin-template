@@ -26,7 +26,8 @@
                     <q-input class="q-my-md" filled v-model="form.name" />
                     <q-input class="q-my-md" filled v-model="form.username" />
                     <q-input class="q-my-md" filled v-model="form.email" disable readonly />
-                    <q-input class="q-my-md" filled v-model="form.personal_phone" />
+                    <q-input :dense="isMobile" class="input-bottom" filled v-model="form.personal_phone"
+                        :label="$t('Phone: (###) ### - ####')" type="tel" mask="(###) ### - ####" />
                     <!-- <q-input class="q-my-md" filled v-model="form.rut_user" /> -->
                 </q-card-section>
             </q-card-section>
@@ -48,13 +49,12 @@ import AvatarUploader from './AvatarUploader.vue';
 const authStore = useAuthStore();
 const $q = useQuasar();
 const form = ref({
-    user_id: '',
+    user_id: authStore.user.user_id,
     // rut_user: '',
     name: '',
     username: '',
     email: '',
     personal_phone: '',
-    verification_code: '',
     verified: false,
     state: '',
     avatar: '',
@@ -82,14 +82,21 @@ onMounted(async () => {
 const saveChanges = async () => {
     $q.loading.show()
     // Guardar cambios generales
+    // Eliminamos el role, avatar, verified y el __typename para que sea igual al input que espera graphql
+    delete form.value.role;
+    delete form.value.avatar;
+    delete form.value.verified;
+    delete form.value.__typename;
     await authStore.updateUserSettings(form.value).then(response => {
         console.log('response: ' + response)
-        updateUserInLocalStorage({
-            email: form.value.email,
-            name: form.value.name,
-            avatar: form.value.avatar
-        });
-        authStore.updateUserStore(form.value)
+        // const new_data = {
+        //     email: form.value.email,
+        //     name: form.value.name,
+        //     avatar: authStore.user.avatar
+        // }
+        // // updateUserInLocalStorage(new_data);
+        // form.value = { avatar: authStore.user.avatar, ...form.value }
+        // authStore.updateUserStore(form.value)
         $q.notify({
             type: 'positive',
             message: response,

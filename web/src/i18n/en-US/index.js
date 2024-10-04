@@ -82,6 +82,7 @@ export default {
         title: "Verify Your Email",
         description: "Click the button below to verify your email address.",
         btn_verify: "Verify Email",
+        verifying: "We are verifying your email...",
         success: "Your email has been verified successfully!",
         errors: {
             invalid_token: "The verification token is invalid or has expired.",

@@ -84,6 +84,10 @@ export const ErrorTypes = {
         errorCode: 'USER_INACTIVE',
         statusCode: 403,
     },
+    UNAUTHORIZED_ACTION: {
+        errorCode: 'UNAUTHORIZED_ACTION',
+        statusCode: 403,
+    },
 
 };
 const getCurrentLanguage = () => {
