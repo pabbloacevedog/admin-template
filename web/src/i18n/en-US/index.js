@@ -180,6 +180,63 @@ export default {
         title: "Role Management",
         description: "Manage your roles and their routes and actions",
         icon: 'attribution',
+        btn_create: "Add Role",
+        account: {
+            role_id: {
+                title: "Role ID",
+                description: "Write the role ID",
+            },
+            name: {
+                title: "Role Name *",
+                description: "Write the role name",
+            },
+            title: {
+                title: "Title",
+                description: "Title for show the role",
+            },
+            description: {
+                title: "Description",
+                description: "Description for show the role",
+            },
+            color: {
+                title: "Color",
+                description: "Color that represents the role",
+            },
+        },
+        edit: {
+            title: "Update data role",
+            description: "Complete all data role",
+            upload_avatar: "Avatar update successfully",
+            btn_action: "Update",
+            btn_cancel: "Cancel"
+        },
+        create: {
+            title: "Create a new role",
+            description: "Complete all data role",
+            upload_avatar: "Avatar upload successfully",
+            btn_action: "Create Account",
+            btn_cancel: "Cancel"
+        },
+        delete: {
+            message: "Are you sure you want to delete the role ",
+            title: "Delete role ",
+            description: "You need to confirm for delete role",
+            deleted_success: "Role account deleted successfully",
+            btn_action: "Delete",
+            btn_cancel: "Cancel"
+        },
+        view: {
+            btn_action: "Close"
+        },
+        errors: {
+            title_required: "Title is required.",
+            title_min_length: "Title must be at least 3 characters.",
+            description_required: "Description is required.",
+            description_min_length: "Description must be at least 3 characters.",
+            name_min_length: "Name must be at least 3 characters.",
+            name_required: "Name is required.",
+            fix_errors: "Please correct the errors before continuing.",
+        },
     },
     settings: {
         title: "Settings",

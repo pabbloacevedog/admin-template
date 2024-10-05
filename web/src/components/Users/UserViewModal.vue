@@ -100,10 +100,9 @@
 
 <script setup>
 import { ref, computed } from 'vue';
-import { useUserStore } from 'stores/user';
 import { useQuasar } from 'quasar';
 import { useI18n } from 'vue-i18n';
-import InputTitleModalView from './InputTitleModalView.vue';
+import InputTitleModalView from '../General/InputTitleModalView.vue';
 const props = defineProps({
     user: {
         type: Object,
@@ -116,7 +115,6 @@ const emits = defineEmits(['close']);
 const $q = useQuasar();
 const { t } = useI18n();
 const isOpen = ref(true);
-const userStore = useUserStore();
 
 const close = () => {
     isOpen.value = false;

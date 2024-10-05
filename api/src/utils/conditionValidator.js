@@ -5,16 +5,15 @@ import throwCustomError, { ErrorTypes } from '../helpers/error-handler.helper.js
 // Función para validar condiciones
 const validateConditions = async (userIdEditor, conditionId, resource, resourceId) => {
     // Obtener las condiciones asociadas al permiso
-    console.log(userIdEditor, conditionId, resource)
+    console.log(userIdEditor, conditionId, resource);
     const condition = await models.Condition.findOne({
         where: { condition_id: conditionId },
     });
-    console.log(`condition: ${condition}`)
+    console.log(`condition: ${condition}`);
+
     if (!condition) {
         return true; // Si no hay condiciones, se permite el acceso por defecto
     }
-
-
 
     // Validar según la regla predefinida
     const isValid = await validateRule(userIdEditor, condition.name, resource, resourceId);
@@ -22,26 +21,102 @@ const validateConditions = async (userIdEditor, conditionId, resource, resourceI
         return false; // La condición no se cumple
     }
 
-
     return true; // Todas las condiciones se cumplen
 };
 
 // Función para validar según la regla
-const validateRule = async (userIdEditor, name,  resource, resourceId) => {
+const validateRule = async (userIdEditor, name, resource, resourceId) => {
     console.log('validateRule', name, resource);
     switch (name) {
         case 'owner_only':
-            const isOwner = await isUserOwner(userIdEditor,resource, resourceId);
+            const isOwner = await isUserOwner(userIdEditor, resource, resourceId);
             return isOwner;
 
         case 'all':
             return true;
-        // Agrega más reglas predefinidas según sea necesario
+
+        case 'onwner_and_others_owners':
+            const hasAccess = await hasUserOrRoleAccess(userIdEditor, resource, resourceId);
+            return hasAccess;
+
+        case 'role_based_access':
+            const canViewOthers = await canViewResourcesByOtherRolesOrUsers(userIdEditor, resource, resourceId);
+            return canViewOthers;
 
         default:
             throwCustomError(ErrorTypes.UNAUTHORIZED_ACTION);
     }
 };
+
+// Verifica si el usuario o rol tiene acceso al recurso
+async function hasUserOrRoleAccess(userIdEditor, resource, resourceId) {
+    // Primero, verifica si el usuario es el propietario del recurso
+    const isOwner = await isUserOwner(userIdEditor, resource, resourceId);
+    if (isOwner) return true;
+
+    // Luego, verifica si el usuario o su rol tiene acceso adicional al recurso
+    const userRoles = await models.UserRole.findAll({
+        where: { user_id: userIdEditor },
+        attributes: ['role_id']
+    });
+
+    const roleIds = userRoles.map(role => role.role_id);
+
+    // Consulta para verificar si el usuario o su rol tienen acceso al recurso
+    const result = await models.sequelize.query(
+        `
+        SELECT * FROM resource_access
+        WHERE resource_id = :resourceId
+        AND resource_type = :resource
+        AND (user_id = :userIdEditor OR role_id IN (:roleIds))
+        LIMIT 1
+        `,
+        {
+            replacements: {
+                resourceId: resourceId,
+                resource: resource,
+                userIdEditor: userIdEditor,
+                roleIds: roleIds.length ? roleIds : [null] // Asegura que la consulta funcione incluso si no hay roles
+            },
+            type: QueryTypes.SELECT
+        }
+    );
+
+    return result.length > 0; // Devuelve true si se encontró acceso adicional
+}
+
+// Verifica si el usuario o su rol tiene acceso para ver recursos creados por otros usuarios o roles
+async function canViewResourcesByOtherRolesOrUsers(userIdEditor, resource, resourceId) {
+    // Obtener los roles del usuario que intenta acceder
+    const userRoles = await models.UserRole.findAll({
+        where: { user_id: userIdEditor },
+        attributes: ['role_id']
+    });
+    const roleIds = userRoles.map(role => role.role_id);
+
+    // Verifica si el usuario o sus roles tienen acceso para ver recursos creados por otros roles o usuarios
+    const result = await models.sequelize.query(
+        `
+        SELECT * FROM resource_access
+        WHERE resource_id = :resourceId
+        AND resource_type = :resource
+        AND access_type = 'view'  -- Verificamos que el acceso sea para 'view'
+        AND (user_id = :userIdEditor OR role_id IN (:roleIds))
+        LIMIT 1
+        `,
+        {
+            replacements: {
+                resourceId: resourceId,
+                resource: resource,
+                userIdEditor: userIdEditor,
+                roleIds: roleIds.length ? roleIds : [null] // Manejo de roles
+            },
+            type: QueryTypes.SELECT
+        }
+    );
+
+    return result.length > 0; // Retorna true si tiene acceso a ver el recurso
+}
 
 // Verifica si el usuario es el propietario del recurso
 async function isUserOwner(userIdEditor, resource, resourceId) {
@@ -70,24 +145,5 @@ async function isUserOwner(userIdEditor, resource, resourceId) {
     console.log(result, 'result');
     return result.length > 0; // Devuelve true si el recurso pertenece al usuario o es el mismo usuario editado
 }
-
-// // Verifica si el usuario es mayor de edad
-// async function isUserOfLegalAge(userId) {
-//     const user = await models.User.findOne({ where: { user_id: userId } });
-//     const age = user ? calculateAge(user.birthdate) : null; // Asegúrate de tener el campo birthdate en tu modelo User
-//     return age >= 18; // Considera mayor de edad a 18 años o más
-// }
-
-// // Función auxiliar para calcular la edad
-// function calculateAge(birthdate) {
-//     const today = new Date();
-//     const birthDate = new Date(birthdate);
-//     let age = today.getFullYear() - birthDate.getFullYear();
-//     const monthDifference = today.getMonth() - birthDate.getMonth();
-//     if (monthDifference < 0 || (monthDifference === 0 && today.getDate() < birthDate.getDate())) {
-//         age--;
-//     }
-//     return age;
-// }
 
 export default validateConditions;

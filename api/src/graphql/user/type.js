@@ -1,6 +1,6 @@
 // schema/user/type.js
 import { GraphQLObjectType, GraphQLString, GraphQLBoolean, GraphQLNonNull, GraphQLInt, GraphQLInputObjectType } from 'graphql';
-import RoleType from  '../role/type.js';
+import { RoleType } from  '../role/type.js';
 // Input para los usuarios
 const UserType = new GraphQLObjectType({
     name: 'UserType',
@@ -29,22 +29,7 @@ const UserType = new GraphQLObjectType({
         },
     })
 });
-// Input para paginación
-const PaginationInput = new GraphQLInputObjectType({
-    name: 'PaginationInput',
-    fields: {
-        page: { type: GraphQLInt },
-        rowsPerPage: { type: GraphQLInt }
-    }
-});
 
-// Input para filtros
-const FilterInput = new GraphQLInputObjectType({
-    name: 'FilterInput',
-    fields: {
-        search: { type: GraphQLString },
-    }
-});
 const UserInputType = new GraphQLInputObjectType({
     name: 'UserInput',
     fields: {
@@ -82,4 +67,4 @@ const UpdateUserResponseType = new GraphQLObjectType({
         message: { type: GraphQLString }
     }
 });
-export { PaginationInput, FilterInput, UserType, UserUpdateInputType, UpdateUserResponseType };
+export { UserType, UserUpdateInputType, UpdateUserResponseType };

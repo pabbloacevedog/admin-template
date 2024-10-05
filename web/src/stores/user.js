@@ -1,6 +1,5 @@
 import { defineStore } from "pinia";
 import { apolloClient, gql } from "../plugins/apollo";
-import { navigateTo } from "../services/navigationService";
 
 export const useUserStore = defineStore("user", {
     state: () => ({
@@ -21,43 +20,6 @@ export const useUserStore = defineStore("user", {
         },
     }),
     actions: {
-        async fetchUserById(userId) {
-            const USER_QUERY = gql`
-                query getUserById($userId: String!) {
-                    getUserById(userId: $userId) {
-                        user {
-                            user_id
-                            # rut_user
-                            name
-                            username
-                            email
-                            personal_phone
-                            verification_code
-                            verified
-                            state
-                            avatar
-                            role_id
-                            role {
-                                name
-                            }
-                        }
-                    }
-                }
-            `;
-            try {
-                const response = await apolloClient.query({
-                    query: USER_QUERY,
-                    variables: { userId },
-                    fetchPolicy: "network-only",
-                });
-                this.user = response.data.getUserById.user;
-                this.isUserFetched = true; // Marca que el usuario ha sido fetchado
-                return this.user;
-            } catch (error) {
-                this.error = error.message;
-                throw error;
-            }
-        },
         async createUser(details) {
             const CREATE_USER_MUTATION = gql`
                 mutation createUser(

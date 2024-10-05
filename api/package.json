@@ -24,11 +24,13 @@
         "express": "^4.20.0",
         "graphql": "^16.9.0",
         "graphql-upload": "^16.0.2",
+        "graphql-ws": "^5.16.0",
         "helmet": "^7.1.0",
         "jsonwebtoken": "^9.0.2",
         "morgan": "^1.10.0",
         "mysql2": "^3.11.1",
-        "sequelize": "^6.37.3"
+        "sequelize": "^6.37.3",
+        "ws": "^8.18.0"
     },
     "devDependencies": {
         "@apollo/server": "^4.11.0",

@@ -102,16 +102,16 @@ const initializeUser = (sequelize) => {
             },
         },
         sequelize,
-        indexes: [
-            {
-                unique: true,
-                fields: ['email'], // Definir un índice único si no se usa 'unique' en el campo
-            },
-            {
-                unique: true,
-                fields: ['username'], // Definir un índice único si no se usa 'unique' en el campo
-            },
-        ],
+        // indexes: [
+        //     {
+        //         unique: true,
+        //         fields: ['email'], // Definir un índice único si no se usa 'unique' en el campo
+        //     },
+        //     {
+        //         unique: true,
+        //         fields: ['username'], // Definir un índice único si no se usa 'unique' en el campo
+        //     },
+        // ],
     });
 
     return User;

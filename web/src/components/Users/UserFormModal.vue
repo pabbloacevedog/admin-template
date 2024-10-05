@@ -140,7 +140,7 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue';
 import SubTitleSettingsPanel from 'components/SettingsUser/SubTitleSettingsPanel.vue';
-import InputTitleModal from './InputTitleModal.vue';
+import InputTitleModal from '../General/InputTitleModal.vue';
 import NewAvatarUploader from './NewAvatarUploader.vue';
 import UpdateAvatarUploader from './UpdateAvatarUploader.vue';
 import { useUserStore } from 'stores/user';
@@ -277,7 +277,7 @@ onMounted(async () => {
 
 // Cargar los roles desde la store
 const fetchRoles = async () => {
-    const result = await roleStore.getAllRoles();
+    const result = await roleStore.getRoles();
     roles.value = result.map(role => ({
         label: role.title,    // Lo que se muestra en el select
         value: Number(role.role_id),  // El valor que se selecciona (role_id)

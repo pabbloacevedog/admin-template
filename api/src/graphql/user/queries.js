@@ -1,6 +1,7 @@
 // src/graphql/user/queries.js
 import { GraphQLList, GraphQLString, GraphQLNonNull, GraphQLObjectType, GraphQLInt } from 'graphql';
-import { UserType , PaginationInput, FilterInput} from './type.js';  // Asegúrate de tener definido el UserType
+import { UserType } from './type.js';
+import { PaginationInput, FilterInput} from '../global/type.js';  // Asegúrate de tener definido el UserType
 import { userResolver } from './resolvers.js';
 
 export const getUsers = {

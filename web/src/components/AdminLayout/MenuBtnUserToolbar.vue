@@ -1,6 +1,6 @@
 <template>
     <q-menu auto-close class="btn-toolbar shadow-menu-user div-blur q-px-lg menu-user-top" transition-show="jump-down" transition-hide="jump-up">
-        <q-lis>
+        <q-list>
             <div class="q-py-md">
                 <CardUser />
                 <q-separator class="q-my-xs" />
@@ -28,7 +28,7 @@
                     <q-item-section class="text-section-menu-user">Log out</q-item-section>
                 </q-item>
             </div>
-        </q-lis>
+        </q-list>
     </q-menu>
 </template>
 

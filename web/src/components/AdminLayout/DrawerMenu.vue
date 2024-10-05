@@ -1,3 +1,4 @@
+<!-- eslint-disable vue/multi-word-component-names -->
 <template>
     <q-drawer v-model="localModel" show-if-above :width="240">
         <q-scroll-area class="fit">
@@ -27,13 +28,14 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
+import logoUrl from 'src/assets/logo.webp';
 import { useAuthStore } from 'stores/auth';
 const authStore = useAuthStore();
 // Recibimos el valor del v-model como prop
 const props = defineProps({
     leftDrawerOpen: Boolean, // El valor vinculado al v-model, en este caso un booleano para abrir/cerrar el drawer
 });
-import logoUrl from 'src/assets/logo.webp';
+
 // Definimos una variable local para manejar el valor del v-model
 const localModel = ref(props.modelValue);
 const routes = ref();
@@ -48,7 +50,11 @@ onMounted(async () => {
     }
 });
 </script>
-
+<script>
+export default {
+    name: 'DrawerMenu',
+}
+</script>
 <style lang="css">
 .item-drawer-user {
     border-radius: 10px;

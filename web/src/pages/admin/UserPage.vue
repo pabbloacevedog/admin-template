@@ -1,15 +1,6 @@
 <template>
     <q-page class="page-padding">
         <TitlePages :title="$t('users.title')" :description="$t('users.description')" :icon="'group_add'" />
-        <!-- <q-item class="q-mr-none" style="padding: 0px 0px;">
-            <q-item-section class="q-pa-none">
-                <q-item-label class="title-panel-users">{{ $t('users.title') }}</q-item-label>
-                <q-item-label caption class="description-panel-users" no-caps>
-                    {{ $t('users.description') }}
-                </q-item-label>
-            </q-item-section>
-        </q-item> -->
-
         <div class="col-12 q-py-none">
             <div class="div-rounded-radius">
                 <q-card flat>
@@ -39,7 +30,7 @@
                                         </q-input>
                                     </q-item-section>
 
-                                    <q-item-section class="q-pa-none" side v-if="!$q.platform.is.mobile" >
+                                    <q-item-section class="q-pa-none" side v-if="!$q.platform.is.mobile">
                                         <q-btn :label="$t('users.btn_create')" icon="group_add" color="primary"
                                             class="btn-border-radius" @click="showCreateUserModal" v-if="canCreate()" />
                                     </q-item-section>
@@ -79,7 +70,10 @@
                                             label="Active" class="chip-status" icon-right="fiber_manual_record" />
                                     </q-td>
                                     <q-td key="actions" :props="props">
-                                        <ItemActionsTable :user="props.row" :editUser="editUser" :showDeleteUserModal="showDeleteUserModal" :showViewUserModal="showViewUserModal" :userPermissions="availableActions"/>
+                                        <ItemActionsTable :resource="props.row" :edit="editUser"
+                                            :showDeleteModal="showDeleteUserModal"
+                                            :showViewModal="showViewUserModal"
+                                            :permissions="availableActions" />
                                     </q-td>
                                 </q-tr>
                             </template>
@@ -108,16 +102,18 @@
 <script setup>
 import { ref, onMounted, computed, watch } from 'vue';
 import { useUserStore } from 'stores/user';
+import { debounce } from 'lodash';
 import UserFormModal from 'components/Users/UserFormModal.vue';
 import UserDeleteModal from 'components/Users/UserDeleteModal.vue';
 import UserViewModal from 'components/Users/UserViewModal.vue';
 import ItemUserTable from 'components/Users/ItemUserTable.vue';
 import ItemRoleTable from 'components/Users/ItemRoleTable.vue';
-import ItemActionsTable from 'components/Users/ItemActionsTable.vue';
+import ItemActionsTable from 'components/General/ItemActionsTable.vue';
 import TitlePages from 'components/General/TitlePages.vue';
 import { useAuthStore } from 'stores/auth';
 const authStore = useAuthStore();
 const userStore = useUserStore();
+
 const users = ref([]);
 const totalUsers = ref(0);
 const search = ref('');
@@ -156,12 +152,12 @@ const availableActions = computed(() => {
 });
 // Función para buscar usuarios, incluyendo filtros y paginación
 const fetchUsers = async () => {
-    console.log("Fetching users...");
+    // console.log("Fetching users...");
 
     // Llama a la función para encontrar la acción de 'view'
     // const viewAction = findViewAction();
     const viewAction = availableActions.value.find(permission => permission.name === 'view');
-    console.log(viewAction, 'viewAction')
+    // console.log(viewAction, 'viewAction')
     // Almacena la respuesta de los usuarios
     let response;
 
@@ -190,21 +186,16 @@ const fetchUsers = async () => {
     totalUsers.value = response.totalUsers;
 
     // Debugging logs
-    console.log('totalUsers: ' + totalUsers.value);
-    console.log('users: ', users.value);
-    console.log('pagination: ', pagination.value);
+    // console.log('totalUsers: ' + totalUsers.value);
+    // console.log('users: ', users.value);
+    // console.log('pagination: ', pagination.value);
 };
 
-const onSearchChange = () => {
-    console.log("onSearchChange users...");
-    if (search.value.length > 2) {
+const onSearchChange = debounce(() => {
+    if (search.value.length > 2 || search.value.length === 0) {
         fetchUsers();
-    } else {
-        if (search.value.length == 0) {
-            fetchUsers();
-        }
     }
-};
+}, 300); // 300ms debounce
 // Cambiar la página de paginación y buscar de nuevo
 const onPaginationChange = (newPage) => {
     pagination.value.page = newPage;
@@ -220,7 +211,7 @@ const clearSearch = () => {
 
 const showCreateUserModal = () => {
     selectedUser.value = null;
-    if(canView()) {
+    if (canView()) {
         userStore.show_modal_user = true;
     }
 };
@@ -230,7 +221,7 @@ const showDeleteUserModal = (user) => {
 };
 const showViewUserModal = (user) => {
     selectedUser.value = user;
-    if(canView(user)) {
+    if (canView(user)) {
         userStore.show_modal_view = true;
     }
 };
@@ -308,7 +299,11 @@ function userIsOwner(user) {
     return user.user_id === authStore.user?.user_id || user.owner_id === authStore.user?.user_id; // Ajusta esto según tu lógica
 }
 </script>
-
+<script>
+export default {
+    name: 'UserPage',
+}
+</script>
 <style scoped>
 .user-page {
     padding: 20px;
@@ -320,12 +315,21 @@ function userIsOwner(user) {
     text-transform: none;
 }
 
-.title-table-users {
-    font-size: 20px !important;
-    font-weight: bold;
-    text-transform: none;
+@media (max-width: 768px) {
+	.title-table-users {
+		font-size: 16px !important;
+		font-weight: bold;
+		text-transform: none;
+	}
 }
 
+@media (min-width: 768px) {
+	.title-table-users {
+		font-size: 20px !important;
+		font-weight: bold;
+		text-transform: none;
+	}
+}
 .description-panel-users {
     font-size: 18px !important;
     text-transform: none;

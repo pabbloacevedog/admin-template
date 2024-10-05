@@ -26,7 +26,7 @@
                     <q-input class="q-my-md" filled v-model="form.name" />
                     <q-input class="q-my-md" filled v-model="form.username" />
                     <q-input class="q-my-md" filled v-model="form.email" disable readonly />
-                    <q-input :dense="isMobile" class="input-bottom" filled v-model="form.personal_phone"
+                    <q-input class="input-bottom" filled v-model="form.personal_phone"
                         :label="$t('Phone: (###) ### - ####')" type="tel" mask="(###) ### - ####" />
                     <!-- <q-input class="q-my-md" filled v-model="form.rut_user" /> -->
                 </q-card-section>
