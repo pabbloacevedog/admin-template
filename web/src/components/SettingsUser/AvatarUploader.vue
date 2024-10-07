@@ -90,6 +90,11 @@ const saveCroppedImage = async () => {
     }
 }
 </script>
+<script>
+export default {
+    name: 'AvatarUploader',
+}
+</script>
 <style scoped>
 
 .btn-upload-avatar {

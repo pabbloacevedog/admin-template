@@ -1,7 +1,31 @@
-// src/graphql/role/type.js
-import { GraphQLObjectType, GraphQLString, GraphQLInputObjectType, GraphQLInt } from 'graphql';
+import {
+    GraphQLObjectType,
+    GraphQLString,
+    GraphQLInputObjectType,
+    GraphQLInt,
+    GraphQLList,
+    GraphQLBoolean,
+} from 'graphql';
 
-// Definición del tipo de rol
+import { RouteType, ActionType, ConditionType } from '../route/type.js';
+
+// Definición del tipo de Permission
+const PermissionType = new GraphQLObjectType({
+    name: 'Permission',
+    fields: () => ({
+        permission_id: { type: GraphQLInt },
+        role_id: { type: GraphQLInt },
+        route: {
+            type: new GraphQLList(RouteType),
+        },  // Relación con Route
+        action: {
+            type: new GraphQLList(ActionType),
+        },  // Relación con Route
+        condition: { type: ConditionType }
+    })
+});
+
+// Definición del tipo de rol, ahora con las relaciones hacia las permissions, routes, actions y conditions
 const RoleType = new GraphQLObjectType({
     name: 'Role',
     fields: () => ({
@@ -9,7 +33,13 @@ const RoleType = new GraphQLObjectType({
         name: { type: GraphQLString },
         title: { type: GraphQLString },
         description: { type: GraphQLString },
-        color: { type: GraphQLString }
+        color: { type: GraphQLString },
+        permission: {
+            type: new GraphQLList(PermissionType),
+        },
+        message: {
+            type: GraphQLString
+        },
     })
 });
 
@@ -46,4 +76,10 @@ const UpdateRoleResponseType = new GraphQLObjectType({
     }
 });
 
-export { RoleType, RoleInputType, RoleUpdateInputType, UpdateRoleResponseType };
+export {
+    RoleType,
+    RoleInputType,
+    RoleUpdateInputType,
+    UpdateRoleResponseType,
+    PermissionType
+};

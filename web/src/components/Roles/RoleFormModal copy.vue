@@ -15,52 +15,47 @@
                         <q-btn round flat icon="close" @click="close" />
                     </q-toolbar>
                 </q-card-header>
-                <q-card-section  class="q-pt-none">
-                    <!-- <q-card-section class="col-5 q-pl-none q-pr-xs">
-                        <InputTitleModal :title="$t('roles.account.role_id.title')" v-if="isEdit"
-                            :description="$t('roles.account.role_id.description')" class="q-mt-sm" />
+                <q-card-section horizontal class="q-pt-none">
+                    <q-card-section class="col-5 q-pl-none q-pr-xs">
+                        <InputTitleModal :title="$t('roles.account.role_id.title')"
+                            :description="$t('roles.account.role_id.description')" />
                         <InputTitleModal :title="$t('roles.account.name.title')"
-                            :description="$t('roles.account.name.description')" class="q-mb-none" />
+                            :description="$t('roles.account.name.description')" class="q-mt-md q-mb-none" />
                         <InputTitleModal :title="$t('roles.account.title.title')"
                             :description="$t('roles.account.title.description')" />
                         <InputTitleModal :title="$t('roles.account.description.title')"
                             :description="$t('roles.account.description.description')" />
-                    </q-card-section> -->
+                        <InputTitleModal :title="$t('roles.account.color.title')"
+                            :description="$t('roles.account.color.description')" />
+                    </q-card-section>
+
                     <q-card-section class="col-7 q-pr-none q-pl-xs">
-                        <div class="flex justify-center">
-                            <q-avatar :color="form.color" text-color="white">{{ role.role_id }}</q-avatar>
-                        </div>
+                        <q-input :dense="isMobile" class="q-mt-md q-mb-none" filled v-model="form.role_id"
+                            :label="$t('roles.account.role_id.title')" type="text" readonly disabled />
                         <q-input :dense="isMobile" class="q-mt-md q-mb-none" filled v-model="form.name"
                             :label="$t('roles.account.name.title')" type="text" autocomplete="name" :error="errors.name"
                             :error-message="errors.nameMsg" />
-                        <q-input :dense="isMobile" class="q-mt-none q-mb-none" filled v-model="form.title"
+                        <q-input :dense="isMobile" class="q-mt-md q-mb-none" filled v-model="form.title"
                             :label="$t('roles.account.title.title')" type="text" :error="errors.title"
                             :error-message="errors.titleMsg" />
                         <q-input :dense="isMobile" class="input-form" filled v-model="form.description"
-                            :label="$t('roles.account.description.title')" type="textarea" />
-
+                            :label="$t('roles.account.description.title')" type="text" />
+                        <q-input :dense="isMobile" class="q-mb-none q-mt-md" filled v-model="form.color"
+                            :label="$t('roles.account.color.title')" type="text"/>
                     </q-card-section>
-                </q-card-section>
-                <q-card-section>
-                    <div class="flex justify-center">
-                        <q-btn v-for="(colorOption, index) in colorOptions" :key="index" round
-                            :style="{ backgroundColor: colorOption.color, position: 'relative' }"
-                            :outline="form.color !== colorOption.value" :flat="form.color !== colorOption.value"
-                            @click="form.color = colorOption.value" class="q-mr-xs">
-                            <!-- Si el color está seleccionado, se muestra el ícono de verificación -->
-                            <q-icon v-if="form.color === colorOption.value" name="check" color="white"
-                                style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);" />
-                        </q-btn>
-                    </div>
+
                 </q-card-section>
             </q-card>
 
+            <!-- Botones en posición fija usando q-page-sticky -->
+            <!-- <q-page-sticky position="bottom" :offset="[0, 36]" class="q-mb-md" v-if="isMobile"> -->
             <div class="flex justify-center q-pt-lg" v-if="isMobile">
                 <q-btn :label="$t('roles.create.btn_cancel')" outline color="primary" class="btn-border-radius q-mr-lg"
                     @click="close" />
                 <q-btn :label="isEdit ? $t('roles.edit.btn_action') : $t('roles.create.btn_action')" color="primary"
                     class="btn-border-radius" @click="submit" />
             </div>
+            <!-- </q-page-sticky> -->
             <div class="flex justify-center q-pb-lg" v-else>
                 <q-btn :label="$t('roles.create.btn_cancel')" outline color="primary" class="btn-border-radius q-mr-lg"
                     @click="close" />
@@ -78,30 +73,15 @@ import InputTitleModal from '../General/InputTitleModal.vue';
 import { useRoleStore } from 'stores/role';
 import { useQuasar } from 'quasar';
 import { useI18n } from 'vue-i18n';
-
 const { t } = useI18n();
 const $q = useQuasar();
 const roleStore = useRoleStore();
-
 const props = defineProps({
     role: {
         type: Object,
         default: () => ({}),
     },
 });
-const colorOptions = ref([
-    { label: 'Coral Red', value: 'role-color-1', color: '#FF6B6B' },
-    { label: 'Aqua Mint', value: 'role-color-2', color: '#076ea9' },
-    { label: 'Mustard Yellow', value: 'role-color-3', color: '#5925cd' },
-    { label: 'Dark Teal', value: 'role-color-4', color: '#1A535C' },
-    { label: 'Vibrant Orange', value: 'role-color-5', color: '#FF9F1C' },
-    { label: 'Royal Purple', value: 'role-color-6', color: '#6A4C93' },
-    { label: 'Turquoise', value: 'role-color-7', color: '#2EC4B6' },
-    { label: 'Raspberry Pink', value: 'role-color-8', color: '#D90368' },
-    { label: 'Bright Blue', value: 'role-color-9', color: '#3A86FF' },
-    { label: 'Electric Violet', value: 'role-color-10', color: '#8338EC' }
-]);
-const role = ref(props.role);
 const form = ref({
     role_id: '',
     name: '',
@@ -109,21 +89,16 @@ const form = ref({
     description: '',
     color: '',
 });
-
 const errors = ref({
     name: false,
     nameMsg: '',
     title: false,
     titleMsg: '',
 });
-
 const isEdit = ref(false);
-const search = ref('');
-const pagination = ref({ page: 1, rowsPerPage: 10 }); // Define la paginación
-
 const validateForm = () => {
     let isValid = true;
-
+    // Validar el nombre (al menos 5 caracteres)
     if (!form.value.name) {
         errors.value.name = true;
         errors.value.nameMsg = t('roles.errors.name_required');
@@ -155,7 +130,7 @@ const validateForm = () => {
 
 // Detectar si es móvil
 const isMobile = computed(() => {
-    return window.innerWidth <= 600;
+    return window.innerWidth <= 600; // Define tu umbral para mobile aquí
 });
 
 // Estilo de dialog
@@ -165,26 +140,19 @@ const dialogStyle = computed(() => {
 
 // Cargar roles y preparar el formulario al montar
 onMounted(async () => {
-    await fetchRoles();
-    if (role.value && role.value.role_id) {
-        form.value = { ...role.value };
-        isEdit.value = true;
-    } else {
-        resetForm();
-        isEdit.value = false;
+    try {
+        if (role.value && role.value.role_id) {
+            form.value = { ...role.value };
+            isEdit.value = true;
+        } else {
+            resetForm();
+            isEdit.value = false;
+        }
+        fetchRoles();
+    } catch (error) {
+        console.error('Error fetching role:', error);
     }
 });
-
-// Función para obtener todos los roles
-const fetchRoles = async () => {
-    try {
-        const response = await roleStore.getAllRoles(search.value, pagination.value.page, pagination.value.rowsPerPage);
-        // Maneja la respuesta según tus necesidades, por ejemplo, actualiza una lista de roles
-        console.log(response);
-    } catch (error) {
-        console.error('Error fetching roles:', error);
-    }
-};
 
 // Cerrar y resetear el formulario
 const close = () => {
@@ -199,7 +167,7 @@ const resetForm = () => {
         title: '',
         description: '',
         color: '',
-        role_id: '',
+        role_id: '',  // Asegúrate de resetear role_id
     };
     isEdit.value = false;
 };
@@ -218,19 +186,25 @@ const submit = async () => {
 
     if (isEdit.value) {
         console.log('edit data ', form.value);
+
+        // Eliminamos el  __typename para que sea igual al input que espera graphql
         delete form.value.__typename;
         await roleStore.updateRole(form.value).then(response => {
-            console.log('response: ' + response);
+            console.log('response: ' + response)
             $q.notify({
                 type: 'positive',
                 message: response,
             });
+
         }).catch(error => {
-            console.log('error catch: ' + error);
+            console.log('error catch: ' + error)
         });
+        // Aquí va la lógica para editar el usuario
     } else {
         console.log('create data ', form.value);
+        // Aquí va la lógica para crear el usuario
         try {
+            // Enviar datos del usuario
             const newRole = await roleStore.createRole(form.value);
             $q.notify({
                 type: 'positive',
@@ -238,16 +212,18 @@ const submit = async () => {
             });
             close();
         } catch (error) {
-            console.error('Error creating role:', error);
+            console.error(error);
             $q.notify({
                 type: 'negative',
-                message: error.message || t('roles.errors.create_failed'),
+                message: 'Error creating role',
             });
         }
     }
+
     $q.loading.hide();
     close();
 };
+
 </script>
 <script>
 export default {
@@ -256,14 +232,6 @@ export default {
 </script>
 <style scoped>
 /* Aquí puedes agregar estilos personalizados */
-.container-modal {
-    backdrop-filter: blur(5px) saturate(180%);
-}
-
-.div-blur {
-    background: rgba(255, 255, 255, 0.5);
-}
-
 .input-form {
     padding: 0px 0px 4px 0px;
 }
@@ -297,10 +265,6 @@ export default {
         padding: 0px;
     }
 
-    .input-label-edit {
-        height: 60px !important;
-    }
-
     .btn-password-back {
         padding: 0px 8px;
         margin-right: 8px;
@@ -322,10 +286,6 @@ export default {
     .btn-verified-edit {
         height: 76px !important;
         width: 100%;
-    }
-
-    .input-label-edit {
-        height: 76px !important;
     }
 
     .input-password-edit {

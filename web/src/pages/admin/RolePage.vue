@@ -5,8 +5,8 @@
             <div class="div-rounded-radius">
                 <q-card flat>
                     <q-card-section class="q-pa-none">
-                        <q-table :rows="roles" :columns="columns" row-key="role_id" :filter="filter" grid hide-header>
-
+                        <q-table hide-pagination :rows="roles" :columns="columns" row-key="role_id" :filter="filter"
+                            grid hide-header>
                             <!-- Input de búsqueda en la parte superior derecha -->
                             <template v-slot:top>
                                 <q-item class="q-px-none full-width">
@@ -42,44 +42,33 @@
                             <template v-slot:item="props">
                                 <div class="q-pa-xs col-xs-12 col-sm-6 col-md-4 col-lg-3 grid-style-transition q-m-lg"
                                     :style="props.selected ? 'transform: scale(0.95);' : ''">
-                                    <q-card class="bg-card " flat bordered :class="getCardClass(props.row)">
-                                        <q-card-section class="q-pa-none">
-                                            <q-item>
-                                                <q-item-section>
-                                                    <q-item-label>{{ props.row.title }}</q-item-label>
-                                                </q-item-section>
-                                            </q-item>
+                                    <q-card class="bg-card bg-second" flat style="padding: 5% !important;"
+                                        :class="getCardClass(props.row)">
+                                        <q-card-section class="q-pa-none q-ml-md">
+                                            <div class="text-h5">{{ props.row.title }}</div>
                                         </q-card-section>
-                                        <q-separator></q-separator>
                                         <q-list dense>
-                                            <!-- Filtramos las columnas para no mostrar 'title', 'color' y 'acciones' -->
-                                            <q-item
-                                                v-for="col in props.cols.filter(c => c.name !== 'title' && c.name !== 'color' && c.name !== 'actions' && c.name !== 'description')"
-                                                :key="col.name">
+                                            <q-item v-if="props.row.description" class="q-my-md">
                                                 <q-item-section>
-                                                    <q-item-label>{{ col.label }}</q-item-label>
-                                                </q-item-section>
-                                                <q-item-section side>
-                                                    <q-item-label caption>{{ col.value }}</q-item-label>
+                                                    <q-item-label caption style="font-size: 16px;">{{
+                                                        props.row.description }}</q-item-label>
                                                 </q-item-section>
                                             </q-item>
+                                            <q-item class="text-end">
+                                                <q-item-section>
+                                                    <q-item-label class="text-h4">
+                                                        <div class="flex justify-start">
+                                                            <q-avatar  text-color="white" style="border: 1px solid #fff !important;">{{ props.row.role_id }}</q-avatar>
+                                                        </div>
+                                                    </q-item-label>
 
-                                            <!-- Mostrar la descripción en un q-item separado -->
-                                            <q-item v-if="props.row.description">
-                                                <q-item-section>
-                                                    <q-item-label class="text-bold">Description</q-item-label>
-                                                    <q-item-label>{{ props.row.description }}</q-item-label>
                                                 </q-item-section>
-                                            </q-item>
-                                            <!-- Aquí es donde se pueden mostrar las acciones -->
-                                            <q-item>
-                                                <q-item-section>
-                                                    <q-item-label>Acciones</q-item-label>
-                                                </q-item-section>
-                                                <ItemActionsTable :resource="props.row" :edit="editRole"
-                                                    :showDeleteModal="showDeleteRoleModal"
-                                                    :showViewModal="showViewRoleModal"
-                                                    :permissions="availableActions" />
+                                                <div class="flex justify-end">
+                                                    <RoleActionsTable :resource="props.row" :edit="editRole"
+                                                        :showDeleteModal="showDeleteRoleModal"
+                                                        :showViewModal="showViewRoleModal"
+                                                        :permissions="availableActions" />
+                                                </div>
                                             </q-item>
                                         </q-list>
                                     </q-card>
@@ -89,7 +78,7 @@
                         </q-table>
                     </q-card-section>
 
-                    <q-card-section class="q-px-none">
+                    <q-card-section class="q-px-none" v-if="pagination.rowsNumber > 0">
                         <div class="row justify-center">
                             <q-pagination v-model="pagination.page" :max="pagesNumber"
                                 @update:model-value="onPaginationChange" direction-links />
@@ -114,8 +103,9 @@ import { debounce } from 'lodash';
 import RoleFormModal from 'components/Roles/RoleFormModal.vue';
 import RoleDeleteModal from 'components/Roles/RoleDeleteModal.vue';
 import RoleViewModal from 'components/Roles/RoleViewModal.vue';
-import ItemActionsTable from 'components/General/ItemActionsTable.vue';
+import RoleActionsTable from 'components/Roles/RoleActionsTable.vue';
 import TitlePages from 'components/General/TitlePages.vue';
+import SubTitleSettingsPanel from 'components/SettingsUser/SubTitleSettingsPanel.vue';
 import { useAuthStore } from 'stores/auth';
 import { useRoleStore } from 'stores/role';
 const authStore = useAuthStore();
@@ -148,7 +138,6 @@ const getCardClass = (row) => {
     // Asegúrate de que el color en la fila es válido y retorna la clase adecuada
     return row.color ? `bg-${row.color}` : 'bg-primary'; // Si no hay color, usa 'bg-primary' como clase por defecto
 };
-
 const pagesNumber = computed(() => Math.ceil(totalRoles.value / pagination.value.rowsPerPage));
 // Computed para obtener las acciones de la ruta
 const availableActions = computed(() => {

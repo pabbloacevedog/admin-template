@@ -19,7 +19,11 @@ const props = defineProps({
     icon: String,
 });
 </script>
-
+<script>
+export default {
+    name: 'TitleSettingsPanel',
+}
+</script>
 <style lang="css">
 .title-panel-settings{
     font-size: 18px !important;

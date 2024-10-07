@@ -7,12 +7,13 @@
                 </q-item-section>
                 <q-item-section class="q-pa-none">
                     <q-item-label class="title-panel-settings">{{ title }}</q-item-label>
-                    <q-item-label caption  class="description-panel-settings ellipsis" no-caps>
-                {{ description}}
-            </q-item-label>
+                    <q-item-label caption class="description-panel-settings ellipsis" no-caps>
+                        {{ description }}
+                    </q-item-label>
                 </q-item-section>
                 <div class="flex justify-end" v-if="btn_create">
-                    <q-btn :label="label_btn" :icon="icon_btn" color="primary" class="btn-border-radius" @click="btn_create" />
+                    <q-btn :label="label_btn" :icon="icon_btn" color="primary" class="btn-border-radius"
+                        @click="btn_create" />
                 </div>
             </q-item>
         </div>

@@ -23,3 +23,8 @@ const props = defineProps({
     },
 });
 </script>
+<script>
+export default {
+    name: 'ItemUserTable',
+}
+</script>

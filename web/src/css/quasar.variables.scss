@@ -39,7 +39,7 @@ $warning: #f2c037;
 
 $role-color-1: #FF6B6B;  // Coral Red
 $role-color-2: #076ea9;  // Aqua Mint
-$role-color-3: #F7B731;  // Mustard Yellow
+$role-color-3: #5925cd;  // Mustard Yellow
 $role-color-4: #1A535C;  // Dark Teal
 $role-color-5: #FF9F1C;  // Vibrant Orange
 $role-color-6: #6A4C93;  // Royal Purple
@@ -88,84 +88,84 @@ $role-color-10: #8338EC; // Electric Violet
     background: $role-color-10 !important;
 }
 
-.text-role-1 {
-    background-image: $role-color-1 !important;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+.text-role-color-1 {
+    color: $role-color-1 !important;
+
+
 }
 
-.text-role-2 {
-    background-image: $role-color-2 !important;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+.text-role-color-2 {
+    color: $role-color-2 !important;
+
+
 }
 
-.text-role-3 {
-    background-image: $role-color-3 !important;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+.text-role-color-3 {
+    color: $role-color-3 !important;
 }
 
-.text-role-4 {
-    background-image: $role-color-4 !important;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+.text-role-color-4 {
+    color: $role-color-4 !important;
+
+
 }
 
-.text-role-5 {
-    background-image: $role-color-5 !important;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+.text-role-color-5 {
+    color: $role-color-5 !important;
+
+
 }
 
-.text-role-6 {
-    background-image: $role-color-6 !important;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+.text-role-color-6 {
+    color: $role-color-6 !important;
+
+
 }
 
-.text-role-7 {
-    background-image: $role-color-7 !important;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+.text-role-color-7 {
+    color: $role-color-7 !important;
+
+
 }
 
-.text-role-8 {
-    background-image: $role-color-8 !important;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+.text-role-color-8 {
+    color: $role-color-8 !important;
+
+
 }
 
-.text-role-9 {
-    background-image: $role-color-9 !important;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+.text-role-color-9 {
+    color: $role-color-9 !important;
+
+
 }
 
-.text-role-10 {
-    background-image: $role-color-10 !important;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+.text-role-color-10 {
+    color: $role-color-10 !important;
+
+
 }
 
 
 .bg-admin {
     background: linear-gradient(
         -225deg,
-        #ac32e4 0%,
-        #7918f2 48%,
-        #4801ff 100%
+        #5b0d62 0%,
+        #f11ca3 48%,
+        #5b0d62 100%
     ) !important;
 }
 .text-admin {
-    background-image: linear-gradient(
+    background: linear-gradient(
         -225deg,
-        #ac32e4 0%,
-        #7918f2 48%,
-        #4801ff 100%
-    ) !important;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+        #5b0d62 0%,
+        #f11ca3 48%,
+        #5b0d62 100%
+    );
+
+
+    background-clip: text; /* Para algunos navegadores */
+    text-fill-color: transparent; /* Soporte adicional */
 }
 // Fin Colores predeterminados para los roles
 
@@ -173,9 +173,9 @@ $role-color-10: #8338EC; // Electric Violet
     background: $verified !important;
 }
 .text-verified {
-    background-color: $verified !important;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+    color: $verified !important;
+
+
 }
 .text-second {
     color: $text-second;

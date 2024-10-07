@@ -12,3 +12,8 @@ const props = defineProps({
     },
 });
 </script>
+<script>
+export default {
+    name: 'ItemRoleTable',
+}
+</script>

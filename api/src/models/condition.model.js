@@ -27,7 +27,7 @@ const initializeCondition = (sequelize) => {
         },
     }, {
         sequelize,
-        tableName: 'condition',
+        tableName: '`condition`',  // Escapar el nombre de la tabla
         modelName: 'Condition',
         timestamps: true,
     });

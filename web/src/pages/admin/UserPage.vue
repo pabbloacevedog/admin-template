@@ -63,11 +63,11 @@
                                         <ItemRoleTable :user="props.row" />
                                     </q-td>
                                     <q-td key="state" :props="props">
-                                        <q-chip square outline dense color="negative" text-color="white"
+                                        <q-chip style="background-color:#310000;border-radius: 8px;" text-color="negative"
                                             v-if="!props.row.state" label="Inactive" class="chip-status"
-                                            icon-right="fiber_manual_record" />
-                                        <q-chip square outline dense color="positive" text-color="white" v-else
-                                            label="Active" class="chip-status" icon-right="fiber_manual_record" />
+                                            />
+                                        <q-chip style="background-color:#004618 ; border-radius: 8px;" text-color="positive" v-else
+                                            label="Active" class="chip-status" />
                                     </q-td>
                                     <q-td key="actions" :props="props">
                                         <ItemActionsTable :resource="props.row" :edit="editUser"
@@ -80,7 +80,7 @@
                         </q-table>
                     </q-card-section>
 
-                    <q-card-section class="q-px-none">
+                    <q-card-section class="q-px-none" v-if="pagination.rowsNumber > 0">
                         <div class="row justify-center">
                             <q-pagination v-model="pagination.page" :max="pagesNumber"
                                 @update:model-value="onPaginationChange" direction-links />

@@ -56,3 +56,8 @@ onMounted(async () => {
     }
 });
 </script>
+<script>
+export default {
+    name: 'ThemeToggle',
+}
+</script>

@@ -132,7 +132,11 @@ const dialogStyle = computed(() => {
 
 
 </script>
-
+<script>
+export default {
+    name: 'UserViewModal',
+}
+</script>
 <style scoped>
 @media (max-width: 855px) {
     .text-message-delete {

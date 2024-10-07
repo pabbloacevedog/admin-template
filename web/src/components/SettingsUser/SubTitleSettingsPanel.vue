@@ -24,7 +24,11 @@ const props = defineProps({
     icon: String,
 });
 </script>
-
+<script>
+export default {
+    name: 'SubTitleSettingsPanel',
+}
+</script>
 <style lang="css">
 .subtitle-panel-settings{
     font-size: 14px !important;

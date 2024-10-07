@@ -1,8 +1,9 @@
 <template>
     <q-dialog v-model="userStore.show_modal_user" @hide="resetForm" backdrop-filter="blur(4px) saturate(150%)"
-        class="container-modal" :fullscreen="isMobile" transition-show="none" transition-hide="none" >
+        class="container-modal" :fullscreen="isMobile" transition-show="none" transition-hide="none">
         <div class="q-py-lg form-modal-view div-blur div-rounded-radius h-form" :style="dialogStyle">
-            <q-card flat style="flex-grow: 1; display: flex; flex-direction: column;  background: #00000000 !important;">
+            <q-card flat
+                style="flex-grow: 1; display: flex; flex-direction: column;  background: #00000000 !important;">
                 <q-card-header>
                     <q-toolbar class="div-rounded-radius">
                         <q-toolbar-title>
@@ -107,9 +108,9 @@
                                 :label="form.state ? 'Active' : 'Inactive'" />
                         </div>
                         <!-- q-select para los roles -->
-                        <q-select :dense="isMobile" class="input-bottom" filled v-model="selectedRole" :options="roles"
-                            :error="errors.role" :error-message="errors.roleMsg" option-label="label"
-                            option-value="value" :label="$t('users.account.role.title')">
+                        <q-select :dense="isMobile" filled v-model="selectedRole" :options="roles" option-label="label"
+                            option-value="value" :label="$t('users.account.role.title')"
+                            :class="'bg-' + selectedRole.color">
                         </q-select>
                         <!-- <q-input class="input-bottom" filled v-model="form.rut_user"
                             :label="$t('users.account.rut_user.title')" /> -->
@@ -120,18 +121,18 @@
 
             <!-- Botones en posición fija usando q-page-sticky -->
             <!-- <q-page-sticky position="bottom" :offset="[0, 36]" class="q-mb-md" v-if="isMobile"> -->
-                <div class="flex justify-center q-pt-lg" v-if="isMobile">
-                    <q-btn :label="$t('users.create.btn_cancel')" outline color="primary"
-                        class="btn-border-radius q-mr-lg" @click="close" />
-                    <q-btn :label="isEdit ? $t('users.edit.btn_action') : $t('users.create.btn_action')" color="primary" class="btn-border-radius"
-                        @click="submit" />
-                </div>
+            <div class="flex justify-center q-pt-lg" v-if="isMobile">
+                <q-btn :label="$t('users.create.btn_cancel')" outline color="primary" class="btn-border-radius q-mr-lg"
+                    @click="close" />
+                <q-btn :label="isEdit ? $t('users.edit.btn_action') : $t('users.create.btn_action')" color="primary"
+                    class="btn-border-radius" @click="submit" />
+            </div>
             <!-- </q-page-sticky> -->
             <div class="flex justify-center q-pb-lg" v-else>
-                <q-btn :label="$t('users.create.btn_cancel')" outline color="primary"
-                    class="btn-border-radius q-mr-lg" @click="close" />
-                <q-btn :label="isEdit ? $t('users.edit.btn_action') : $t('users.create.btn_action')" color="primary" class="btn-border-radius"
-                    @click="submit" />
+                <q-btn :label="$t('users.create.btn_cancel')" outline color="primary" class="btn-border-radius q-mr-lg"
+                    @click="close" />
+                <q-btn :label="isEdit ? $t('users.edit.btn_action') : $t('users.create.btn_action')" color="primary"
+                    class="btn-border-radius" @click="submit" />
             </div>
         </div>
     </q-dialog>
@@ -160,7 +161,14 @@ const props = defineProps({
         default: () => ({}),
     },
 });
-const selectedRole = ref(null); // nuevo ref para el select
+const selectedRole = ref(
+    {
+        label: 'admin',    // Lo que se muestra en el select
+        value: 2,  // El valor que se selecciona (role_id)
+        color: 'admin',
+    }
+
+); // nuevo ref para el select
 const user = ref(props.user);
 const form = ref({
     user_id: '',
@@ -257,11 +265,12 @@ const dialogStyle = computed(() => {
 // Cargar roles y preparar el formulario al montar
 onMounted(async () => {
     try {
+        fetchRoles();
         if (user.value && user.value.role_id) {
             form.value = { ...user.value };
             selectedRole.value = {
                 label: user.value.role.title,
-                value: Number(user.value.role.role_id)
+                value: Number(user.value.role.role_id),
             }
 
             isEdit.value = true;
@@ -269,21 +278,28 @@ onMounted(async () => {
             resetForm();
             isEdit.value = false;
         }
-        fetchRoles();
+
     } catch (error) {
         console.error('Error fetching user:', error);
     }
 });
-
 // Cargar los roles desde la store
 const fetchRoles = async () => {
     const result = await roleStore.getRoles();
     roles.value = result.map(role => ({
         label: role.title,    // Lo que se muestra en el select
         value: Number(role.role_id),  // El valor que se selecciona (role_id)
+        color: role.color,
     }));
-};
+    if (user.value) {
+        selectedRole.value.color = roles.value.find(r => r.value === Number(user.value.role.role_id)).color;
+    }
+    else{
 
+        selectedRole.value = roles.value.find(r => r.value === Number(1));
+        console.log('selectedRole', selectedRole.value)
+    }
+};
 // Cerrar y resetear el formulario
 const close = () => {
     userStore.show_modal_user = false;
@@ -333,6 +349,7 @@ const submit = async () => {
         }
         // Eliminamos el role, avatar, verified y el __typename para que sea igual al input que espera graphql
         delete form.value.role;
+        delete form.value.owner_id;
         delete form.value.avatar;
         delete form.value.verified;
         delete form.value.__typename;
@@ -378,6 +395,11 @@ const submit = async () => {
     close();
 };
 
+</script>
+<script>
+export default {
+    name: 'UserFormModal',
+}
 </script>
 <style scoped>
 /* Aquí puedes agregar estilos personalizados */

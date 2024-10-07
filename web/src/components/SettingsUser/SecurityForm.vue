@@ -8,9 +8,9 @@
                 <q-card-section class="col-5 q-pr-none">
                     <InputTitleSettingsPanel :title="$t('settings.account.current_password.title')"
                         :description="$t('settings.account.current_password.description')" />
-                        <InputTitleSettingsPanel :title="$t('settings.account.new_password.title')"
+                    <InputTitleSettingsPanel :title="$t('settings.account.new_password.title')"
                         :description="$t('settings.account.new_password.description')" />
-                        <InputTitleSettingsPanel :title="$t('settings.account.confirm_password.title')"
+                    <InputTitleSettingsPanel :title="$t('settings.account.confirm_password.title')"
                         :description="$t('settings.account.confirm_password.description')" />
                 </q-card-section>
 
@@ -26,11 +26,11 @@
                 </q-card-section>
             </q-card-section>
         </q-card>
+        <div class="q-ma-md flex justify-end">
+            <q-btn label="Save Changes" color="primary" class="btn-border-radius" @click="saveChanges" />
+        </div>
+    </div>
 
-    </div>
-    <div class="q-ma-md flex justify-end">
-        <q-btn label="Save Changes" color="primary" class="btn-border-radius" @click="saveChanges" />
-    </div>
 </template>
 
 <script setup>
@@ -125,4 +125,9 @@ const saveChanges = async () => {
     });
     $q.loading.hide()
 };
+</script>
+<script>
+export default {
+    name: 'SecurityForm',
+}
 </script>

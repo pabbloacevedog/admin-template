@@ -25,7 +25,11 @@ const props = defineProps({
     icon: String,
 });
 </script>
-
+<script>
+export default {
+    name: 'ItemSettingsTabs',
+}
+</script>
 <style lang="css">
 .title-section-menu-settings{
     font-size: 16px !important;

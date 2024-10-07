@@ -117,6 +117,59 @@ export const useRoleStore = defineStore("role", {
                 throw error;
             }
         },
+        async getRoleById(roleId) {
+            const GET_ROLE_BY_ID_QUERY = gql`
+                query getRoleById($roleId: String!) {
+                    getRoleById(roleId: $roleId) {
+                        role_id
+                        name
+                        title
+                        description
+                        color
+                        permission {
+                            permission_id
+                            route {
+                                route_id
+                                name
+                                title
+                                description
+                                path
+                                icon
+                                module_id
+                                action {
+                                    action_id
+                                    name
+                                    title
+                                    description
+                                    condition {
+                                        condition_id
+                                        name
+                                        title
+                                        description
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            `;
+
+            try {
+                this.clearError(); // Limpiar error antes de la consulta
+                const response = await apolloClient.query({
+                    query: GET_ROLE_BY_ID_QUERY,
+                    variables: { roleId },
+                    fetchPolicy: "network-only",
+                });
+
+                // Guardar el resultado en tu estado de roles (o según sea necesario)
+                this.role = response.data.getRoleById;
+                return this.role;
+            } catch (error) {
+                this.error = error.message;
+                throw error;
+            }
+        },
         async getRolesByOwner(search, page, rowsPerPage) {
             const ALL_ROLES_QUERY = gql`
                 query getRolesByOwner($filter: FilterInput, $pagination: PaginationInput!) {
@@ -159,7 +212,7 @@ export const useRoleStore = defineStore("role", {
         },
         async updateRole(updatedRole) {
             const UPDATE_ROLE_MUTATION = gql`
-                mutation UpdateRole($roleId: Int!, $input: RoleUpdateInput!) {
+                mutation UpdateRole($roleId: String!, $input: RoleUpdateInput!) {
                     updateRole(roleId: $roleId, input: $input) {
                         role {
                             role_id

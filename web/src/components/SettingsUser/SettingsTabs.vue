@@ -109,7 +109,11 @@ const activeTab = ref('general');
 const splitterModel = ref(25);
 const showTabPanel = ref(false);
 </script>
-
+<script>
+export default {
+    name: 'SettingsTabs',
+}
+</script>
 <style scoped>
 .tab-settings {
     text-align: left !important;

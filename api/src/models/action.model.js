@@ -27,7 +27,7 @@ const initializeAction = (sequelize) => {
         },
     }, {
         sequelize,
-        tableName: 'action',
+        tableName: '`action`',  // Escapar el nombre de la tabla
         modelName: 'Action',
         timestamps: false,
     });

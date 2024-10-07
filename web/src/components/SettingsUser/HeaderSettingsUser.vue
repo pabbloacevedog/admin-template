@@ -28,3 +28,8 @@ import AvatarUploader from './AvatarUploader.vue';
 import { useAuthStore } from 'stores/auth';
 const authStore = useAuthStore();
 </script>
+<script>
+export default {
+    name: 'HeaderSettingsUser',
+}
+</script>

@@ -142,14 +142,16 @@ export async function initializeModule(models) {
             title: 'Administrator',
             description: 'The administrator role has full access to all features and settings in the system, including user management and system configuration.',
             color: 'admin',
-            owner_id: '1'
+            owner_id: '1',
+            role_id: 1
         },
         {
             name: 'user',
             title: 'User',
             description: 'The user role provides access to basic system functionalities, allowing the user to interact with the platform but with limited permissions.',
             color: 'role-color-3',
-            owner_id: '1'
+            owner_id: '1',
+            role_id: 2
         }
     ];
 
@@ -216,6 +218,7 @@ export async function initializeModule(models) {
 
         { role_id: adminRole.dataValues.role_id, route_id: roleRoute.dataValues.route_id, action_id: createAction.dataValues.action_id, condition_id: allCondition.dataValues.condition_id },
         { role_id: adminRole.dataValues.role_id, route_id: roleRoute.dataValues.route_id, action_id: viewAction.dataValues.action_id, condition_id: allCondition.dataValues.condition_id },
+        { role_id: adminRole.dataValues.role_id, route_id: roleRoute.dataValues.route_id, action_id: updateAction.dataValues.action_id, condition_id: allCondition.dataValues.condition_id },
         { role_id: adminRole.dataValues.role_id, route_id: settingsRoute.dataValues.route_id, action_id: viewAction.dataValues.action_id, condition_id: allCondition.dataValues.condition_id },
         { role_id: adminRole.dataValues.role_id, route_id: settingsRoute.dataValues.route_id, action_id: viewAction.dataValues.action_id, condition_id: allCondition.dataValues.condition_id },
         // Permisos para el rol user

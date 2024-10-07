@@ -13,6 +13,9 @@ const successTranslations = {
         USER_CREATED_VERIFY_EMAIL:'Account created successfully, please validate your email to continue.',
         SUCCESS_VERIFY_EMAIL:'Account verified successfully, you can log in with your credentials.',
         USER_DATA_UPDATE_SUCCESS:'User data update success.',
+        ROLE_CREATED: 'Role created successfully.',
+        ROLE_UPDATED: 'Role updated successfully.',
+        ROLE_DELETED: 'Role deleted successfully.',
     },
     es: {
         USER_CREATED: 'Usuario creado con éxito.',

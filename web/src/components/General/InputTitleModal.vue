@@ -1,9 +1,9 @@
 <template>
 
-    <q-item class="q-pl-none q-pr-xs item-input-settings" style="height: 72px;">
+    <q-item class="q-pl-none q-pr-xs item-input-roles">
         <q-item-section class="q-pa-none">
-            <q-item-label class="input-title-panel-settings">{{ title }}</q-item-label>
-            <q-item-label caption style="font-size: 10px;" class="input-description-panel-settings" no-caps>
+            <q-item-label class="input-title-panel-roles">{{ title }}</q-item-label>
+            <q-item-label caption style="font-size: 10px;" class="input-description-panel-roles ellipsis" no-caps>
                 {{ description }}
             </q-item-label>
         </q-item-section>
@@ -18,32 +18,35 @@ const props = defineProps({
     description: String,
 });
 </script>
-<script>
-export default {
-    name: 'inputTitleSettingsPanel',
-}
-</script>
+
 <style lang="css">
-.input-title-panel-settings {
+.input-title-panel-roles {
     font-size: 16px !important;
     font-weight: bold;
     text-transform: none;
 }
 
-.input-description-panel-settings {
+.input-description-panel-roles {
     font-size: 12px !important;
     text-transform: none;
 }
 
-.item-input-settings .q-item__section {
+.item-input-roles .q-item__section {
     justify-content: start;
 }
-
+.item-input-roles {
+        height: 76px;
+    }
 @media (max-width: 768px) {
-    .input-title-panel-settings {
+    .input-title-panel-roles {
         font-size: 13px !important;
         font-weight: bold;
         text-transform: none;
+    }
+
+    .item-input-roles {
+        height: 60px;
+        padding-top: 0px;
     }
 }
 </style>
