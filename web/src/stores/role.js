@@ -61,6 +61,8 @@ export const useRoleStore = defineStore("role", {
                             title
                             description
                             color
+                            totalUsers
+                            avatars
                         }
                         totalRoles
                     }
@@ -86,6 +88,49 @@ export const useRoleStore = defineStore("role", {
                 this.roles = roles;
                 this.totalRoles = totalRoles;
                 return { roles: this.roles, totalRoles: this.totalRoles };
+            } catch (error) {
+                this.error = error.message;
+                throw error;
+            }
+        },
+        async getRoleConfigData() {
+            const ROLE_CONFIG_QUERY = gql`
+                query getRoleConfiguration {
+                    getRoleConfiguration {
+                        routes {
+                            route_id
+                            name
+                            title
+                            description
+                            path
+                            icon
+                            module_id
+                        }
+                        actions {
+                            action_id
+                            name
+                            title
+                            description
+                            icon
+                        }
+                        conditions {
+                            condition_id
+                            name
+                            title
+                            description
+                        }
+                    }
+                }
+            `;
+            try {
+                this.clearError(); // Limpiar error antes de la consulta
+                const response = await apolloClient.query({
+                    query: ROLE_CONFIG_QUERY,
+                    fetchPolicy: 'network-only',
+                });
+                console.log('response', response);
+                const  resp = response.data.getRoleConfiguration;
+                return resp;
             } catch (error) {
                 this.error = error.message;
                 throw error;
@@ -141,6 +186,7 @@ export const useRoleStore = defineStore("role", {
                                     name
                                     title
                                     description
+                                    icon
                                     condition {
                                         condition_id
                                         name

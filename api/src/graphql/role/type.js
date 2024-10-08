@@ -37,6 +37,8 @@ const RoleType = new GraphQLObjectType({
         permission: {
             type: new GraphQLList(PermissionType),
         },
+        totalUsers: { type: GraphQLInt }, // Nuevo campo para el número total de usuarios
+        avatars: { type: new GraphQLList(GraphQLString) }, // Nuevo campo para la lista de avatares
         message: {
             type: GraphQLString
         },

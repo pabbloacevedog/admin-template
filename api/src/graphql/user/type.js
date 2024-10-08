@@ -1,3 +1,4 @@
+
 // schema/user/type.js
 import { GraphQLObjectType, GraphQLString, GraphQLBoolean, GraphQLNonNull, GraphQLInt, GraphQLInputObjectType } from 'graphql';
 import { RoleType } from  '../role/type.js';

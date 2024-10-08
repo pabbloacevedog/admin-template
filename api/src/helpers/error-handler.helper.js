@@ -88,6 +88,18 @@ export const ErrorTypes = {
         errorCode: 'UNAUTHORIZED_ACTION',
         statusCode: 403,
     },
+    ROLE_ALREADY_EXISTS: {
+        errorCode: 'ROLE_ALREADY_EXISTS',
+        statusCode: 400,
+    },
+    ROLE_NOT_FOUND: {
+        errorCode: 'ROLE_NOT_FOUND',
+        statusCode: 400,
+    },
+    ROLE_NAME_ALREADY_IN_USE: {
+        errorCode: 'ROLE_NAME_ALREADY_IN_USE',
+        statusCode: 400,
+    },
 
 };
 const getCurrentLanguage = () => {

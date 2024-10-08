@@ -25,6 +25,10 @@ const initializeAction = (sequelize) => {
             type: DataTypes.STRING,
             allowNull: true
         },
+        icon: {
+            type: DataTypes.STRING,
+            allowNull: true
+        },
     }, {
         sequelize,
         tableName: '`action`',  // Escapar el nombre de la tabla

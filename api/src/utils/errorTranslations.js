@@ -21,7 +21,10 @@ const errorTranslations = {
         EMAIL_NOT_VERIFIED:'Email not verified, please verify your email before logging in.',
         EMAIL_ALREADY_IN_USE:'Email already in use by another user.',
         USER_INACTIVE:'Your account is disabled, please contact an administrator to resolve the issue.',
-        UNAUTHORIZED_ACTION: 'You are not authorized to perform this action.'
+        UNAUTHORIZED_ACTION: 'You are not authorized to perform this action.',
+        ROLE_ALREADY_EXISTS: 'Role already exists.',
+        ROLE_NOT_FOUND: 'Role not found.',
+        ROLE_NAME_ALREADY_IN_USE: 'Role name already in use.',
     },
     es: {
         BAD_USER_PASSWORD: 'Lo sentimos, la contraseña que ingresaste es incorrecta. Inténtalo de nuevo.',
@@ -43,7 +46,11 @@ const errorTranslations = {
         EMAIL_NOT_VERIFIED:'Email no verificado, verificalo desde tu correo para continuar.',
         EMAIL_ALREADY_IN_USE:'El email esta siendo usado por otro usuario.',
         USER_INACTIVE:'Tu cuenta esta desactivada, contacta a un administrador para solucionar.',
-        UNAUTHORIZED_ACTION: 'No tienes autorizacion para realizar esta acción.'
+        UNAUTHORIZED_ACTION: 'No tienes autorizacion para realizar esta acción.',
+        ROLE_ALREADY_EXISTS: 'El rol ya existe.',
+        ROLE_NOT_FOUND: 'El rol no existe.',
+        ROLE_NAME_ALREADY_IN_USE: 'El nombre del rol ya esta en uso.',
+
     },
     // Agrega más idiomas aquí
 };

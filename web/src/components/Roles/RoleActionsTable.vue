@@ -1,13 +1,13 @@
 <template>
-    <div style="display: flex; align-items: center;" class="q-pt-xs">
-        <q-btn v-if="canEdit" class="bg-first q-mr-sm" style="border-radius: 8px;" round flat size="sm" :color="color" @click="edit(resource)" >
+    <div style="display: flex; align-items: center;">
+        <q-btn v-if="canEdit" class="bg-white q-mr-sm" round flat size="sm" :color="color" @click="edit(resource)" >
             <q-icon :class="color" name="edit" />
         </q-btn>
-        <q-btn v-if="canDelete" class="bg-first q-mr-sm" style="border-radius: 8px;" flat size="sm" round :color="color"
+        <q-btn v-if="canDelete" class="bg-white q-mr-sm"  flat size="sm" round :color="color"
             @click="showDeleteModal(resource)" >
             <q-icon :class="color" name="delete_outline" />
         </q-btn>
-        <q-btn v-if="canView" class="bg-first" style="border-radius: 8px;" flat size="sm" round :color="color" @click="showViewModal(resource)">
+        <q-btn v-if="canView" class="bg-white" flat size="sm" round :color="color" @click="showViewModal(resource)">
             <q-icon :class="color" name="visibility" />
         </q-btn>
     </div>
@@ -28,7 +28,7 @@ const props = defineProps({
     permissions: Array, // Array que contiene los permisos del usuario
     color: String // Color del botón
 });
-console.log('props', props)
+// console.log('props', props)
 // Función para verificar si el usuario puede editar
 const canEdit = computed(() => {
     // Comprobar si el usuario tiene la acción "update" y la condición necesaria

@@ -19,6 +19,7 @@ const ActionType = new GraphQLObjectType({
         name: { type: GraphQLString },
         title: { type: GraphQLString },
         description: { type: GraphQLString },
+        icon: { type: GraphQLString },
         condition: { type: ConditionType }  // Relación con Condition
     })
 });

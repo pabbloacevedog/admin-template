@@ -206,6 +206,7 @@ export default {
         edit: {
             title: "Update data role",
             description: "Complete all data role",
+            instruction: "Edit the role details: name, title, and color. On the right, assign the routes the role can access, along with the actions available for each route. Additionally, specify a condition for each action.",
             upload_avatar: "Avatar update successfully",
             btn_action: "Update",
             btn_cancel: "Cancel"
@@ -213,12 +214,14 @@ export default {
         create: {
             title: "Create a new role",
             description: "Complete all data role",
-            upload_avatar: "Avatar upload successfully",
-            btn_action: "Create Account",
+            instruction: "Create a new role. Name, title, and color are required. On the right, assign the routes the role can access, along with the actions available for each route. Additionally, specify a condition for each action.",
+            btn_action: "Create Role",
             btn_cancel: "Cancel"
         },
         delete: {
             message: "Are you sure you want to delete the role ",
+            message_no_delete_1: "You can't delete this role ",
+            message_no_delete_2: " because it has users.",
             title: "Delete role ",
             description: "You need to confirm for delete role",
             deleted_success: "Role account deleted successfully",

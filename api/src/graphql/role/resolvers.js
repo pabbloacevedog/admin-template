@@ -75,24 +75,6 @@ export const roleResolver = {
             return roles;
         },
 
-        // Obtener un rol por ID
-        // getRoleById: async (_, { roleId }) => {
-        //     const role = await models.Role.findOne({
-        //         where: { role_id: roleId },
-        //         include: [{
-        //             model: models.Permission, // Incluye la relación con permisos
-        //             include: [
-        //                 { model: models.Route },    // Incluir rutas asociadas
-        //                 { model: models.Action },   // Incluir acciones asociadas
-        //                 { model: models.Condition } // Incluir condiciones asociadas
-        //             ]
-        //         }]
-        //     });
-        //     console.log('role: ', role.get())
-        //     if (!role) throwCustomError(ErrorTypes.ROLE_NOT_FOUND);
-
-        //     return role;
-        // },
         getRoleById: async (_, { roleId }) => {
             // Buscar el rol por ID con permisos, rutas, acciones y condiciones
             const role = await models.Role.findOne({
@@ -194,11 +176,7 @@ export const roleResolver = {
 
             return response;
         },
-
-
-
-
-        // Obtener roles con paginación y filtro
+        // Obtener roles con paginación, filtro, total de usuarios y sus avatares
         getAllRoles: async (_, { filter, pagination }) => {
             try {
                 const roles = await models.Role.findAll({
@@ -209,8 +187,31 @@ export const roleResolver = {
                     },
                     limit: pagination.rowsPerPage,
                     offset: (pagination.page - 1) * pagination.rowsPerPage,
+                    include: [
+                        {
+                            model: models.User, // Asegúrate de que la asociación entre Role y User esté definida
+                            attributes: ['avatar'], // Solo obtener el avatar de cada usuario
+                        }
+                    ],
                 });
 
+                // Contar cuántos usuarios tienen cada role_id
+                const rolesWithUserCount = await Promise.all(roles.map(async (role) => {
+                    const userCount = await models.User.count({
+                        where: {
+                            role_id: role.role_id
+                        }
+                    });
+
+                    // Incluir el total de usuarios y avatares dentro del objeto role
+                    return {
+                        ...role.toJSON(), // Convertimos el role a JSON para manipularlo
+                        totalUsers: userCount,
+                        avatars: role.Users.map(user => user.avatar) // Lista de avatares
+                    };
+                }));
+
+                // Obtener el total de roles (para la paginación)
                 const totalRoles = await models.Role.count({
                     where: {
                         name: {
@@ -220,8 +221,32 @@ export const roleResolver = {
                 });
 
                 return {
-                    roles,
+                    roles: rolesWithUserCount, // Ahora los roles incluyen el conteo de usuarios y sus avatares
                     totalRoles
+                };
+            } catch (error) {
+                throw new Error('Error al obtener los roles: ' + error.message);
+            }
+        },
+
+
+
+
+        // Obtener todas las rutas de la app
+        getAllRoutesActionsConditions: async () => {
+            try {
+                const routes = await models.Route.findAll({
+                    where: { public : 0 }
+                });
+                const actions = await models.Action.findAll();
+                const conditions = await models.Condition.findAll();
+                console.log('routes', routes);
+                console.log('actions', actions);
+                console.log('conditions', conditions);
+                return {
+                    routes,
+                    actions,
+                    conditions
                 };
             } catch (error) {
                 throw new Error('Error al obtener los roles: ' + error.message);

@@ -3,10 +3,24 @@ import { GraphQLList, GraphQLString, GraphQLNonNull, GraphQLObjectType, GraphQLI
 import { RoleType } from './type.js';  // Asegúrate de tener definido el RoleType
 import { PaginationInput, FilterInput } from '../global/type.js';
 import { roleResolver } from './resolvers.js';
-
+import { RouteType, ActionType, ConditionType } from '../route/type.js';
 export const getRoles = {
     type: new GraphQLList(RoleType), // Retorna una lista de usuarios
     resolve: roleResolver.Query.getRoles
+};
+const RoleConfigurationType = new GraphQLObjectType({
+    name: 'RoleConfiguration',
+    fields: () => ({
+        routes: { type: new GraphQLList(RouteType) },
+        actions: { type: new GraphQLList(ActionType) },
+        conditions: { type: new GraphQLList(ConditionType) }
+    })
+});
+
+export const getRoleConfiguration = {
+    type: RoleConfigurationType,
+    name: 'getRoleConfiguration',
+    resolve: roleResolver.Query.getAllRoutesActionsConditions
 };
 
 // Definir el tipo que devolverá los usuarios y el total

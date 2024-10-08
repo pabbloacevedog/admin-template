@@ -32,7 +32,7 @@
                                     </q-item-section>
 
                                     <q-item-section class="q-pa-none" side v-if="!$q.platform.is.mobile">
-                                        <q-btn :label="$t('roles.btn_create')" icon="group_add" color="primary"
+                                        <q-btn :label="$t('roles.btn_create')" icon="attribution" color="primary"
                                             class="btn-border-radius" @click="showCreateRoleModal" v-if="canCreate()" />
                                     </q-item-section>
                                 </q-item>
@@ -40,35 +40,61 @@
 
                             <!-- Slot para personalizar la visualización de cada ítem -->
                             <template v-slot:item="props">
-                                <div class="q-pa-xs col-xs-12 col-sm-6 col-md-4 col-lg-3 grid-style-transition q-m-lg"
+                                <div class="q-pa-sm col-xs-12 col-sm-6 col-md-4 col-lg-3 grid-style-transition q-m-lg"
                                     :style="props.selected ? 'transform: scale(0.95);' : ''">
-                                    <q-card class="bg-card bg-second" flat style="padding: 5% !important;"
+                                    <q-card class="bg-card bg-second" flat style="padding: 4% 8% !important;"
                                         :class="getCardClass(props.row)">
-                                        <q-card-section class="q-pa-none q-ml-md">
-                                            <div class="text-h5">{{ props.row.title }}</div>
+                                        <q-card-section class="q-pa-none">
+                                            <q-item clickable v-ripple style="padding: 2px 2px;">
+                                                <q-item-section class="text-h5">{{ props.row.title }}</q-item-section>
+                                                <q-item-section avatar class="text-h5">
+                                                    {{ props.row.role_id }}
+                                                </q-item-section>
+                                            </q-item>
                                         </q-card-section>
                                         <q-list dense>
-                                            <q-item v-if="props.row.description" class="q-my-md">
+                                            <q-item v-if="props.row.description" class="q-my-none q-mx-none"
+                                                style="padding: 2px 2px;">
                                                 <q-item-section>
-                                                    <q-item-label caption style="font-size: 16px;">{{
+                                                    <q-item-label caption style="font-size: 15px;">{{
                                                         props.row.description }}</q-item-label>
                                                 </q-item-section>
                                             </q-item>
-                                            <q-item class="text-end">
+                                            <!-- Aquí agregamos los avatares de los usuarios -->
+                                            <q-item v-if="props.row.avatars && props.row.avatars.length" class="q-my-sm"
+                                                style="padding: 2px 2px;">
                                                 <q-item-section>
-                                                    <q-item-label class="text-h4">
-                                                        <div class="flex justify-start">
-                                                            <q-avatar  text-color="white" style="border: 1px solid #fff !important;">{{ props.row.role_id }}</q-avatar>
+                                                    <q-item-label class="text-h7">
+                                                        <div class="flex justify-start" v-if="props.row.totalUsers">
+                                                            <div  v-if="props.row.totalUsers > 1" class="text-h7">
+                                                                +{{props.row.totalUsers}} role users
+                                                            </div>
+                                                            <div  v-else  class="text-h7">
+                                                                +{{props.row.totalUsers}} role user
+                                                            </div>
+                                                        </div>
+                                                        <div class="flex justify-start text-h6" v-else>
+                                                            0 Users
                                                         </div>
                                                     </q-item-label>
 
                                                 </q-item-section>
                                                 <div class="flex justify-end">
-                                                    <RoleActionsTable :resource="props.row" :edit="editRole"
-                                                        :showDeleteModal="showDeleteRoleModal"
-                                                        :showViewModal="showViewRoleModal"
-                                                        :permissions="availableActions" />
+                                                    <q-avatar v-for="(rs, n) in props.row.avatars" :key="n" size="30px"
+                                                        class="overlapping" @click="selectRememberedUsers()"
+                                                        :style="`right: ${n * 15}px`">
+                                                        <img :src="rs">
+                                                    </q-avatar>
                                                 </div>
+                                            </q-item>
+                                            <q-separator></q-separator>
+                                            <q-item class="flex justify-center q-mt-sm q-mx-none">
+                                                <RoleActionsTable :resource="props.row" :edit="editRole"
+                                                    :showDeleteModal="showDeleteRoleModal"
+                                                    :showViewModal="showViewRoleModal"
+                                                    :permissions="availableActions"
+                                                    :color="getColorClass(props.row)"
+                                                    />
                                             </q-item>
                                         </q-list>
                                     </q-card>
@@ -134,9 +160,14 @@ const columns = ref([
     { name: 'actions', label: 'Acciones', align: 'center' },
 ]);
 const getCardClass = (row) => {
-    console.log('row', row)
+    // console.log('row', row)
     // Asegúrate de que el color en la fila es válido y retorna la clase adecuada
     return row.color ? `bg-${row.color}` : 'bg-primary'; // Si no hay color, usa 'bg-primary' como clase por defecto
+};
+const getColorClass = (row) => {
+    // console.log('row', row)
+    // Asegúrate de que el color en la fila es válido y retorna la clase adecuada
+    return row.color ? `text-${row.color}` : 'bg-primary'; // Si no hay color, usa 'bg-primary' como clase por defecto
 };
 const pagesNumber = computed(() => Math.ceil(totalRoles.value / pagination.value.rowsPerPage));
 // Computed para obtener las acciones de la ruta
@@ -313,5 +344,10 @@ export default {
 .chip-status {
     font-size: 12px;
     padding: 9px 10px;
+}
+
+.overlapping {
+    border: 2px solid white;
+    position: absolute;
 }
 </style>

@@ -20,14 +20,14 @@ export async function initializeModule(models) {
             description: 'View an overview of system metrics and important information. Provides quick access to the main features and statistics.',
             path: '/admin',
             icon: 'dashboard',
-            public: true,
+            public: false,
             resource: 'dashboard',
             module_id: moduleId
         },
         {
             name: 'users',
             title: 'Users',
-            description: 'Access and manage your account settings, including personal information, security options, and notification preferences.',
+            description: 'Manages system users, allowing them to create, update data and avatars, assign roles, and delete users securely.',
             path: '/admin/users',
             icon: 'supervised_user_circle',
             public: false,
@@ -37,7 +37,7 @@ export async function initializeModule(models) {
         {
             name: 'roles',
             title: 'Roles',
-            description: 'Manage roles and permissions.',
+            description: 'Manage system roles, allowing you to create, edit and delete roles. Assign access to routes and define specific actions and conditions for each one, ensuring precise control of permissions.',
             path: '/admin/roles',
             icon: 'attribution',
             public: false,
@@ -80,22 +80,26 @@ export async function initializeModule(models) {
         {
             name: 'create',
             title: 'Create',
-            description: 'Allows the user to create new records or entries in the system, giving them permission to add new data.'
+            description: 'Allows the user to create new records or entries in the system, giving them permission to add new data.',
+            icon: 'add_circle'
         },
         {
             name: 'view',
             title: 'View',
-            description: 'Grants the user access to view and retrieve data or records from the system without making modifications.'
+            description: 'Grants the user access to view and retrieve data or records from the system without making modifications.',
+            icon: 'visibility'
         },
         {
             name: 'update',
             title: 'Update',
-            description: 'Provides the user with the ability to modify or edit existing records or data in the system.'
+            description: 'Provides the user with the ability to modify or edit existing records or data in the system.',
+            icon: 'edit'
         },
         {
             name: 'delete',
             title: 'Delete',
-            description: 'Enables the user to remove or permanently delete existing records or data from the system.'
+            description: 'Enables the user to remove or permanently delete existing records or data from the system.',
+            icon: 'delete'
         }
     ];
 
@@ -114,7 +118,7 @@ export async function initializeModule(models) {
     const conditionsArray = [
         {
             name: 'owner_only',
-            title: 'owner_only',
+            title: 'Owner only',
             description: 'Allows the user to access only if the user is the owner of the resource.'
         },
         {
