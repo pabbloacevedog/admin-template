@@ -6,18 +6,18 @@
             <!-- Show tabs in fullscreen -->
             <q-tabs v-model="activeTab" vertical indicator-color="transparent" inline-label class="q-pt-xl full-height">
                 <q-tab name="general" class="tab-settings" @click="showTabPanel = true">
-                    <ItemSettingsTabs :title="$t('settings.tabs.general.personal.subtitle')"
-                        :description="$t('settings.tabs.general.personal.description')" :icon="'account_circle'" />
+                    <ItemSettingsTabs :title="$t('account.tabs.general.personal.subtitle')"
+                        :description="$t('account.tabs.general.personal.description')" :icon="'account_circle'" />
                 </q-tab>
                 <q-separator class="q-my-md" />
                 <q-tab name="security" class="tab-settings" @click="showTabPanel = true">
-                    <ItemSettingsTabs :title="$t('settings.tabs.security.title')"
-                        :description="$t('settings.tabs.security.description')" :icon="'fingerprint'" />
+                    <ItemSettingsTabs :title="$t('account.tabs.security.title')"
+                        :description="$t('account.tabs.security.description')" :icon="'fingerprint'" />
                 </q-tab>
                 <q-separator class="q-my-md" />
                 <q-tab name="theme" class="tab-settings" @click="showTabPanel = true">
-                    <ItemSettingsTabs :title="$t('settings.tabs.theme.title')"
-                        :description="$t('settings.tabs.theme.description')" :icon="'dark_mode'" />
+                    <ItemSettingsTabs :title="$t('account.tabs.theme.title')"
+                        :description="$t('account.tabs.theme.description')" :icon="'dark_mode'" />
                 </q-tab>
             </q-tabs>
         </div>
@@ -56,18 +56,18 @@
             <CardUserBig />
             <q-tabs v-model="activeTab" vertical indicator-color="transparent" inline-label class="q-pt-xl ">
                 <q-tab name="general" class="tab-settings">
-                    <ItemSettingsTabs :title="$t('settings.tabs.general.personal.subtitle')"
-                        :description="$t('settings.tabs.general.personal.description')" :icon="'account_circle'" />
+                    <ItemSettingsTabs :title="$t('account.tabs.general.personal.subtitle')"
+                        :description="$t('account.tabs.general.personal.description')" :icon="'account_circle'" />
                 </q-tab>
                 <q-separator class="q-my-md" />
                 <q-tab name="security" class="tab-settings">
-                    <ItemSettingsTabs :title="$t('settings.tabs.security.title')"
-                        :description="$t('settings.tabs.security.description')" :icon="'fingerprint'" />
+                    <ItemSettingsTabs :title="$t('account.tabs.security.title')"
+                        :description="$t('account.tabs.security.description')" :icon="'fingerprint'" />
                 </q-tab>
                 <q-separator class="q-my-md" />
                 <q-tab name="theme" class="tab-settings">
-                    <ItemSettingsTabs :title="$t('settings.tabs.theme.title')"
-                        :description="$t('settings.tabs.theme.description')" :icon="'dark_mode'" />
+                    <ItemSettingsTabs :title="$t('account.tabs.theme.title')"
+                        :description="$t('account.tabs.theme.description')" :icon="'dark_mode'" />
                 </q-tab>
             </q-tabs>
         </template>
@@ -111,7 +111,7 @@ const showTabPanel = ref(false);
 </script>
 <script>
 export default {
-    name: 'SettingsTabs',
+    name: 'AccountTabs',
 }
 </script>
 <style scoped>

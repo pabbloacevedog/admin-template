@@ -12,6 +12,6 @@
 </template>
 
 <script setup>
-import AccountTabs from 'components/AccountUser/AccountTabs.vue';
+import AccountTabs from 'src/components/AccountUser/AccountTabs.vue';
 import TitlePages from 'components/General/TitlePages.vue';
 </script>

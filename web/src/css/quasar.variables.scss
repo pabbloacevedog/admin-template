@@ -18,7 +18,7 @@ $primary: #155eee;
 $secondary: #7926a6;
 $text-second: #929397;
 $accent: #9c27b0;
-$verified: #0195F7;
+$verified: #0195f7;
 
 $dark: #000000;
 $dark-page: #0d111e;
@@ -37,16 +37,16 @@ $warning: #f2c037;
 
 //colores predeterminados para los roles
 
-$role-color-1: #FF6B6B;  // Coral Red
-$role-color-2: #076ea9;  // Aqua Mint
-$role-color-3: #5925cd;  // Mustard Yellow
-$role-color-4: #1A535C;  // Dark Teal
-$role-color-5: #FF9F1C;  // Vibrant Orange
-$role-color-6: #6A4C93;  // Royal Purple
-$role-color-7: #2EC4B6;  // Turquoise
-$role-color-8: #D90368;  // Raspberry Pink
-$role-color-9: #3A86FF;  // Bright Blue
-$role-color-10: #8338EC; // Electric Violet
+$role-color-1: #ff6b6b; // Coral Red
+$role-color-2: #076ea9; // Aqua Mint
+$role-color-3: #5925cd; // Mustard Yellow
+$role-color-4: #1a535c; // Dark Teal
+$role-color-5: #ff9f1c; // Vibrant Orange
+$role-color-6: #6a4c93; // Royal Purple
+$role-color-7: #2ec4b6; // Turquoise
+$role-color-8: #d90368; // Raspberry Pink
+$role-color-9: #3a86ff; // Bright Blue
+$role-color-10: #8338ec; // Electric Violet
 
 .bg-role-color-1 {
     background: $role-color-1 !important;
@@ -90,14 +90,10 @@ $role-color-10: #8338EC; // Electric Violet
 
 .text-role-color-1 {
     color: $role-color-1 !important;
-
-
 }
 
 .text-role-color-2 {
     color: $role-color-2 !important;
-
-
 }
 
 .text-role-color-3 {
@@ -106,46 +102,31 @@ $role-color-10: #8338EC; // Electric Violet
 
 .text-role-color-4 {
     color: $role-color-4 !important;
-
-
 }
 
 .text-role-color-5 {
     color: $role-color-5 !important;
-
-
 }
 
 .text-role-color-6 {
     color: $role-color-6 !important;
-
-
 }
 
 .text-role-color-7 {
     color: $role-color-7 !important;
-
-
 }
 
 .text-role-color-8 {
     color: $role-color-8 !important;
-
-
 }
 
 .text-role-color-9 {
     color: $role-color-9 !important;
-
-
 }
 
 .text-role-color-10 {
     color: $role-color-10 !important;
-
-
 }
-
 
 .bg-admin {
     background: linear-gradient(
@@ -156,12 +137,7 @@ $role-color-10: #8338EC; // Electric Violet
     ) !important;
 }
 .text-admin {
-    background: linear-gradient(
-        -225deg,
-        #5b0d62 0%,
-        #f11ca3 48%,
-        #5b0d62 100%
-    );
+    background: linear-gradient(-225deg, #5b0d62 0%, #f11ca3 48%, #5b0d62 100%);
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -173,8 +149,6 @@ $role-color-10: #8338EC; // Electric Violet
 }
 .text-verified {
     color: $verified !important;
-
-
 }
 .text-second {
     color: $text-second;
@@ -221,11 +195,11 @@ $role-color-10: #8338EC; // Electric Violet
     -o-border-radius: 50px !important;
 }
 .div-rounded-radius {
-    border-radius:20px !important;
-    -webkit-border-radius:20px !important;
-    -moz-border-radius:20px !important;
-    -ms-border-radius:20px !important;
-    -o-border-radius:20px !important;
+    border-radius: 20px !important;
+    -webkit-border-radius: 20px !important;
+    -moz-border-radius: 20px !important;
+    -ms-border-radius: 20px !important;
+    -o-border-radius: 20px !important;
 }
 .q-splitter--vertical > .q-splitter__separator {
     width: 0px !important;
@@ -287,18 +261,37 @@ $role-color-10: #8338EC; // Electric Violet
     .active-drawer-item {
         background-color: $dark !important;
     }
-    .q-table thead, .q-table tr, .q-table th, .q-table td {
+    .q-table thead,
+    .q-table tr,
+    .q-table th,
+    .q-table td {
         border-color: #151515;
     }
-    .chip-total-users .q-chip__content{
+    .chip-total-users .q-chip__content {
         color: $light;
     }
     .div-blur {
-        background: #0e0e1e85  !important;
-        backdrop-filter: blur(10px) !important;
+        background: #040415d1 !important;
+        -webkit-backdrop-filter: blur(20px) !important;
+        backdrop-filter: blur(20px) !important;
     }
     .form-modal-view {
         padding: 16px 5%;
+    }
+    .chip-user-active {
+        background-color: #004618;
+        border-radius: 8px;
+        font-size: 12px;
+        padding: 9px 10px;
+    }
+    .chip-user-inactive {
+        background-color: #310000;
+        border-radius: 8px;
+        font-size: 12px;
+        padding: 9px 10px;
+    }
+    .text-caption {
+        color: #9b9b9b !important;
     }
 }
 .q-avatar {
@@ -362,10 +355,13 @@ $role-color-10: #8338EC; // Electric Violet
     .active-drawer-item {
         background-color: $light !important;
     }
-    .q-table thead, .q-table tr, .q-table th, .q-table td {
+    .q-table thead,
+    .q-table tr,
+    .q-table th,
+    .q-table td {
         border-color: #f0f0f0;
     }
-    .chip-total-users .q-chip__content{
+    .chip-total-users .q-chip__content {
         color: $dark;
     }
     .div-blur {
@@ -374,6 +370,21 @@ $role-color-10: #8338EC; // Electric Violet
     }
     .form-modal-view {
         padding: 16px 5%;
+    }
+    .chip-user-active {
+        background-color: #c9fbda;
+        border-radius: 8px;
+        font-size: 12px;
+        padding: 9px 10px;
+    }
+    .chip-user-inactive {
+        background-color: #ffd6d6;
+        border-radius: 8px;
+        font-size: 12px;
+        padding: 9px 10px;
+    }
+    .text-caption {
+        color: #8b8b8b !important;
     }
 }
 
@@ -386,17 +397,17 @@ $role-color-10: #8338EC; // Electric Violet
 .q-field--filled.q-field--dark .q-field__control:before {
     background: rgba(255, 255, 255, 0);
 }
-
+.select-role .q-field__inner .q-field__control .q-field__control-container .q-field__native {
+    color: #fff !important;
+}
 .q-field--outlined .q-field__control {
     border-radius: 10px;
-
 }
 .q-table__top {
     padding: 0px;
 }
 .q-field__bottom {
     padding: 4px 12px 0 !important;
-
 }
 .page-padding {
     padding: 16px 48px !important;
@@ -414,10 +425,16 @@ $role-color-10: #8338EC; // Electric Violet
     }
 }
 
-
 .chip-verified-view .q-chip__icon {
     color: $verified !important;
 }
-.description-role .q-field__inner .q-field__control .q-field__control-container {
+.description-role
+    .q-field__inner
+    .q-field__control
+    .q-field__control-container {
     height: 100px !important;
+}
+.bg-blur
+{
+    background: #00000000 !important;
 }

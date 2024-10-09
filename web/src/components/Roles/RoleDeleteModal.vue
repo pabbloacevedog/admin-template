@@ -19,32 +19,6 @@
                             {{ $t('roles.delete.message') }} <q-chip :color="role?.color" text-color="white"
                                 icon="attribution">{{ role?.title }}</q-chip> ?
                         </div>
-                        <!-- Aquí agregamos los avatares de los usuarios -->
-                        <q-item v-if="role?.avatars && role?.avatars.length" class="q-my-sm"
-                            style="padding: 2px 2px;">
-                            <q-item-section>
-                                <q-item-label class="text-h7">
-                                    <div class="flex justify-start" v-if="role?.totalUsers">
-                                        <div v-if="role?.totalUsers > 1" class="text-h7">
-                                            +{{ role?.totalUsers }} role users
-                                        </div>
-                                        <div v-else class="text-h7">
-                                            +{{ role?.totalUsers }} role user
-                                        </div>
-                                    </div>
-                                    <div class="flex justify-start text-h6" v-else>
-                                        0 Users
-                                    </div>
-                                </q-item-label>
-
-                            </q-item-section>
-                            <div class="flex justify-end">
-                                <q-avatar v-for="(rs, n) in role?.avatars" :key="n" size="30px" class="overlapping"
-                                    @click="selectRememberedUsers()" :style="`right: ${n * 15}px`">
-                                    <img :src="rs">
-                                </q-avatar>
-                            </div>
-                        </q-item>
                         <q-item-label caption style="font-size: 16px;" class="text-theme q-mb-md">
                             {{ role?.description }}
                         </q-item-label>
@@ -52,16 +26,36 @@
                 </q-card-section>
                 <q-card-section v-else>
                     <div class="row justify-center items-center column q-py-md">
-
                         <div class="text-center q-mt-md q-mb-md text-theme text-message-delete">
                             {{ $t('roles.delete.message_no_delete_1') }} <q-chip :color="role?.color" text-color="white"
                                 icon="attribution">{{ role?.title }}</q-chip>
                             {{ $t('roles.delete.message_no_delete_2') }}
                         </div>
-
-                        <q-item-label caption style="font-size: 16px;" class="text-theme q-mb-md">
-                            {{ role?.description }}
-                        </q-item-label>
+                        <!-- Aquí agregamos los avatares de los usuarios -->
+                        <q-item v-if="role?.avatars && role?.avatars.length" class="q-my-sm row"
+                            style="padding: 2px 2px;">
+                            <q-item-section>
+                                <q-item-label class="text-h6">
+                                    <div class="flex justify-start">
+                                        <div v-if="role?.totalUsers > 1" class="text-h7">
+                                            +{{ role?.totalUsers }} users
+                                        </div>
+                                        <div v-else class="text-h7">
+                                            +{{ role?.totalUsers }} user
+                                        </div>
+                                    </div>
+                                </q-item-label>
+                            </q-item-section>
+                            <div class="q-pl-md flex justify-end">
+                                <q-avatar v-for="(rs, n) in role?.avatars" :key="n" size="35px" class="overlapping"
+                                    :style="`right: ${n * 15}px`">
+                                    <img :src="rs">
+                                </q-avatar>
+                            </div>
+                        </q-item>
+                        <q-item-section>
+                            <q-item-label caption style="font-size: 16px;" class="text-caption">{{ role?.description }}</q-item-label>
+                        </q-item-section>
                     </div>
                 </q-card-section>
             </q-card>
@@ -89,14 +83,14 @@ import { ref, computed } from 'vue';
 import { useRoleStore } from 'stores/role';
 import { useQuasar } from 'quasar';
 import { useI18n } from 'vue-i18n';
-import SubTitleSettingsPanel from 'components/SettingsUser/SubTitleSettingsPanel.vue';
+import SubTitleSettingsPanel from 'components/AccountUser/SubTitleSettingsPanel.vue';
 const props = defineProps({
     role: {
         type: Object,
         required: true,
     },
 });
-
+console.log('props', props)
 const emits = defineEmits(['close']);
 
 const $q = useQuasar();

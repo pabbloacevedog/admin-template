@@ -1,15 +1,12 @@
 // src/graphql/role/mutations.js
 import { GraphQLString, GraphQLNonNull } from 'graphql';
-import { RoleType, RoleUpdateInputType, UpdateRoleResponseType }  from './type.js'; // Asegúrate de tener definido el RoleType
+import { RoleType, RoleUpdateInputType, RoleInputType, UpdateRoleResponseType }  from './type.js'; // Asegúrate de tener definido el RoleType
 import { roleResolver } from './resolvers.js';
 
 export const createRole = {
     type: RoleType,  // El tipo de retorno será el RoleType
     args: {
-        name: { type: new GraphQLNonNull(GraphQLString) },
-        title: { type: new GraphQLNonNull(GraphQLString) },
-        description: { type: new GraphQLNonNull(GraphQLString) },
-        color: { type: GraphQLString }
+        input: { type: new GraphQLNonNull(RoleInputType) }
     },
     resolve: roleResolver.Mutation.createRole
 };

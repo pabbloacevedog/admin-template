@@ -95,7 +95,7 @@ const menuList = [
         icon: 'fa-solid fa-sliders',
         label: 'Configuración',
         separator: false,
-        link: '/settings'
+        link: '/account'
     }
 ]
 import { useRouter, useRoute } from 'vue-router';

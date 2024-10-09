@@ -72,9 +72,11 @@
                         <div class="btn-verified-view input-bottom-view">
                             <q-item class="q-pa-none">
                                 <q-item-section avatar class="q-pa-none q-pl-sm">
-                                    <q-chip square outline :color="user?.state ? 'positive' : 'negative'"
-                                        text-color="white" :label="user?.state ? 'Active' : 'Inactive'"
-                                        class="chip-status-view" icon-right="fiber_manual_record" />
+                                    <q-chip  text-color="negative"
+                                            v-if="!user?.state" label="Inactive" class="chip-user-inactive chip-status-view"
+                                            />
+                                        <q-chip text-color="positive" v-else
+                                            label="Active" class="chip-user-active chip-status-view" />
                                 </q-item-section>
                             </q-item>
 

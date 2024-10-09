@@ -110,7 +110,7 @@
                         <!-- q-select para los roles -->
                         <q-select :dense="isMobile" filled v-model="selectedRole" :options="roles" option-label="label"
                             option-value="value" :label="$t('users.account.role.title')"
-                            :class="'bg-' + selectedRole.color">
+                            :class="'select-role bg-' + selectedRole.color">
                         </q-select>
                         <!-- <q-input class="input-bottom" filled v-model="form.rut_user"
                             :label="$t('users.account.rut_user.title')" /> -->
@@ -140,7 +140,7 @@
 
 <script setup>
 import { ref, onMounted, computed } from 'vue';
-import SubTitleSettingsPanel from 'components/SettingsUser/SubTitleSettingsPanel.vue';
+import SubTitleSettingsPanel from 'components/AccountUser/SubTitleSettingsPanel.vue';
 import InputTitleModal from '../General/InputTitleModal.vue';
 import NewAvatarUploader from './NewAvatarUploader.vue';
 import UpdateAvatarUploader from './UpdateAvatarUploader.vue';

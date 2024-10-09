@@ -46,6 +46,10 @@ const validatePermission = async (userIdEditor, actionName, routeName, resourceI
     if (!user) {
         throwCustomError(ErrorTypes.UNAUTHORIZED_ACTION);
     }
+    // solo se valida si la accion es distinta de 'create'
+    if (action.name === 'create') {
+        return;
+    }
     // Validar condiciones del permiso
     const permission = user.Role.Permissions.find(p => p.action_id === action.action_id && p.route_id === route.route_id);
     console.log('permission: ', permission)

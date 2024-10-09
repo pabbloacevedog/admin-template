@@ -51,7 +51,7 @@ import { ref, computed } from 'vue';
 import { useUserStore } from 'stores/user';
 import { useQuasar } from 'quasar';
 import { useI18n } from 'vue-i18n';
-import SubTitleSettingsPanel from 'components/SettingsUser/SubTitleSettingsPanel.vue';
+import SubTitleSettingsPanel from 'components/AccountUser/SubTitleSettingsPanel.vue';
 const props = defineProps({
     user: {
         type: Object,

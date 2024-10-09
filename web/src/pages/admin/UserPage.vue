@@ -63,11 +63,11 @@
                                         <ItemRoleTable :user="props.row" />
                                     </q-td>
                                     <q-td key="state" :props="props">
-                                        <q-chip style="background-color:#310000;border-radius: 8px;" text-color="negative"
-                                            v-if="!props.row.state" label="Inactive" class="chip-status"
+                                        <q-chip  text-color="negative"
+                                            v-if="!props.row.state" label="Inactive" class="chip-user-inactive"
                                             />
-                                        <q-chip style="background-color:#004618 ; border-radius: 8px;" text-color="positive" v-else
-                                            label="Active" class="chip-status" />
+                                        <q-chip text-color="positive" v-else
+                                            label="Active" class="chip-user-active" />
                                     </q-td>
                                     <q-td key="actions" :props="props">
                                         <ItemActionsTable :resource="props.row" :edit="editUser"
@@ -335,8 +335,4 @@ export default {
     text-transform: none;
 }
 
-.chip-status {
-    font-size: 12px;
-    padding: 9px 10px;
-}
 </style>

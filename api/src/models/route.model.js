@@ -41,6 +41,9 @@ const initializeRoute = (sequelize) => {
         public: {
             type: DataTypes.BOOLEAN
         },
+        obligatory: {
+            type: DataTypes.BOOLEAN
+        },
         module_id: {
             type: DataTypes.INTEGER,
             allowNull: true

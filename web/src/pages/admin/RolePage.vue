@@ -42,26 +42,27 @@
                             <template v-slot:item="props">
                                 <div class="q-pa-sm col-xs-12 col-sm-6 col-md-4 col-lg-3 grid-style-transition q-m-lg"
                                     :style="props.selected ? 'transform: scale(0.95);' : ''">
-                                    <q-card class="bg-card bg-second" flat style="padding: 4% 8% !important;"
+                                    <q-card class="bg-card bg-second text-white" flat style="padding: 3% 8% !important;"
                                         :class="getCardClass(props.row)">
                                         <q-card-section class="q-pa-none">
                                             <q-item clickable v-ripple style="padding: 2px 2px;">
                                                 <q-item-section class="text-h5">{{ props.row.title }}</q-item-section>
-                                                <q-item-section avatar class="text-h5">
-                                                    {{ props.row.role_id }}
+                                                <q-item-section avatar class="text-h7">
+                                                    <q-avatar  text-color="white" style="border: 1px solid #fff !important;font-size: 32px;">{{ props.row.role_id }}</q-avatar>
                                                 </q-item-section>
                                             </q-item>
                                         </q-card-section>
                                         <q-list dense>
-                                            <q-item v-if="props.row.description" class="q-my-none q-mx-none"
-                                                style="padding: 2px 2px;">
+                                            <q-item class="q-my-none q-mx-none"
+                                                style="padding: 2px 2px; min-height: 6vh;">
                                                 <q-item-section>
-                                                    <q-item-label caption style="font-size: 15px;">{{
-                                                        props.row.description }}</q-item-label>
+                                                    <q-item-label style="font-size: 15px; color: #d7d7d7 !important;" >
+                                                        {{props.row.description }}
+                                                    </q-item-label>
                                                 </q-item-section>
                                             </q-item>
                                             <!-- Aquí agregamos los avatares de los usuarios -->
-                                            <q-item v-if="props.row.avatars && props.row.avatars.length" class="q-my-sm"
+                                            <q-item class="q-my-sm"
                                                 style="padding: 2px 2px;">
                                                 <q-item-section>
                                                     <q-item-label class="text-h7">
@@ -73,8 +74,8 @@
                                                                 +{{props.row.totalUsers}} role user
                                                             </div>
                                                         </div>
-                                                        <div class="flex justify-start text-h6" v-else>
-                                                            0 Users
+                                                        <div class="flex justify-start text-h7" v-else>
+                                                            No users
                                                         </div>
                                                     </q-item-label>
 
@@ -131,7 +132,6 @@ import RoleDeleteModal from 'components/Roles/RoleDeleteModal.vue';
 import RoleViewModal from 'components/Roles/RoleViewModal.vue';
 import RoleActionsTable from 'components/Roles/RoleActionsTable.vue';
 import TitlePages from 'components/General/TitlePages.vue';
-import SubTitleSettingsPanel from 'components/SettingsUser/SubTitleSettingsPanel.vue';
 import { useAuthStore } from 'stores/auth';
 import { useRoleStore } from 'stores/role';
 const authStore = useAuthStore();

@@ -7,7 +7,7 @@ import {
     GraphQLBoolean,
 } from 'graphql';
 
-import { RouteType, ActionType, ConditionType } from '../route/type.js';
+import { RouteType, ActionType, ConditionType,ActionInputType } from '../route/type.js';
 
 // Definición del tipo de Permission
 const PermissionType = new GraphQLObjectType({
@@ -44,7 +44,20 @@ const RoleType = new GraphQLObjectType({
         },
     })
 });
-
+// Input para crear un los permisos del role
+const PermissionInputType = new GraphQLInputObjectType({
+    name: 'PermissionInputType',
+    fields: {
+        route_id: { type: GraphQLString },
+        name: { type: GraphQLString },
+        title: { type: GraphQLString },
+        description: { type: GraphQLString },
+        path: { type: GraphQLString },
+        icon: { type: GraphQLString },
+        module_id: { type: GraphQLString },
+        actions: { type: new GraphQLList(ActionInputType) }  // Relación con Action
+    }
+});
 // Input para crear un rol
 const RoleInputType = new GraphQLInputObjectType({
     name: 'RoleInput',
@@ -53,7 +66,10 @@ const RoleInputType = new GraphQLInputObjectType({
         name: { type: GraphQLString },
         title: { type: GraphQLString },
         description: { type: GraphQLString },
-        color: { type: GraphQLString }
+        color: { type: GraphQLString },
+        permission: {
+            type: new GraphQLList(PermissionInputType),
+        },
     }
 });
 
@@ -65,7 +81,10 @@ const RoleUpdateInputType = new GraphQLInputObjectType({
         name: { type: GraphQLString },
         title: { type: GraphQLString },
         description: { type: GraphQLString },
-        color: { type: GraphQLString }
+        color: { type: GraphQLString },
+        permission: {
+            type: new GraphQLList(PermissionInputType),
+        },
     }
 });
 

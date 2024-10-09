@@ -7,65 +7,231 @@ import { Op } from 'sequelize';
 export const roleResolver = {
     Mutation: {
         // Crear un nuevo rol
-        createRole: async (_, args, { user }) => {
-            const { name, ...rest } = args;
+        // createRole: async (_, args, { user }) => {
+        //     const { name, ...rest } = args;
+        //     // Verificar si el rol ya existe
+        //     const existingRole = await models.Role.findOne({ where: { name } });
+        //     if (existingRole) throwCustomError(ErrorTypes.ROLE_ALREADY_EXISTS);
+        //     // Crear el rol
+        //     const transaction = await models.sequelize.transaction();
+        //     try {
+        //         const newRole = await models.Role.create({
+        //             name,
+        //             ...rest,
+        //             owner_id: user.user_id
+        //         }, { transaction });
+        //         // Buscar las rutas obligatorias que no son públicas
+        //         const obligatoryRoutes = await models.Route.findAll({
+        //             where: { public: 0, obligatory: 1 }
+        //         }, { transaction });
+
+        //         // Asignar permisos por cada ruta obligatoria con la acción 'view' y la condición 'all'
+        //         for (const route of obligatoryRoutes) {
+        //             await models.Permission.create({
+        //                 role_id: newRole.role_id,
+        //                 route_id: route.route_id,
+        //                 action_id: 1, // Asumiendo que la acción 'view' tiene action_id = 1
+        //                 condition_id: 2 // Asumiendo que la condición 'all' tiene condition_id = 2
+        //             }, { transaction });
+        //         }
+        //         await transaction.commit();
+        //         const successMessage = getSuccessMessage('ROLE_CREATED');
+        //         return { role_id: newRole.role_id, message: successMessage };
+        //     } catch (error) {
+        //         await transaction.rollback();
+        //         throw error;
+        //     }
+
+        // },
+        createRole: async (_, { input }, { user }) => {
+            // Verificar que el usuario tenga la acción de editar roles
+            console.log('input', input);
+            const userIdEditor = user.user_id;
+            await validatePermission(userIdEditor, 'create', 'roles', null);
+            const { name, title, description, color, permission } = input;
+
+            // Verificar si el rol ya existe
             const existingRole = await models.Role.findOne({ where: { name } });
             if (existingRole) throwCustomError(ErrorTypes.ROLE_ALREADY_EXISTS);
 
-            const newRole = await models.Role.create({
-                name,
-                ...rest,
-                owner_id: user.user_id
-            });
-
-            const successMessage = getSuccessMessage('ROLE_CREATED');
-            return { role_id: newRole.role_id, message: successMessage };
-        },
-
-        // Actualizar un rol existente
-        async updateRole(_, { roleId, input }, { user }) {
+            // Iniciar una transacción
+            const transaction = await models.sequelize.transaction();
             try {
-                // Verificar que el usuario tenga la acción de editar roles
-                const userIdEditor = user.user_id;
-                await validatePermission(userIdEditor, 'update', 'roles', roleId);
+                // Crear el rol
+                const newRole = await models.Role.create({
+                    name,
+                    title,
+                    description,
+                    color,
+                    owner_id: user.user_id
+                }, { transaction });
 
-                const roleToEdit = await models.Role.findByPk(roleId);
-                if (!roleToEdit) throwCustomError(ErrorTypes.ROLE_NOT_FOUND);
+                // Asignar permisos obligatorios (rutas obligatorias no públicas)
+                const obligatoryRoutes = await models.Route.findAll({
+                    where: { public: 0, obligatory: 1 }
+                }, { transaction });
 
-                // Verificar si el nuevo nombre ya pertenece a otro rol
-                if (input.name) {
-                    const existingRole = await models.Role.findOne({
-                        where: { name: input.name, role_id: { [Op.ne]: roleId } }
-                    });
-                    if (existingRole) {
-                        throwCustomError(ErrorTypes.ROLE_NAME_ALREADY_IN_USE);
+                // Asignar permisos obligatorios con la acción 'view' y la condición 'all'
+                for (const route of obligatoryRoutes) {
+                    await models.Permission.create({
+                        role_id: newRole.role_id,
+                        route_id: route.route_id,
+                        action_id: 1, // Asumiendo que la acción 'view' tiene action_id = 1
+                        condition_id: 2 // Asumiendo que la condición 'all' tiene condition_id = 2
+                    }, { transaction });
+                }
+
+                // Asignar permisos dinámicos del formulario
+                if (permission && permission.length > 0) {
+                    for (const perm of permission) {
+                        const { route_id, actions } = perm;
+
+                        // Para cada acción dentro de la ruta
+                        for (const action of actions) {
+                            const { action_id, condition } = action;
+
+                            // Crear un permiso por cada acción en la ruta
+                            await models.Permission.create({
+                                role_id: newRole.role_id,
+                                route_id: route_id,
+                                action_id: action_id,
+                                condition_id: condition ? condition.condition_id : null // Verifica si hay una condición
+                            }, { transaction });
+                        }
                     }
                 }
 
-                // Actualizar los campos proporcionados
-                await roleToEdit.update({
-                    name: input.name || roleToEdit.name,
-                    title: input.title || roleToEdit.title,
-                    description: input.description || roleToEdit.description,
-                    color: input.color || roleToEdit.color,
-                });
-
-                const successMessage = getSuccessMessage('ROLE_UPDATED');
-                return { role: roleToEdit.get(), message: successMessage };
+                // Confirmar la transacción
+                await transaction.commit();
+                const successMessage = getSuccessMessage('ROLE_CREATED');
+                return { role_id: newRole.role_id, message: successMessage };
             } catch (error) {
-                throw new Error("Error updating role: " + error.message);
+                // Revertir la transacción en caso de error
+                await transaction.rollback();
+                throw error;
             }
         },
 
+        // Actualizar un rol existente
+        // async updateRole(_, { roleId, input }, { user }) {
+        //     try {
+        //         // Verificar que el usuario tenga la acción de editar roles
+        //         const userIdEditor = user.user_id;
+        //         await validatePermission(userIdEditor, 'update', 'roles', roleId);
+
+        //         const roleToEdit = await models.Role.findByPk(roleId);
+        //         if (!roleToEdit) throwCustomError(ErrorTypes.ROLE_NOT_FOUND);
+
+        //         // Verificar si el nuevo nombre ya pertenece a otro rol
+        //         if (input.name) {
+        //             const existingRole = await models.Role.findOne({
+        //                 where: { name: input.name, role_id: { [Op.ne]: roleId } }
+        //             });
+        //             if (existingRole) {
+        //                 throwCustomError(ErrorTypes.ROLE_NAME_ALREADY_IN_USE);
+        //             }
+        //         }
+
+        //         // Actualizar los campos proporcionados
+        //         await roleToEdit.update({
+        //             name: input.name || roleToEdit.name,
+        //             title: input.title || roleToEdit.title,
+        //             description: input.description || roleToEdit.description,
+        //             color: input.color || roleToEdit.color,
+        //         });
+
+        //         const successMessage = getSuccessMessage('ROLE_UPDATED');
+        //         return { role: roleToEdit.get(), message: successMessage };
+        //     } catch (error) {
+        //         throw new Error("Error updating role: " + error.message);
+        //     }
+        // },
+        updateRole: async (_, { roleId, input }, { user }) => {
+            // Verificar que el usuario tenga la acción de editar roles
+            console.log('input', input);
+            const userIdEditor = user.user_id;
+            await validatePermission(userIdEditor, 'update', 'roles', roleId);
+
+            const { name, title, description, color, permission } = input;
+
+            const transaction = await models.sequelize.transaction();
+            try {
+                // Actualizar el rol
+                const role = await models.Role.findByPk(roleId);
+                if (!role) throwCustomError(ErrorTypes.ROLE_NOT_FOUND);
+
+                await role.update({
+                    name,
+                    title,
+                    description,
+                    color
+                }, { transaction });
+
+                // Actualizar los permisos asociados
+                if (permission && permission.length > 0) {
+                    // Eliminar los permisos actuales
+                    await models.Permission.destroy({ where: { role_id: roleId }, transaction });
+
+                    // Crear los nuevos permisos
+                    for (const perm of permission) {
+                        const { route_id, actions } = perm;  // Aquí asumimos que cada permiso tiene una ruta y un array de acciones
+
+                        // Para cada acción dentro de la ruta
+                        for (const action of actions) {
+                            const { action_id, condition } = action;
+
+                            // Crear nuevo permiso por cada acción
+                            await models.Permission.create({
+                                role_id: roleId,
+                                route_id: route_id,
+                                action_id: action_id,  // Acción específica
+                                condition_id: condition ? condition.condition_id : null // Verifica si hay una condición
+                            }, { transaction });
+                        }
+                    }
+                }
+
+                await transaction.commit();
+                const successMessage = getSuccessMessage('ROLE_UPDATED');
+                return { role, message: successMessage };
+            } catch (error) {
+                await transaction.rollback();
+                throw error;
+            }
+        },
+
+
         // Eliminar un rol
         deleteRole: async (_, { roleId }) => {
+            // Buscar el rol
             const role = await models.Role.findByPk(roleId);
             if (!role) throwCustomError(ErrorTypes.ROLE_NOT_FOUND);
 
-            await role.destroy();
-            const successMessage = getSuccessMessage('ROLE_DELETED');
-            return { message: successMessage };
+            // Iniciar transacción
+            const transaction = await models.sequelize.transaction();
+            try {
+                // Eliminar los permisos relacionados con el rol
+                await models.Permission.destroy({
+                    where: { role_id: roleId },
+                    transaction
+                });
+
+                // Eliminar el rol
+                await role.destroy({ transaction });
+
+                // Confirmar la transacción
+                await transaction.commit();
+
+                // Retornar mensaje de éxito
+                const successMessage = getSuccessMessage('ROLE_DELETED');
+                return { message: successMessage };
+            } catch (error) {
+                // Si ocurre un error, hacer rollback de la transacción
+                await transaction.rollback();
+                throw error;
+            }
         },
+
     },
 
     Query: {
@@ -82,12 +248,16 @@ export const roleResolver = {
                 include: [{
                     model: models.Permission, // Incluye la relación con permisos
                     include: [
-                        { model: models.Route },    // Incluir rutas asociadas
+                        {
+                            model: models.Route, // Incluir rutas asociadas
+                            where: { public: 0, obligatory: 0 } // Filtro para las rutas
+                        },
                         { model: models.Action },   // Incluir acciones asociadas
                         { model: models.Condition } // Incluir condiciones asociadas
                     ]
                 }]
             });
+
 
             if (!role) {
                 throw new Error("Role not found");
@@ -127,22 +297,23 @@ export const roleResolver = {
                 if (existingAction) {
                     // Si la acción ya existe, añadir la condición
                     if (Condition) {
-                        console.log('Condition: ', Condition);
+                        // console.log('Condition: ', Condition);
                         existingAction.condition = {
                             condition_id: Condition.condition_id,
                             name: Condition.name,
                             title: Condition.title,
-                            description: Condition.description
+                            description: Condition.description,
                         };
                     }
                 } else {
-                    console.log('Condition: ', Condition);
+                    // console.log('Condition: ', Condition);
                     // Si la acción no existe, crear una nueva entrada para la acción
                     const newAction = {
                         action_id: Action.action_id,
                         name: Action.name,
                         title: Action.title,
                         description: Action.description,
+                        icon: Action.icon,
                         condition: Condition ? {
                             condition_id: Condition.condition_id,
                             name: Condition.name,
@@ -162,7 +333,7 @@ export const roleResolver = {
                 };
             });
 
-            console.log('permissionsArray: ', permissionsArray);
+            // console.log('permissionsArray: ', permissionsArray);
 
             // Estructura de respuesta
             const response = {
@@ -236,13 +407,13 @@ export const roleResolver = {
         getAllRoutesActionsConditions: async () => {
             try {
                 const routes = await models.Route.findAll({
-                    where: { public : 0 }
+                    where: { public: 0, obligatory: 0 }
                 });
                 const actions = await models.Action.findAll();
                 const conditions = await models.Condition.findAll();
-                console.log('routes', routes);
-                console.log('actions', actions);
-                console.log('conditions', conditions);
+                // console.log('routes', routes);
+                // console.log('actions', actions);
+                // console.log('conditions', conditions);
                 return {
                     routes,
                     actions,

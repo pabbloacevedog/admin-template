@@ -45,7 +45,7 @@ const toggleLeftDrawer = () => {
     leftDrawerOpen.value = !leftDrawerOpen.value
 }
 const goUserSettings = () => {
-    router.push('/admin/settings');
+    router.push('/admin/account');
 }
 const goUserMessages = () => {
     console.log('goUserMessages')
@@ -97,7 +97,7 @@ onMounted(async () => {
 </script>
 <script>
 export default {
-    name: 'SettingsUser',
+    name: 'AdminLayout',
 }
 </script>
 

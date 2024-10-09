@@ -4,6 +4,7 @@ export async function initializeModule(models) {
     const [adminModule, created] = await models.Module.findOrCreate({
         where: { name: 'admin' },
         defaults: {
+            module_id: 1,
             name: 'admin',
             title: 'Administrator',
             description: 'Module for administrator web, with users, actions, roles, authorization and authentication.'
@@ -22,7 +23,9 @@ export async function initializeModule(models) {
             icon: 'dashboard',
             public: false,
             resource: 'dashboard',
-            module_id: moduleId
+            obligatory: true,
+            module_id: moduleId,
+
         },
         {
             name: 'users',
@@ -32,7 +35,9 @@ export async function initializeModule(models) {
             icon: 'supervised_user_circle',
             public: false,
             resource: 'user',
-            module_id: moduleId
+            obligatory: false,
+            module_id: moduleId,
+
         },
         {
             name: 'roles',
@@ -42,17 +47,20 @@ export async function initializeModule(models) {
             icon: 'attribution',
             public: false,
             resource: 'role',
-            module_id: moduleId
+            obligatory: false,
+            module_id: moduleId,
+
         },
         {
-            name: 'account_settings',
-            title: 'Settings',
+            name: 'account',
+            title: 'Account',
             description: 'Access and manage your account settings, including personal information, security options, and notification preferences.',
-            path: '/admin/settings',
+            path: '/admin/account',
             icon: 'manage_accounts',
             public: false,
             resource: 'user',
-            module_id: moduleId
+            obligatory: true,
+            module_id: moduleId,
         },
     ];
 
@@ -67,6 +75,7 @@ export async function initializeModule(models) {
                     icon: route.icon,
                     public: route.public,
                     resource: route.resource,
+                    obligatory: route.obligatory,
                     module_id: route.module_id
                 }
             })
@@ -78,24 +87,28 @@ export async function initializeModule(models) {
     // Insertar acciones
     const actionsArray = [
         {
-            name: 'create',
-            title: 'Create',
-            description: 'Allows the user to create new records or entries in the system, giving them permission to add new data.',
-            icon: 'add_circle'
-        },
-        {
+            accion_id: 1,
             name: 'view',
             title: 'View',
             description: 'Grants the user access to view and retrieve data or records from the system without making modifications.',
             icon: 'visibility'
         },
         {
+            accion_id: 2,
+            name: 'create',
+            title: 'Create',
+            description: 'Allows the user to create new records or entries in the system, giving them permission to add new data.',
+            icon: 'add_circle'
+        },
+        {
+            accion_id: 3,
             name: 'update',
             title: 'Update',
             description: 'Provides the user with the ability to modify or edit existing records or data in the system.',
             icon: 'edit'
         },
         {
+            accion_id: 4,
             name: 'delete',
             title: 'Delete',
             description: 'Enables the user to remove or permanently delete existing records or data from the system.',
@@ -109,7 +122,8 @@ export async function initializeModule(models) {
                 where: { name: action.name },
                 defaults: {
                     title: action.title,
-                    description: action.description
+                    description: action.description,
+                    icon: action.icon
                 }
             })
         )
@@ -117,11 +131,13 @@ export async function initializeModule(models) {
     // Insertar Condiciones
     const conditionsArray = [
         {
+            condition_id: 1,
             name: 'owner_only',
             title: 'Owner only',
             description: 'Allows the user to access only if the user is the owner of the resource.'
         },
         {
+            condition_id: 2,
             name: 'all',
             title: 'All',
             description: 'Allows the user to access all resources.'
@@ -204,7 +220,7 @@ export async function initializeModule(models) {
     const allCondition = conditionIndex['all'];
 
     const dashboardRoute = routeIndex['dashboard'];
-    const settingsRoute = routeIndex['account_settings'];
+    const accountRoute = routeIndex['account'];
     const userRoute = routeIndex['users'];
     const roleRoute = routeIndex['roles'];
 
@@ -223,11 +239,11 @@ export async function initializeModule(models) {
         { role_id: adminRole.dataValues.role_id, route_id: roleRoute.dataValues.route_id, action_id: createAction.dataValues.action_id, condition_id: allCondition.dataValues.condition_id },
         { role_id: adminRole.dataValues.role_id, route_id: roleRoute.dataValues.route_id, action_id: viewAction.dataValues.action_id, condition_id: allCondition.dataValues.condition_id },
         { role_id: adminRole.dataValues.role_id, route_id: roleRoute.dataValues.route_id, action_id: updateAction.dataValues.action_id, condition_id: allCondition.dataValues.condition_id },
-        { role_id: adminRole.dataValues.role_id, route_id: settingsRoute.dataValues.route_id, action_id: viewAction.dataValues.action_id, condition_id: allCondition.dataValues.condition_id },
-        { role_id: adminRole.dataValues.role_id, route_id: settingsRoute.dataValues.route_id, action_id: viewAction.dataValues.action_id, condition_id: allCondition.dataValues.condition_id },
+        { role_id: adminRole.dataValues.role_id, route_id: accountRoute.dataValues.route_id, action_id: viewAction.dataValues.action_id, condition_id: allCondition.dataValues.condition_id },
+        { role_id: adminRole.dataValues.role_id, route_id: accountRoute.dataValues.route_id, action_id: viewAction.dataValues.action_id, condition_id: allCondition.dataValues.condition_id },
         // Permisos para el rol user
         { role_id: userRole.dataValues.role_id, route_id: dashboardRoute.dataValues.route_id, action_id: viewAction.dataValues.action_id, condition_id: allCondition.dataValues.condition_id },
-        { role_id: userRole.dataValues.role_id, route_id: settingsRoute.dataValues.route_id, action_id: viewAction.dataValues.action_id, condition_id: allCondition.dataValues.condition_id },
+        { role_id: userRole.dataValues.role_id, route_id: accountRoute.dataValues.route_id, action_id: viewAction.dataValues.action_id, condition_id: allCondition.dataValues.condition_id },
         { role_id: userRole.dataValues.role_id, route_id: userRoute.dataValues.route_id, action_id: viewAction.dataValues.action_id, condition_id: allCondition.dataValues.condition_id },
         { role_id: userRole.dataValues.role_id, route_id: userRoute.dataValues.route_id, action_id: updateAction.dataValues.action_id, condition_id: ownerCondition.dataValues.condition_id }
     ];

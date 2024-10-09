@@ -6,7 +6,7 @@ export default {
     success: "Action was successful",
     menu: {
         btn_logout: "Close session",
-        btn_settings: "Settings",
+        btn_account: "Account",
     },
     login: {
         title: "Welcome",
@@ -229,7 +229,8 @@ export default {
             btn_cancel: "Cancel"
         },
         view: {
-            btn_action: "Close"
+            btn_action: "Close",
+            message: "This role has the following access and permissions.",
         },
         errors: {
             title_required: "Title is required.",
@@ -239,14 +240,15 @@ export default {
             name_min_length: "Name must be at least 3 characters.",
             name_required: "Name is required.",
             fix_errors: "Please correct the errors before continuing.",
+            color_required: "You must select a color for the role.",
         },
     },
-    settings: {
-        title: "Settings",
+    account: {
+        title: "Account",
         description: "Here you can manage your account",
-        account_settings: "Account",
-        appearance_settings: "Appearance",
-        notification_settings: "Notifications",
+        account: "Account",
+        appearance_account: "Appearance",
+        notification_account: "Notifications",
         btn_save: "Save",
         account: {
             rut_user: {

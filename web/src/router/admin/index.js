@@ -9,8 +9,8 @@ export default [
                 component: async () => await import("src/pages/admin/Dashboard.vue"),
             },
             {
-                path: "settings",
-                component: async () => await import("src/pages/auth/SettingsUser.vue"),
+                path: "account",
+                component: async () => await import("src/pages/auth/AccountSettings.vue"),
 
             },
             {

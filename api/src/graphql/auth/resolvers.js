@@ -349,7 +349,7 @@ export const authResolver = {
             if (!permissions || permissions.length === 0) {
                 throwCustomError(ErrorTypes.NO_ACTIONS_FOR_ROLE);
             }
-
+            console.log('permissions', permissions);
             // Agrupar rutas y sus acciones, incluyendo las condiciones
             const routesWithActions = permissions.reduce((result, permission) => {
                 const { Route, Action, Condition } = permission;

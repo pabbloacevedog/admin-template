@@ -3,7 +3,7 @@
         class="container-modal" :fullscreen="true" transition-show="none" transition-hide="none" :maximized="true">
         <div class="q-py-xs form-modal div-blur div-rounded-radius h-form" :style="dialogStyle">
             <q-card flat
-                style="flex-grow: 1; display: flex; flex-direction: column;  background: #00000000 !important;">
+                style="flex-grow: 1; display: flex; flex-direction: column;" class="bg-blur">
                 <q-card-header>
                     <q-toolbar class="div-rounded-radius">
                         <q-toolbar-title>
@@ -23,11 +23,11 @@
                     <div caption class="q-mt-md q-mb-xl" v-else style="font-size: 16px;">
                         {{ $t('roles.create.instruction') }}
                     </div>
-                    <q-input dense class="q-mt-md q-mb-none" filled v-model="form.name"
+                    <q-input disable class="q-mt-md q-mb-none" filled v-model="form.name"
                         :label="$t('roles.account.name.title')" type="text" autocomplete="name" :error="errors.name"
                         :error-message="errors.nameMsg" />
                     <q-input dense class="q-mt-none q-mb-none" filled v-model="form.title"
-                        :label="$t('roles.account.title.title')" type="text" :error="errors.title"
+                        :label="$t('roles.account.title.title')" type="text" :error="errors.title" @input="generateName"
                         :error-message="errors.titleMsg" />
                     <q-input class="q-mt-md q-mb-none description-role" filled v-model="form.description"
                         :label="$t('roles.account.description.title')" type="textarea" rows="4" />
@@ -41,10 +41,20 @@
                                 style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);" />
                         </q-btn>
                     </div>
+                    <!-- Mensaje de error si no selecciona color -->
+                    <div v-if="errors.color" class="text-negative q-mt-sm">
+                        {{ errors.colorMsg }}
+                    </div>
+                    <div class="q-pt-lg" v-if="isMobile">
+                        <q-btn :label="$t('roles.create.btn_cancel')" outline color="primary"
+                            class="btn-border-radius q-mr-lg" @click="close" />
+                        <q-btn :label="isEdit ? $t('roles.edit.btn_action') : $t('roles.create.btn_action')"
+                            color="primary" class="btn-border-radius" @click="submit" />
+                    </div>
                 </q-card-section>
                 <q-card-section class="col-8 q-pl-none q-pr-xs q-pt-none q-pt-lg q-pb-none "
                     style="max-height: 85vh; overflow-y: auto;padding: 4px 1%;" v-if="isMobile">
-                    <q-card class="q-mb-md div-rounded-radius q-pa-xs" flat v-for="route in routes"
+                    <q-card class="q-mb-md div-rounded-radius bg-blur q-pa-xs" flat v-for="route in routes"
                         :key="route.route_id">
                         <q-item>
                             <q-item-section avatar class="q-pr-none" style="min-width: 48px;">
@@ -71,7 +81,8 @@
                         </q-item>
                         <!-- Se muestra solo si la ruta está seleccionada -->
                         <q-list v-if="includesRouteId(route.route_id)">
-                            <q-item class="q-ma-none row" style="min-height: min-content !important; max-width: 100vw !important;">
+                            <q-item class="q-ma-none row"
+                                style="min-height: min-content !important; max-width: 100vw !important;">
                                 <q-item-section v-for="action in actions" :key="action.action_id" class="col-6">
                                     <q-item class="q-pa-none">
                                         <q-item-section avatar class="q-pr-none" style="min-width: 48px;">
@@ -115,14 +126,15 @@
                         <div caption class="q-mt-md q-mb-xl" v-else style="font-size: 16px;">
                             {{ $t('roles.create.instruction') }}
                         </div>
-                        <q-input dense class="q-mt-md q-mb-none" filled v-model="form.name"
+                        <q-input dense disable class="q-mt-md q-mb-none" filled v-model="form.name"
                             :label="$t('roles.account.name.title')" type="text" autocomplete="name" :error="errors.name"
                             :error-message="errors.nameMsg" />
                         <q-input dense class="q-mt-none q-mb-none" filled v-model="form.title"
                             :label="$t('roles.account.title.title')" type="text" :error="errors.title"
-                            :error-message="errors.titleMsg" />
+                            @update:model-value="generateName" :error-message="errors.titleMsg" />
                         <q-input class="q-mt-md q-mb-none description-role" filled v-model="form.description"
-                            :label="$t('roles.account.description.title')" type="textarea" rows="4" />
+                            :label="$t('roles.account.description.title')" type="textarea" rows="4"
+                            :error="errors.description" :error-message="errors.descriptionMsg" />
                         <div class="flex justify-center q-mt-lg ">
                             <q-btn v-for="(colorOption, index) in colorOptions" :key="index" round
                                 :style="{ backgroundColor: colorOption.color, position: 'relative' }"
@@ -132,11 +144,22 @@
                                 <q-icon v-if="form.color === colorOption.value" name="check" color="white"
                                     style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);" />
                             </q-btn>
+                            <!-- Mensaje de error si no selecciona color -->
+                            <div v-if="errors.color" class="text-negative q-mt-sm">
+                                {{ errors.colorMsg }}
+                            </div>
+
+                            <div class="q-pt-xl" v-if="!isMobile">
+                                <q-btn :label="$t('roles.create.btn_cancel')" outline color="primary"
+                                    class="btn-border-radius q-mr-lg" @click="close" />
+                                <q-btn :label="isEdit ? $t('roles.edit.btn_action') : $t('roles.create.btn_action')"
+                                    color="primary" class="btn-border-radius" @click="submit" />
+                            </div>
                         </div>
                     </q-card-section>
                     <q-card-section class="col-8 q-pl-none q-pr-xs q-pt-none q-pt-lg q-pb-none "
                         style="max-height: 85vh; overflow-y: auto;padding: 24px 4%;">
-                        <q-card class="q-mb-md div-rounded-radius q-pa-xs" flat v-for="route in routes"
+                        <q-card  class="q-mb-md bg-first div-rounded-radius q-pa-xs" flat v-for="route in routes"
                             :key="route.route_id">
                             <q-item>
                                 <q-item-section avatar class="q-pr-none" style="min-width: 48px;">
@@ -207,25 +230,13 @@
                 </q-card-section>
             </q-card>
 
-            <div class="flex justify-center q-pt-lg" v-if="isMobile">
-                <q-btn :label="$t('roles.create.btn_cancel')" outline color="primary" class="btn-border-radius q-mr-lg"
-                    @click="close" />
-                <q-btn :label="isEdit ? $t('roles.edit.btn_action') : $t('roles.create.btn_action')" color="primary"
-                    class="btn-border-radius" @click="submit" />
-            </div>
-            <div class="flex justify-center q-pb-lg" v-else>
-                <q-btn :label="$t('roles.create.btn_cancel')" outline color="primary" class="btn-border-radius q-mr-lg"
-                    @click="close" />
-                <q-btn :label="isEdit ? $t('roles.edit.btn_action') : $t('roles.create.btn_action')" color="primary"
-                    class="btn-border-radius" @click="submit" />
-            </div>
         </div>
     </q-dialog>
 </template>
 
 <script setup>
 import { ref, onMounted, computed } from 'vue';
-import SubTitleSettingsPanel from 'components/SettingsUser/SubTitleSettingsPanel.vue';
+import SubTitleSettingsPanel from 'components/AccountUser/SubTitleSettingsPanel.vue';
 import { useRoleStore } from 'stores/role';
 import { useQuasar } from 'quasar';
 import { useI18n } from 'vue-i18n';
@@ -262,12 +273,7 @@ const form = ref({
     color: '',
 });
 
-const errors = ref({
-    name: false,
-    nameMsg: '',
-    title: false,
-    titleMsg: '',
-});
+
 const routes = ref([]);
 const actions = ref([]);
 // const conditions = ref([]);
@@ -286,6 +292,17 @@ const selectedActions = ref([]); // Almacena las acciones seleccionadas
 const selectedConditions = ref({}); // Almacena la condición seleccionada= ref({}); // Almacena las condiciones seleccionadas para cada acción
 const actionConditions = ref({});
 const conditions = ref([]); // Almacena las condiciones
+
+const errors = ref({
+    name: false,
+    nameMsg: '',
+    title: false,
+    titleMsg: '',
+    description: false,
+    descriptionMsg: '',
+    color: false,
+    colorMsg: ''
+});
 const validateForm = () => {
     let isValid = true;
 
@@ -314,7 +331,25 @@ const validateForm = () => {
         errors.value.title = false;
         errors.value.titleMsg = '';
     }
+    // Validación de la descripción (es requerida)
+    if (!form.value.description) {
+        errors.value.description = true;
+        errors.value.descriptionMsg = t('roles.errors.description_required');
+        isValid = false;
+    } else {
+        errors.value.description = false;
+        errors.value.descriptionMsg = '';
+    }
 
+    // Validación de color (es requerido)
+    if (!form.value.color) {
+        errors.value.color = true;
+        errors.value.colorMsg = t('roles.errors.color_required');
+        isValid = false;
+    } else {
+        errors.value.color = false;
+        errors.value.colorMsg = '';
+    }
     return isValid;
 };
 
@@ -327,7 +362,21 @@ const includesRouteId = (route_id) => {
     // console.log('selectedRoutes', selectedRoutes.value)
     return selectedRoutes.value.some(route => route.route_id === route_id);
 };
+// Función para generar el 'name' automáticamente
+const generateName = () => {
+    form.value.name = normalizeText(form.value.title);
+};
 
+// Función para normalizar el texto
+const normalizeText = (text) => {
+    return text
+        .toLowerCase() // Convertir a minúsculas
+        .normalize("NFD") // Normalizar para eliminar acentos
+        .replace(/[\u0300-\u036f]/g, "") // Eliminar los acentos
+        .replace(/[.,]/g, "") // Eliminar puntos y comas
+        .replace(/\s+/g, "_") // Reemplazar espacios por guiones bajos
+        .replace(/[^a-z0-9_]/g, ""); // Eliminar cualquier otro carácter especial
+};
 // Añade o remueve el route_id cuando se hace toggle en el checkbox de ruta
 const toggleRoute = (route) => {
     if (includesRouteId(route.route_id)) {
@@ -337,7 +386,18 @@ const toggleRoute = (route) => {
         // Elimina las condiciones asociadas
     } else {
         // Añade la ruta
-        selectedRoutes.value.push(route);
+        // Crear una copia del objeto route
+        const routeCopy = { ...route };
+
+        // Eliminar __typename si existe en la copia
+        if (routeCopy.__typename) {
+            delete routeCopy.__typename;
+        }
+
+        console.log('role a agregar ', routeCopy);
+
+        // Añadir la ruta al array
+        selectedRoutes.value.push(routeCopy);
     }
     console.log('routes_role', route_roles.value)
     console.log('action_roles', action_roles.value)
@@ -410,13 +470,19 @@ const selectCondition = (route_id, action, condition) => {
 
         if (actionToUpdate) {
             // Update the condition_id of the found action
-            actionToUpdate.condition = condition;
+            const con = {
+                condition_id: condition.condition_id,
+                name: condition.name,
+                title: condition.title,
+                description: condition.description
+            }
+            actionToUpdate.condition = con;
         }
     }
-    console.log('selectedRoutes', selectedRoutes.value)
-    console.log('selectedActions', selectedActions.value)
-    console.log('action_roles', action_roles.value)
-    console.log('actionConditions', actionConditions.value)
+    // console.log('selectedRoutes', selectedRoutes.value)
+    // console.log('selectedActions', selectedActions.value)
+    // console.log('action_roles', action_roles.value)
+    // console.log('actionConditions', actionConditions.value)
 };
 // Estilo de dialog
 const dialogStyle = computed(() => {
@@ -476,8 +542,6 @@ const loadPermissionsForRole = async (dataRole) => {
                 //se asigan las acciones a las rutas de la ui
                 action_roles.value = action_roles.value.concat(`${route.route_id}_${action.action_id}`);
                 let condition = {
-                    label: action.condition.title,    // Lo que se muestra en el select
-                    value: action.condition.condition_id,  // El valor que se selecciona (role_id)
                     name: action.condition.name,
                     title: action.condition.title,
                     description: action.condition.description,
@@ -530,17 +594,6 @@ const loadPermissionsForRole = async (dataRole) => {
     // Return the array with the assigned routes and actions
     return assignedRoutes;
 };
-
-
-// Obtener acciones para una ruta específica
-const getActionsForRoute = (routeId) => {
-    return actions.value.filter(action => action.route_id === routeId);
-};
-
-// Obtener condiciones para una acción específica
-const getConditionsForAction = (actionId) => {
-    return conditions.value.filter(condition => condition.action_id === actionId);
-};
 // Función para obtener todos los roles
 const fetchRoles = async () => {
     try {
@@ -581,7 +634,8 @@ const submit = async () => {
     }
 
     $q.loading.show();
-
+    console.log('Those are the al permission of the role ', selectedRoutes.value);
+    form.value.permission = selectedRoutes.value;
     if (isEdit.value) {
         // console.log('edit data ', form.value);
         delete form.value.avatars;
@@ -599,6 +653,7 @@ const submit = async () => {
     } else {
         console.log('create data ', form.value);
         try {
+            form.value.permission = selectedRoutes.value;
             const newRole = await roleStore.createRole(form.value);
             $q.notify({
                 type: 'positive',

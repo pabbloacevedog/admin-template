@@ -1,13 +1,13 @@
 <template>
     <div class="q-mt-none fit">
         <q-card class="bg-second fit" flat>
-            <SubTitleSettingsPanel :subtitle="$t('settings.tabs.theme.title')"
-                :description="$t('settings.tabs.theme.description')" :icon="'dark_mode'" />
+            <SubTitleSettingsPanel :subtitle="$t('account.tabs.theme.title')"
+                :description="$t('account.tabs.theme.description')" :icon="'dark_mode'" />
             <q-separator class="q-my-sm q-mx-md" />
             <q-card-section horizontal>
                 <q-card-section class="col-6">
-                    <InputTitleSettingsPanel :title="$t('settings.theme.dark_mode.title')"
-                        :description="$t('settings.theme.dark_mode.description')" />
+                    <InputTitleSettingsPanel :title="$t('account.theme.dark_mode.title')"
+                        :description="$t('account.theme.dark_mode.description')" />
                 </q-card-section>
 
                 <q-card-section class="col-6" align="right">

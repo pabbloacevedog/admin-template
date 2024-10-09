@@ -21,16 +21,10 @@ export const useRoleStore = defineStore("role", {
         async createRole(details) {
             const CREATE_ROLE_MUTATION = gql`
                 mutation createRole(
-                    $name: String!
-                    $title: String!
-                    $description: String!
-                    $color: String!
+                    $input: RoleInput!
                 ) {
                     createRole(
-                        name: $name,
-                        title: $title,
-                        description: $description,
-                        color: $color
+                        input: $input
                     ) {
                         role_id
                         message
@@ -41,7 +35,9 @@ export const useRoleStore = defineStore("role", {
                 this.clearError(); // Limpiar error antes de la mutación
                 const response = await apolloClient.mutate({
                     mutation: CREATE_ROLE_MUTATION,
-                    variables: details,
+                    variables: {
+                        input: details,
+                    },
                     fetchPolicy: "network-only",
                 });
                 const { role_id, message } = response.data.createRole;
@@ -290,7 +286,7 @@ export const useRoleStore = defineStore("role", {
         },
         async deleteRole(roleId) {
             const DELETE_ROLE_MUTATION = gql`
-                mutation DeleteRole($roleId: Int!) {
+                mutation DeleteRole($roleId: String!) {
                     deleteRole(roleId: $roleId) {
                         message
                     }
