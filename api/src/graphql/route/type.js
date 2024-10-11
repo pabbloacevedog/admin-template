@@ -10,6 +10,22 @@ const ConditionType = new GraphQLObjectType({
         description: { type: GraphQLString },
     })
 });
+const OtherInputType = new GraphQLInputObjectType({
+    name: 'OtherInputType',
+    fields: {
+        role_id: { type: GraphQLString },
+        route_id: { type: GraphQLString },
+        action_id: { type: GraphQLString },
+        condition_id: { type: GraphQLString },
+        type: { type: GraphQLString },
+        user_id: { type: GraphQLString },
+        role_id: { type: GraphQLString },
+        resource_type: { type: GraphQLString },
+        resource_id: { type: GraphQLString },
+        id: { type: GraphQLString },
+    }
+});
+
 // Input para crear un los permisos del role
 const ConditionInputType = new GraphQLInputObjectType({
     name: 'ConditionInputType',
@@ -18,6 +34,8 @@ const ConditionInputType = new GraphQLInputObjectType({
         name: { type: GraphQLString },
         title: { type: GraphQLString },
         description: { type: GraphQLString },
+        //agregar others como array
+        others: { type: new GraphQLList(OtherInputType) } // Definir 'others' como lista de objetos OtherInputType
     }
 });
 // ActionType

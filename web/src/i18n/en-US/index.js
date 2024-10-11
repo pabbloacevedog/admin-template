@@ -216,7 +216,8 @@ export default {
             description: "Complete all data role",
             instruction: "Create a new role. Name, title, and color are required. On the right, assign the routes the role can access, along with the actions available for each route. Additionally, specify a condition for each action.",
             btn_action: "Create Role",
-            btn_cancel: "Cancel"
+            btn_cancel: "Cancel",
+            validation_no_actions: "You must select at least one action for each selected route."
         },
         delete: {
             message: "Are you sure you want to delete the role ",

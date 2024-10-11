@@ -11,6 +11,12 @@ class ResourceAccess extends Model {
 
         // Relación con el modelo Action
         this.belongsTo(models.Action, { foreignKey: 'action_id' });
+        // Relación con el modelo Route
+        this.belongsTo(models.Route, { foreignKey: 'route_id' });
+        // Relación con el modelo Permission
+        this.belongsTo(models.Permission, { foreignKey: 'permission_id' });
+        // Relación con el modelo Condition
+        this.belongsTo(models.Condition, { foreignKey: 'condition_id' });
     }
 }
 
@@ -27,7 +33,19 @@ const initializeResourceAccess = (sequelize) => {
         },
         resource_id: {
             type: DataTypes.INTEGER,
-            allowNull: false  // ID específico del recurso
+            allowNull: true  // ID específico del recurso
+        },
+        permission_id: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+        },
+        condition_id: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+        },
+        route_id: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
         },
         user_id: {
             type: DataTypes.UUID,

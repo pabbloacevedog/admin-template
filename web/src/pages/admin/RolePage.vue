@@ -33,7 +33,7 @@
 
                                     <q-item-section class="q-pa-none" side v-if="!$q.platform.is.mobile">
                                         <q-btn :label="$t('roles.btn_create')" icon="attribution" color="primary"
-                                            class="btn-border-radius" @click="showCreateRoleModal" v-if="canCreate()" />
+                                            class="btn-border-radius" @click="showCreateRoleModal" v-if="canCreateRef" />
                                     </q-item-section>
                                 </q-item>
                             </template>
@@ -93,7 +93,6 @@
                                                 <RoleActionsTable :resource="props.row" :edit="editRole"
                                                     :showDeleteModal="showDeleteRoleModal"
                                                     :showViewModal="showViewRoleModal"
-                                                    :permissions="availableActions"
                                                     :color="getColorClass(props.row)"
                                                     />
                                             </q-item>
@@ -127,6 +126,7 @@
 <script setup>
 import { ref, onMounted, computed, watch } from 'vue';
 import { debounce } from 'lodash';
+import { useRoute } from 'vue-router';
 import RoleFormModal from 'components/Roles/RoleFormModal.vue';
 import RoleDeleteModal from 'components/Roles/RoleDeleteModal.vue';
 import RoleViewModal from 'components/Roles/RoleViewModal.vue';
@@ -134,12 +134,14 @@ import RoleActionsTable from 'components/Roles/RoleActionsTable.vue';
 import TitlePages from 'components/General/TitlePages.vue';
 import { useAuthStore } from 'stores/auth';
 import { useRoleStore } from 'stores/role';
+import { useGlobalStore } from 'stores/global';
+const globalStore = useGlobalStore();
 const authStore = useAuthStore();
 const roleStore = useRoleStore();
 const roles = ref([]);
 const totalRoles = ref(0);
 const search = ref('');
-
+const route = useRoute();
 const selectedRole = ref(null);
 
 const pagination = ref({
@@ -147,10 +149,10 @@ const pagination = ref({
     rowsPerPage: 10,
 });
 // Extraer acciones para la ruta actual
-const routeName = 'roles'; // Cambia esto según el nombre de la ruta actual
+const routeName = route.name; // Capturar el nombre de la ruta
 const actions = ref([]);
 const routes = ref([]);
-
+const canCreateRef = ref(false);
 const columns = ref([
     { name: 'role_id', label: 'ID', align: 'left', field: 'role_id' },
     { name: 'name', label: 'Nombre', align: 'left', field: 'name' },
@@ -177,10 +179,7 @@ const availableActions = computed(() => {
 });
 // Función para buscar usuarios, incluyendo filtros y paginación
 const fetchRoles = async () => {
-    // console.log("Fetching roles...");
 
-    // Llama a la función para encontrar la acción de 'view'
-    // const viewAction = findViewAction();
     const viewAction = availableActions.value.find(permission => permission.name === 'view');
     // console.log(viewAction, 'viewAction')
     // Almacena la respuesta de los usuarios
@@ -231,9 +230,8 @@ const clearSearch = () => {
 
 const showCreateRoleModal = () => {
     selectedRole.value = null;
-    if (canView()) {
-        roleStore.show_modal_role = true;
-    }
+    roleStore.show_modal_role = true;
+
 };
 const showDeleteRoleModal = (role) => {
     selectedRole.value = role;
@@ -241,9 +239,7 @@ const showDeleteRoleModal = (role) => {
 };
 const showViewRoleModal = (role) => {
     selectedRole.value = role;
-    if (canView(role)) {
-        roleStore.show_modal_view = true;
-    }
+    roleStore.show_modal_view = true;
 };
 const editRole = (role) => {
     selectedRole.value = role;
@@ -253,22 +249,33 @@ const editRole = (role) => {
 const closeModal = () => {
     roleStore.show_modal_role = false;
     fetchRoles();
+    fetchPermissions()
 };
 const closeModalDelete = () => {
     roleStore.show_modal_delete = false;
     fetchRoles();
+    fetchPermissions()
 };
 const closeModalView = () => {
     roleStore.show_modal_view = false;
     fetchRoles();
+    fetchPermissions()
 };
-
+const fetchPermissions = async () => {
+    try {
+        console.log('fetchPermissions')
+        canCreateRef.value = await globalStore.canCreate(routeName);
+    } catch (error) {
+        console.error('Error fetching permissions:', error);
+    }
+};
 onMounted(async () => {
     try {
 
         routes.value = await authStore.userRoutes();
         actions.value = availableActions.value;
         fetchRoles()
+        fetchPermissions()
         // console.log('Available Actions:', actions.value);
     } catch (error) {
         console.error('Error fetching role:', error);
@@ -279,40 +286,11 @@ watch(
     (newValue) => {
         if (newValue === false) {
             fetchRoles();
+            fetchPermissions()
         }
     }
 );
 // Función para verificar si el usuario puede ver
-function canView(role) {
-    const viewPermission = availableActions.value.find(permission => permission.name === 'view');
-
-    if (!viewPermission) return false; // Si no tiene permiso de visualización, no puede ver
-
-    const condition = viewPermission.condition;
-    if (condition.name === 'all') {
-        return true; // Puede ver cualquier recurso
-    }
-
-    if (condition.name === 'owner_only') {
-        return roleIsOwner(role); // Pasa el usuario como argumento
-    }
-
-    return false; // Por defecto, no puede ver
-}
-function canCreate(role) {
-    const createPermission = availableActions.value.find(permission => permission.name === 'create');
-
-    if (!createPermission) return false; // Si no tiene permiso de creación, no puede crear
-
-    return true; // Por defecto, no puede crear
-}
-
-// Implementa esta función según la lógica de tu aplicación
-function roleIsOwner(role) {
-    // Lógica para determinar si el usuario actual es el propietario del recurso
-    // Por ejemplo, comparar IDs de usuario o cualquier otro método necesario
-    return role.role_id === authStore.role?.role_id || role.owner_id === authStore.role?.role_id; // Ajusta esto según tu lógica
-}
 </script>
 <script>
 export default {

@@ -9,8 +9,13 @@
                             <q-chip :color="role?.color" text-color="white" size="lg" icon="attribution"
                                 class="q-px-xl">{{ role?.title }}</q-chip>
                         </div>
+
+                        <q-item-section class="q-pt-md q-mx-md">
+                            <q-item-label caption style="font-size: 16px;" class="text-caption">{{ role?.description
+                                }}</q-item-label>
+                        </q-item-section>
                         <!-- Aquí agregamos los avatares de los usuarios -->
-                        <q-item v-if="role?.avatars && role?.avatars.length" class="q-my-sm row"
+                        <q-item v-if="role?.avatars && role?.avatars.length" class="q-my-sm row q-pb-md"
                             style="padding: 2px 2px;">
                             <q-item-section>
                                 <q-item-label class="text-h6">
@@ -32,10 +37,6 @@
                             </div>
                         </q-item>
                         <q-item-section class="q-pb-md">
-                            <q-item-label caption style="font-size: 16px;" class="text-caption">{{ role?.description
-                                }}</q-item-label>
-                        </q-item-section>
-                        <q-item-section class="q-pb-md">
                             <q-item-label style="font-size: 18px;" class="text-theme">{{ $t('roles.view.message')
                                 }}</q-item-label>
                         </q-item-section>
@@ -43,7 +44,7 @@
                 </q-card-section>
             </q-card>
             <div class="row q-col-gutter-md q-mx-none q-my-xs ">
-                <q-card  v-for="route in tableData" :key="route.route_id"
+                <q-card v-for="route in tableData" :key="route.route_id"
                     class="bg-first div-rounded-radius q-pa-none flex items-end" flat :style="{
                         margin: '0px 10px',
                         width: tableData.length > 1 ? '47%' : '100%' // Si hay más de 1 elemento, usa 46%, sino 100%
@@ -66,10 +67,12 @@
 
                     <!-- Grid para las acciones -->
                     <q-card-section class="q-pa-none" style="min-width: -webkit-fill-available;">
-                        <div class="row q-mb-md q-ml-md q-mr-xl" :style="{width: tableData.length > 1 ? '95%' : '100%'}">
+                        <div class="row q-mb-md q-ml-md q-mr-xl"
+                            :style="{ width: tableData.length > 1 ? '95%' : '100%' }">
                             <div v-for="action in route.actions" :key="action.action_id"
-                                style="margin: 0px 0px;width: 48% !important;" >
-                                <q-item dense class="bg-second q-ml-xs q-mb-xs " style="border-radius: 10px; padding: 5px 8px;">
+                                style="margin: 0px 0px;width: 48% !important;">
+                                <q-item dense class="bg-second q-ml-xs q-mb-xs "
+                                    style="border-radius: 10px; padding: 5px 8px;">
                                     <q-item-section avatar style="padding-right: 8px; min-width: 24px;">
                                         <q-icon :name="action.icon" style="font-size: 20px;" :color="role?.color" />
                                     </q-item-section>
@@ -131,7 +134,7 @@ const isMobile = computed(() => {
 
 // Estilo de dialog
 const dialogStyle = computed(() => {
-    return isMobile.value ? 'width: 100vw; max-width: 100vw; max-height: 100vh !important;height: 98vh;margin: 8px;' : 'width: 1000px; max-width: 100vw;';
+    return isMobile.value ? 'width: 100vw; max-width: 100vw; max-height: 100vh !important;height: 98vh;margin: 8px;' : 'width: 900px; max-width: 100vw;';
 });
 const filter = ref('');
 const tableData = ref([]);

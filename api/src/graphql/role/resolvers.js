@@ -7,47 +7,9 @@ import { Op } from 'sequelize';
 export const roleResolver = {
     Mutation: {
         // Crear un nuevo rol
-        // createRole: async (_, args, { user }) => {
-        //     const { name, ...rest } = args;
-        //     // Verificar si el rol ya existe
-        //     const existingRole = await models.Role.findOne({ where: { name } });
-        //     if (existingRole) throwCustomError(ErrorTypes.ROLE_ALREADY_EXISTS);
-        //     // Crear el rol
-        //     const transaction = await models.sequelize.transaction();
-        //     try {
-        //         const newRole = await models.Role.create({
-        //             name,
-        //             ...rest,
-        //             owner_id: user.user_id
-        //         }, { transaction });
-        //         // Buscar las rutas obligatorias que no son públicas
-        //         const obligatoryRoutes = await models.Route.findAll({
-        //             where: { public: 0, obligatory: 1 }
-        //         }, { transaction });
-
-        //         // Asignar permisos por cada ruta obligatoria con la acción 'view' y la condición 'all'
-        //         for (const route of obligatoryRoutes) {
-        //             await models.Permission.create({
-        //                 role_id: newRole.role_id,
-        //                 route_id: route.route_id,
-        //                 action_id: 1, // Asumiendo que la acción 'view' tiene action_id = 1
-        //                 condition_id: 2 // Asumiendo que la condición 'all' tiene condition_id = 2
-        //             }, { transaction });
-        //         }
-        //         await transaction.commit();
-        //         const successMessage = getSuccessMessage('ROLE_CREATED');
-        //         return { role_id: newRole.role_id, message: successMessage };
-        //     } catch (error) {
-        //         await transaction.rollback();
-        //         throw error;
-        //     }
-
-        // },
         createRole: async (_, { input }, { user }) => {
-            // Verificar que el usuario tenga la acción de editar roles
-            console.log('input', input);
-            const userIdEditor = user.user_id;
-            await validatePermission(userIdEditor, 'create', 'roles', null);
+            //validamos permisos antes de ejecutar la accion
+            await validatePermission(user.user_id, 'create', 'roles', null);
             const { name, title, description, color, permission } = input;
 
             // Verificar si el rol ya existe
@@ -80,7 +42,6 @@ export const roleResolver = {
                         condition_id: 2 // Asumiendo que la condición 'all' tiene condition_id = 2
                     }, { transaction });
                 }
-
                 // Asignar permisos dinámicos del formulario
                 if (permission && permission.length > 0) {
                     for (const perm of permission) {
@@ -91,12 +52,29 @@ export const roleResolver = {
                             const { action_id, condition } = action;
 
                             // Crear un permiso por cada acción en la ruta
-                            await models.Permission.create({
+                            const createdPermission = await models.Permission.create({
                                 role_id: newRole.role_id,
                                 route_id: route_id,
                                 action_id: action_id,
                                 condition_id: condition ? condition.condition_id : null // Verifica si hay una condición
                             }, { transaction });
+
+                            // Si la condición es 'others', insertar en ResourceAccess
+                            if (condition && condition.name === 'others') {
+                                const others = condition.others;
+                                for (const other of others) {
+                                    await models.ResourceAccess.create({
+                                        role_id: other.role_id || null,
+                                        user_id: other.user_id || null,
+                                        route_id: other.route_id,
+                                        action_id: other.action_id,
+                                        condition_id: other.condition_id || null,
+                                        resource_type: other.resource_type,
+                                        resource_id: other.resource_id,
+                                        permission_id: createdPermission.permission_id
+                                    }, { transaction });
+                                }
+                            }
                         }
                     }
                 }
@@ -113,44 +91,94 @@ export const roleResolver = {
         },
 
         // Actualizar un rol existente
-        // async updateRole(_, { roleId, input }, { user }) {
+        // updateRole: async (_, { roleId, input }, { user }) => {
+        //     // Verificar que el usuario tenga la acción de editar roles
+        //     await validatePermission(user.user_id, 'update', 'roles', roleId);
+
+        //     const { name, title, description, color, permission } = input;
+
+        //     const transaction = await models.sequelize.transaction();
         //     try {
-        //         // Verificar que el usuario tenga la acción de editar roles
-        //         const userIdEditor = user.user_id;
-        //         await validatePermission(userIdEditor, 'update', 'roles', roleId);
+        //         // Actualizar el rol
+        //         const role = await models.Role.findByPk(roleId);
+        //         if (!role) throwCustomError(ErrorTypes.ROLE_NOT_FOUND);
 
-        //         const roleToEdit = await models.Role.findByPk(roleId);
-        //         if (!roleToEdit) throwCustomError(ErrorTypes.ROLE_NOT_FOUND);
+        //         await role.update({
+        //             name,
+        //             title,
+        //             description,
+        //             color
+        //         }, { transaction });
 
-        //         // Verificar si el nuevo nombre ya pertenece a otro rol
-        //         if (input.name) {
-        //             const existingRole = await models.Role.findOne({
-        //                 where: { name: input.name, role_id: { [Op.ne]: roleId } }
+        //         // Actualizar los permisos asociados
+        //         if (permission && permission.length > 0) {
+        //             // Obtener todas las rutas que no son obligatorias
+        //             const nonObligatoryRoutes = await models.Route.findAll({
+        //                 attributes: ['route_id'],
+        //                 where: { obligatory: 0 },
+        //                 transaction
         //             });
-        //             if (existingRole) {
-        //                 throwCustomError(ErrorTypes.ROLE_NAME_ALREADY_IN_USE);
+
+        //             // Eliminar permisos solo de las rutas que no son obligatorias
+        //             await models.Permission.destroy({
+        //                 where: {
+        //                     role_id: roleId,
+        //                     route_id: nonObligatoryRoutes.map(route => route.route_id)
+        //                 },
+        //                 transaction
+        //             });
+
+        //             // Eliminar los permisos actuales
+        //             // await models.Permission.destroy({ where: { role_id: roleId }, transaction });
+
+        //             // Crear los nuevos permisos
+        //             for (const perm of permission) {
+        //                 const { route_id, actions } = perm;  // Aquí asumimos que cada permiso tiene una ruta y un array de acciones
+
+        //                 // Para cada acción dentro de la ruta
+        //                 for (const action of actions) {
+        //                     const { action_id, condition } = action;
+
+        //                     // Crear nuevo permiso por cada acción
+        //                     const permission = await models.Permission.create({
+        //                         role_id: roleId,
+        //                         route_id: route_id,
+        //                         action_id: action_id,  // Acción específica
+        //                         condition_id: condition ? condition.condition_id : null // Verifica si hay una condición
+        //                     }, { transaction });
+
+        //                     //Si la condicion es 'others', se inserta en la tabla ResourceAccess
+        //                     if (condition && condition.name === 'others') {
+        //                         const others = condition.others;
+        //                         for (const other of others) {
+        //                             await models.ResourceAccess.create({
+        //                                 role_id: other.role_id || null,
+        //                                 user_id: other.user_id || null,
+        //                                 route_id: other.route_id,
+        //                                 action_id: other.action_id,  // Acción específica
+        //                                 condition_id: other.condition_id || null,
+        //                                 resource_type: other.resource_type,  // Tipo de recurso (ej: 'service', 'document')
+        //                                 resource_id: other.resource_id,  // ID del recurso específico
+        //                                 permission_id: permission.permission_id
+        //                             }, { transaction });
+        //                         }
+        //                     }
+        //                 }
         //             }
         //         }
 
-        //         // Actualizar los campos proporcionados
-        //         await roleToEdit.update({
-        //             name: input.name || roleToEdit.name,
-        //             title: input.title || roleToEdit.title,
-        //             description: input.description || roleToEdit.description,
-        //             color: input.color || roleToEdit.color,
-        //         });
-
+        //         await transaction.commit();
         //         const successMessage = getSuccessMessage('ROLE_UPDATED');
-        //         return { role: roleToEdit.get(), message: successMessage };
+        //         return { role, message: successMessage };
         //     } catch (error) {
-        //         throw new Error("Error updating role: " + error.message);
+        //         await transaction.rollback();
+        //         throw error;
         //     }
         // },
+        // Actualizar un rol existente
         updateRole: async (_, { roleId, input }, { user }) => {
             // Verificar que el usuario tenga la acción de editar roles
-            console.log('input', input);
-            const userIdEditor = user.user_id;
-            await validatePermission(userIdEditor, 'update', 'roles', roleId);
+            await validatePermission(user.user_id, 'update', 'roles', roleId);
 
             const { name, title, description, color, permission } = input;
 
@@ -169,24 +197,72 @@ export const roleResolver = {
 
                 // Actualizar los permisos asociados
                 if (permission && permission.length > 0) {
-                    // Eliminar los permisos actuales
-                    await models.Permission.destroy({ where: { role_id: roleId }, transaction });
+                    // Obtener todas las rutas que no son obligatorias
+                    const nonObligatoryRoutes = await models.Route.findAll({
+                        attributes: ['route_id'],
+                        where: { obligatory: 0 },
+                        transaction
+                    });
+
+                    // Eliminar permisos solo de las rutas que no son obligatorias
+                    // Primero, obtenemos los permisos existentes para eliminar los accesos
+                    const existingPermissions = await models.Permission.findAll({
+                        where: {
+                            role_id: roleId,
+                            route_id: nonObligatoryRoutes.map(route => route.route_id)
+                        },
+                        transaction
+                    });
+
+                    // Eliminar los registros de ResourceAccess asociados a los permisos existentes
+                    const permissionIdsToDelete = existingPermissions.map(perm => perm.permission_id);
+                    await models.ResourceAccess.destroy({
+                        where: {
+                            permission_id: permissionIdsToDelete
+                        },
+                        transaction
+                    });
+
+                    // Ahora, eliminamos los permisos
+                    await models.Permission.destroy({
+                        where: {
+                            role_id: roleId,
+                            route_id: nonObligatoryRoutes.map(route => route.route_id)
+                        },
+                        transaction
+                    });
 
                     // Crear los nuevos permisos
                     for (const perm of permission) {
-                        const { route_id, actions } = perm;  // Aquí asumimos que cada permiso tiene una ruta y un array de acciones
+                        const { route_id, actions } = perm;
 
-                        // Para cada acción dentro de la ruta
                         for (const action of actions) {
                             const { action_id, condition } = action;
 
                             // Crear nuevo permiso por cada acción
-                            await models.Permission.create({
+                            const permission = await models.Permission.create({
                                 role_id: roleId,
                                 route_id: route_id,
-                                action_id: action_id,  // Acción específica
-                                condition_id: condition ? condition.condition_id : null // Verifica si hay una condición
+                                action_id: action_id,
+                                condition_id: condition ? condition.condition_id : null
                             }, { transaction });
+
+                            // Si la condición es 'others', se inserta en la tabla ResourceAccess
+                            if (condition && condition.name === 'others') {
+                                const others = condition.others;
+                                for (const other of others) {
+                                    await models.ResourceAccess.create({
+                                        role_id: other.role_id || null,
+                                        user_id: other.user_id || null,
+                                        route_id: other.route_id,
+                                        action_id: other.action_id,
+                                        condition_id: other.condition_id || null,
+                                        resource_type: other.resource_type,
+                                        resource_id: other.resource_id,
+                                        permission_id: permission.permission_id
+                                    }, { transaction });
+                                }
+                            }
                         }
                     }
                 }
@@ -202,7 +278,42 @@ export const roleResolver = {
 
 
         // Eliminar un rol
-        deleteRole: async (_, { roleId }) => {
+        // deleteRole: async (_, { roleId }, { user }) => {
+        //     //validamos permisos antes de ejecutar la accion
+        //     await validatePermission(user.user_id, 'delete', 'roles', roleId);
+        //     // Buscar el rol
+        //     const role = await models.Role.findByPk(roleId);
+        //     if (!role) throwCustomError(ErrorTypes.ROLE_NOT_FOUND);
+
+        //     // Iniciar transacción
+        //     const transaction = await models.sequelize.transaction();
+        //     try {
+        //         // Eliminar los permisos relacionados con el rol
+        //         await models.Permission.destroy({
+        //             where: { role_id: roleId },
+        //             transaction
+        //         });
+
+        //         // Eliminar el rol
+        //         await role.destroy({ transaction });
+
+        //         // Confirmar la transacción
+        //         await transaction.commit();
+
+        //         // Retornar mensaje de éxito
+        //         const successMessage = getSuccessMessage('ROLE_DELETED');
+        //         return { message: successMessage };
+        //     } catch (error) {
+        //         // Si ocurre un error, hacer rollback de la transacción
+        //         await transaction.rollback();
+        //         throw error;
+        //     }
+        // },
+        // Eliminar un rol
+        deleteRole: async (_, { roleId }, { user }) => {
+            // Validamos permisos antes de ejecutar la acción
+            await validatePermission(user.user_id, 'delete', 'roles', roleId);
+
             // Buscar el rol
             const role = await models.Role.findByPk(roleId);
             if (!role) throwCustomError(ErrorTypes.ROLE_NOT_FOUND);
@@ -210,11 +321,30 @@ export const roleResolver = {
             // Iniciar transacción
             const transaction = await models.sequelize.transaction();
             try {
-                // Eliminar los permisos relacionados con el rol
-                await models.Permission.destroy({
+                // Obtener todos los permisos relacionados con el rol
+                const permissions = await models.Permission.findAll({
                     where: { role_id: roleId },
                     transaction
                 });
+
+                // Si hay permisos, eliminamos los registros de ResourceAccess relacionados
+                if (permissions.length > 0) {
+                    const permissionIds = permissions.map(perm => perm.permission_id);
+
+                    // Eliminar los registros de ResourceAccess que se relacionan con los permisos
+                    await models.ResourceAccess.destroy({
+                        where: {
+                            permission_id: permissionIds
+                        },
+                        transaction
+                    });
+
+                    // Ahora, eliminar los permisos relacionados con el rol
+                    await models.Permission.destroy({
+                        where: { role_id: roleId },
+                        transaction
+                    });
+                }
 
                 // Eliminar el rol
                 await role.destroy({ transaction });
@@ -231,6 +361,7 @@ export const roleResolver = {
                 throw error;
             }
         },
+
 
     },
 

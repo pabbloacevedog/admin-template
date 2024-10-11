@@ -115,6 +115,44 @@ export const useUserStore = defineStore("user", {
                 throw error;
             }
         },
+        async getUsers() {
+            const ROLES_QUERY = gql`
+                query getUsers {
+                    getUsers {
+                        user_id
+                        name
+                        username
+                        email
+                        personal_phone
+                        avatar
+                        role_id
+                        verified
+                        state
+                        role {
+                            role_id
+                            name
+                            title
+                            description
+                            color
+                        }
+                        owner_id
+                    }
+                }
+            `;
+            try {
+                this.clearError(); // Limpiar error antes de la consulta
+                const response = await apolloClient.query({
+                    query: ROLES_QUERY,
+                    fetchPolicy: "network-only",
+                });
+                console.log('response', response.data.getUsers);
+                this.users = response.data.getUsers;
+                return this.users;
+            } catch (error) {
+                this.error = error.message;
+                throw error;
+            }
+        },
         async getUsersByOwner(search, page, rowsPerPage) {
             // Modificamos el query para aceptar los parámetros de búsqueda y paginación
             const ALL_USERS_QUERY = gql`

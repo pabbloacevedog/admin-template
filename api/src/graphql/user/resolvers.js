@@ -7,53 +7,66 @@ import { sendEmail } from '../../utils/emailService.js';
 import validatePermission from '../../utils/permissionValidator.js';
 import throwCustomError, { ErrorTypes } from '../../helpers/error-handler.helper.js';
 import { getSuccessMessage } from '../../helpers/success-handler.helper.js';
-import { CLIENT } from '../../config/config.js';
+import { CLIENT, BASE_URL } from '../../config/config.js';
 export const userResolver = {
     Mutation: {
         // Crear un nuevo usuario
         createUser: async (_, args, { user }) => {
+            //validamos permisos antes de ejecutar la accion
+            await validatePermission(user.user_id, 'create', 'users', null);
             const { email, ...rest } = args;
             const existingUser = await models.User.findOne({ where: { email } });
             console.log('rest', rest);
             if (existingUser) throwCustomError(ErrorTypes.USER_CREATE_ALREADY_EXISTS);
-            // Generar un token de verificación
-            const verificationToken = crypto.randomBytes(32).toString('hex');
-            const newUser = await models.User.create({
-                email,
-                ...rest,
-                verification_email: verificationToken,  // Guardamos el token
-                verification_email_expires: Date.now() + 3600000, // Expira en 1 hora
-                verified: false, // Por defecto, el usuario no está verificado
-                owner_id: user.user_id
-            });
+            const defaultAvatar = `${BASE_URL}generic/generic_avatar.png`;
+            // Iniciar una transacción
+            const transaction = await models.sequelize.transaction();
+            try {
+                // Generar un token de verificación
+                const verificationToken = crypto.randomBytes(32).toString('hex');
+                const newUser = await models.User.create({
+                    email,
+                    ...rest,
+                    verification_email: verificationToken,  // Guardamos el token
+                    verification_email_expires: Date.now() + 3600000, // Expira en 1 hora
+                    verified: false, // Por defecto, el usuario no está verificado
+                    state: true,
+                    avatar: defaultAvatar,
+                    owner_id: user.user_id
+                }, { transaction });
 
-            // Enviar el correo con el token de verificación
-            const verificationUrl = `${CLIENT}/#/verify_email?token=${verificationToken}`;
-            const subject = getSuccessMessage('SUBJECT_VERIFY_EMAIL');
-            const message = `Hi ${rest.name}, ${getSuccessMessage('MESSAGE_VERIFY_EMAIL')} ${verificationUrl}`;
+                // Enviar el correo con el token de verificación
+                const verificationUrl = `${CLIENT}/#/verify_email?token=${verificationToken}`;
+                const subject = getSuccessMessage('SUBJECT_VERIFY_EMAIL');
+                const message = `Hi ${rest.name}, ${getSuccessMessage('MESSAGE_VERIFY_EMAIL')} ${verificationUrl}`;
 
-            await sendEmail({
-                to: email,
-                subject: subject,
-                text: message,
-            });
-
-            const successMessage = getSuccessMessage('USER_CREATED_VERIFY_EMAIL');
-            return { user_id: newUser.user_id, message: successMessage };
+                await sendEmail({
+                    to: email,
+                    subject: subject,
+                    text: message,
+                });
+                // Confirmar la transacción
+                await transaction.commit();
+                const successMessage = getSuccessMessage('USER_CREATED_VERIFY_EMAIL');
+                return { user_id: newUser.user_id, message: successMessage };
+            } catch (error) {
+                // Revertir la transacción en caso de error
+                await transaction.rollback();
+                throw error;
+            }
 
         },
 
         // Actualizar un usuario existente
         async updateUser(_, { userId, input }, { user }) {
-            try {
-                // Verificar que el usuario tenga la acción de editar usuarios
-                const userIdEditor = user.user_id;
-                console.log('userIdEditor: ', userIdEditor);
-                await validatePermission(userIdEditor, 'update', 'users', userId); // Agrega la ruta correspondiente
-                console.log('input', input);
-                const usertoedit = await models.User.findByPk(userId);
-                if (!usertoedit) throwCustomError(ErrorTypes.USER_NOT_FOUND);
 
+            // Verificar que el usuario tenga la acción de editar usuarios
+            await validatePermission(user.user_id, 'update', 'users', userId); // Agrega la ruta correspondiente
+            console.log('input', input);
+            const usertoedit = await models.User.findByPk(userId);
+            if (!usertoedit) throwCustomError(ErrorTypes.USER_NOT_FOUND);
+            const transaction = await models.sequelize.transaction();
+            try {
                 // Verificar si el nuevo correo ya pertenece a otro usuario
                 if (input.email) {
                     const existingUser = await models.User.findOne({
@@ -77,25 +90,39 @@ export const userResolver = {
                     state: input.state !== undefined ? input.state : usertoedit.state,
                     // avatar: input.avatar || user.avatar,
                     role_id: input.role_id !== undefined ? input.role_id : usertoedit.role_id
-                });
-
+                }, { transaction });
+                await transaction.commit();
                 const successMessage = getSuccessMessage('USER_DATA_UPDATE_SUCCESS');
                 return { user: usertoedit.get(), message: successMessage };
 
             } catch (error) {
+                await transaction.rollback();
                 throw new Error("Error updating user: " + error.message);
             }
         },
 
 
         // Eliminar un usuario
-        deleteUser: async (_, { userId }) => {
-            const user = await models.User.findByPk(userId);
-            if (!user) throwCustomError(ErrorTypes.USER_NOT_FOUND);
+        deleteUser: async (_, { userId }, { user }) => {
+            //validamos permisos antes de ejecutar la accion
+            await validatePermission(user.user_id, 'delete', 'users', userId);
+            const dataUser = await models.User.findByPk(userId);
+            if (!dataUser) throwCustomError(ErrorTypes.USER_NOT_FOUND);
+            // Iniciar transacción
+            const transaction = await models.sequelize.transaction();
+            try {
+                await dataUser.destroy({ transaction });
+                // Confirmar la transacción
+                await transaction.commit();
 
-            await user.destroy();
-            const successMessage = getSuccessMessage('USER_DELETED');
-            return { message: successMessage };
+                // Retornar mensaje de éxito
+                const successMessage = getSuccessMessage('USER_DELETED');
+                return { message: successMessage };
+            } catch (error) {
+                // Si ocurre un error, hacer rollback de la transacción
+                await transaction.rollback();
+                throw error;
+            }
         },
     },
 
@@ -105,7 +132,7 @@ export const userResolver = {
             const users = await models.User.findAll({
                 include: [models.Role],
             });
-            console.log(users[0], 'users');
+            // console.log(users[0], 'users');
             return users;
         },
         // Obtener todos los usuarios
@@ -140,7 +167,7 @@ export const userResolver = {
                 throw new Error('Error al obtener los usuarios' + error);
             }
         },
-        getUsersByOwner : async (_, { filter, pagination }, { user }) => {
+        getUsersByOwner: async (_, { filter, pagination }, { user }) => {
             try {
                 // Definir condiciones de búsqueda
                 const conditions = {

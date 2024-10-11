@@ -69,7 +69,7 @@ export const updateAccount = {
         userId: { type: new GraphQLNonNull(GraphQLString) },
         input: { type: new GraphQLNonNull(UserUpdateInputType) }
     },
-    resolve: authResolver.Mutation.updateUser
+    resolve: authResolver.Mutation.updateAccount
 };
 
 // Upload Single

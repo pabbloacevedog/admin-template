@@ -114,16 +114,12 @@ const dialogStyle = computed(() => {
 
 const deleteRole = async () => {
     try {
-        await roleStore.deleteRole(props.role.role_id);
+        const response = await roleStore.deleteRole(props.role.role_id);
         $q.notify({
             type: 'positive',
-            message: t('roles.messages.deleted_success'),
+            message: response,
         });
     } catch (error) {
-        $q.notify({
-            type: 'negative',
-            message: t('roles.messages.deleted_error'),
-        });
         console.error('Error deleting role:', error);
     }
     close();

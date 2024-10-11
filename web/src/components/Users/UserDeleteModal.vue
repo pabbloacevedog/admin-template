@@ -82,16 +82,12 @@ const dialogStyle = computed(() => {
 
 const deleteUser = async () => {
     try {
-        await userStore.deleteUser(props.user.user_id);
+        const response = await userStore.deleteUser(props.user.user_id);
         $q.notify({
             type: 'positive',
-            message: t('users.messages.deleted_success'),
+            message: response,
         });
     } catch (error) {
-        $q.notify({
-            type: 'negative',
-            message: t('users.messages.deleted_error'),
-        });
         console.error('Error deleting user:', error);
     }
     close();

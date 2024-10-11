@@ -275,9 +275,6 @@ $role-color-10: #8338ec; // Electric Violet
         -webkit-backdrop-filter: blur(20px) !important;
         backdrop-filter: blur(20px) !important;
     }
-    .form-modal-view {
-        padding: 16px 5%;
-    }
     .chip-user-active {
         background-color: #004618;
         border-radius: 8px;
@@ -368,9 +365,6 @@ $role-color-10: #8338ec; // Electric Violet
         background: #ffffff9e !important;
         backdrop-filter: blur(8px) !important;
     }
-    .form-modal-view {
-        padding: 16px 5%;
-    }
     .chip-user-active {
         background-color: #c9fbda;
         border-radius: 8px;
@@ -391,7 +385,10 @@ $role-color-10: #8338ec; // Electric Violet
 .q-tab__content {
     width: 100% !important;
 }
-@media (max-width: 600px) {
+@media (min-width: 800px) {
+    .form-modal-view {
+        padding: 16px 40px;
+    }
 }
 .input-none-used.q-field--filled.q-field--dark .q-field__control,
 .q-field--filled.q-field--dark .q-field__control:before {

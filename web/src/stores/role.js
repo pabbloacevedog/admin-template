@@ -57,6 +57,7 @@ export const useRoleStore = defineStore("role", {
                             title
                             description
                             color
+                            owner_id
                             totalUsers
                             avatars
                         }
@@ -141,6 +142,7 @@ export const useRoleStore = defineStore("role", {
                         title
                         description
                         color
+                        owner_id
                     }
                 }
             `;

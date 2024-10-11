@@ -1,9 +1,8 @@
 <template>
     <q-dialog v-model="roleStore.show_modal_role" @hide="resetForm" backdrop-filter="blur(4px) saturate(150%)"
-        class="container-modal" :fullscreen="true" transition-show="none" transition-hide="none" :maximized="true">
-        <div class="q-py-xs form-modal div-blur div-rounded-radius h-form" :style="dialogStyle">
-            <q-card flat
-                style="flex-grow: 1; display: flex; flex-direction: column;" class="bg-blur">
+        class="container-modal" transition-show="none" transition-hide="none" :fullscreen="isMobile">
+        <div class="q-py-xs form-modal-role div-blur div-rounded-radius h-form" :style="dialogStyle">
+            <q-card flat style="flex-grow: 1; display: flex; flex-direction: column;" class="bg-blur">
                 <q-card-header>
                     <q-toolbar class="div-rounded-radius">
                         <q-toolbar-title>
@@ -15,7 +14,7 @@
                         <q-btn round flat icon="close" @click="close" />
                     </q-toolbar>
                 </q-card-header>
-                <q-card-section class="col-4 q-pr-md q-pl-none q-pb-none q-pt-sm" style="padding: 24px 2%;"
+                <q-card-section class="col-4 q-pr-md q-pl-none q-pb-none q-pt-sm" style="padding: 24px 0%;"
                     v-if="isMobile">
                     <div caption class="q-mt-md q-mb-xl " v-if="isEdit" style="font-size: 16px;">
                         {{ $t('roles.edit.instruction') }}
@@ -81,8 +80,7 @@
                         </q-item>
                         <!-- Se muestra solo si la ruta está seleccionada -->
                         <q-list v-if="includesRouteId(route.route_id)">
-                            <q-item class="q-ma-none row"
-                                style="min-height: min-content !important; max-width: 100vw !important;">
+                            <q-item class="q-ma-none row" style="min-height: min-content !important;">
                                 <q-item-section v-for="action in actions" :key="action.action_id" class="col-6">
                                     <q-item class="q-pa-none">
                                         <q-item-section avatar class="q-pr-none" style="min-width: 48px;">
@@ -119,7 +117,7 @@
 
                 </q-card-section>
                 <q-card-section class="q-py-none" v-else horizontal>
-                    <q-card-section class="col-4 q-pr-md q-pl-none q-pb-none q-pt-sm" style="padding: 24px 2%;">
+                    <q-card-section class="col-4 q-pr-md q-pl-none q-pb-none q-pt-sm" style="padding: 24px 0%;">
                         <div caption class="q-mt-md q-mb-xl " v-if="isEdit" style="font-size: 16px;">
                             {{ $t('roles.edit.instruction') }}
                         </div>
@@ -157,75 +155,131 @@
                             </div>
                         </div>
                     </q-card-section>
-                    <q-card-section class="col-8 q-pl-none q-pr-xs q-pt-none q-pt-lg q-pb-none "
-                        style="max-height: 85vh; overflow-y: auto;padding: 24px 4%;">
-                        <q-card  class="q-mb-md bg-first div-rounded-radius q-pa-xs" flat v-for="route in routes"
+                    <q-card-section class="col-8 q-pt-lg" style="max-height: 80vh; overflow-y: auto; padding: 24px 0%;">
+                        <div class="q-col-gutter-md q-mx-none q-my-md col-12" v-for="route in routes"
                             :key="route.route_id">
-                            <q-item>
-                                <q-item-section avatar class="q-pr-none" style="min-width: 48px;">
-                                    <q-avatar>
-                                        <q-icon :name="route.icon" size="28px" />
-                                    </q-avatar>
-                                </q-item-section>
-                                <q-item-section>
-                                    <q-item-label style="font-size: 16px;">{{ route.title }}</q-item-label>
-                                </q-item-section>
-                                <q-item-section side>
-                                    <q-checkbox size="md" @update:model-value="toggleRoute(route)" v-model="route_roles"
-                                        :val="route.route_id" />
-                                </q-item-section>
-                            </q-item>
+                            <q-expansion-item v-model="expanded[route.route_id]"
+                                class="bg-first div-rounded-radius q-pa-none q-ml-xl" group="role_route">
+                                <template v-slot:header>
+                                    <q-item class="q-pa-none" style="width: 100%;">
+                                        <div class="row items-center justify-between" style="width: 100%;">
+                                            <!-- Colocamos el checkbox antes del icono -->
+                                            <div class="row items-center">
+                                                <q-checkbox size="md" @update:model-value="toggleRoute(route)"
+                                                    :color="role?.color" v-model="route_roles" :val="route.route_id"
+                                                    class="q-mr-md" />
+                                                <!-- Icono de la ruta -->
+                                                <q-icon :name="route.icon" size="28px" :color="role?.color"
+                                                    class="q-mr-sm" />
+                                                <!-- Título de la ruta -->
+                                                <q-item-label>{{ route.title }}</q-item-label>
+                                            </div>
+                                        </div>
+                                    </q-item>
+                                </template>
 
-                            <q-item v-if="includesRouteId(route.route_id)" class="q-ml-sm"
-                                style="min-height: min-content !important; padding: 0px 0px 0px 16px;">
-                                <q-item-label caption style="font-size: 14px;">{{ route.description }}</q-item-label>
-                            </q-item>
-                            <q-item v-else class="q-ml-sm"
-                                style="min-height: min-content !important; padding: 0px 0px 16px 16px;">
-                                <q-item-label caption style="font-size: 14px;">{{ route.description }}</q-item-label>
-                            </q-item>
-                            <!-- Se muestra solo si la ruta está seleccionada -->
-                            <q-list v-if="includesRouteId(route.route_id)">
-                                <q-item class="q-ma-none" style="min-height: min-content !important;">
-                                    <q-item-section v-for="action in actions" :key="action.action_id">
-                                        <q-item class="q-pa-none">
-                                            <q-item-section avatar class="q-pr-none" style="min-width: 48px;">
-                                                <q-avatar>
-                                                    <q-icon :name="action.icon" size="24px" />
-                                                </q-avatar>
-                                            </q-item-section>
-                                            <q-item-section>
-                                                <q-item-label style="font-size: 14px;">{{ action.title
-                                                    }}</q-item-label>
-                                            </q-item-section>
-                                            <q-item-section side>
-                                                <q-toggle v-model="action_roles"
-                                                    :val="`${route.route_id}_${action.action_id}`"
-                                                    @update:model-value="toggleAction(route.route_id, action)"
-                                                    color="primary" />
-                                            </q-item-section>
+                                <!-- Card dentro del q-expansion-item -->
+                                <q-card>
+                                    <q-card-section class="q-pa-none">
+                                        <q-item v-if="includesRouteId(route.route_id)" class="q-ml-sm"
+                                            style="min-height: min-content !important; padding: 0px 0px 0px 16px;">
+                                            <q-item-label caption style="font-size: 14px;">{{ route.description
+                                                }}</q-item-label>
                                         </q-item>
-                                        <q-item class="q-py-none q-px-xs">
-                                            <q-item-section>
-                                                <!-- <q-select dense filled v-model="selectedConditions"
-                                                    :options="conditions" label="Condition" ption-label="label"
-                                                    option-value="value"
-                                                    :disable="!isActionSelected(route.route_id, action.action_id)">
-                                                </q-select> -->
-                                                <q-select dense filled
-                                                    v-model="actionConditions[`${route.route_id}_${action.action_id}`]"
-                                                    :options="conditions" label="Condition" option-label="label"
-                                                    option-value="value"
-                                                    @update:model-value="(newValue) => selectCondition(route.route_id, action, newValue)"
-                                                    :disable="!isActionSelected(route.route_id, action.action_id)">
-                                                </q-select>
-                                            </q-item-section>
+                                        <q-item v-else class="q-ml-sm"
+                                            style="min-height: min-content !important; padding: 0px 0px 16px 16px;">
+                                            <q-item-label caption style="font-size: 14px;">{{ route.description
+                                                }}</q-item-label>
                                         </q-item>
-                                    </q-item-section>
-                                </q-item>
-                            </q-list>
-                        </q-card>
+                                    </q-card-section>
 
+                                    <q-card-section class="q-pa-none">
+                                        <div class="row q-pb-md q-mx-md "
+                                            :class="{ 'q-col-12': selectedRoutes.length >= 1 }">
+                                            <div v-for="action in sortedActions" :key="action.action_id" class="col-12">
+                                                <q-item dense class="q-mb-xs" style="padding: 0px 0px !important;">
+                                                    <q-item-section>
+                                                        <q-item class="q-pa-none">
+                                                            <!-- Checkbox para seleccionar acción -->
+                                                            <q-item-section side>
+                                                                <q-checkbox size="md"
+                                                                    :val="`${route.route_id}_${action.action_id}`"
+                                                                    @update:model-value="(val) => handleActionSelection(route.route_id, action, val)"
+                                                                    :disable="!route_roles.includes(route.route_id)"
+                                                                    v-model="action_roles" :color="role?.color" />
+                                                            </q-item-section>
+
+                                                            <!-- Icono de la acción -->
+                                                            <q-item-section avatar class="q-pr-none"
+                                                                style="min-width: 48px;">
+                                                                <q-avatar>
+                                                                    <q-icon :name="action.icon" size="24px"
+                                                                        :color="role?.color" />
+                                                                </q-avatar>
+                                                            </q-item-section>
+
+                                                            <!-- Título de la acción -->
+                                                            <q-item-section>
+                                                                <q-item-label style="font-size: 14px;">{{ action.title
+                                                                    }}</q-item-label>
+                                                            </q-item-section>
+
+                                                            <!-- Condición, oculta si es 'create' -->
+                                                            <q-item-section v-if="action.name !== 'create'" side>
+                                                                <q-select dense filled
+                                                                    style="max-width: 200px; width: 200px;"
+                                                                    v-model="actionConditions[`${route.route_id}_${action.action_id}`]"
+                                                                    :options="conditions" label="Condition"
+                                                                    option-label="label" option-value="value"
+                                                                    @update:model-value="(newValue) => selectCondition(route.route_id, action, newValue)"
+                                                                    :disable="!isActionSelected(route.route_id, action.action_id)" />
+                                                            </q-item-section>
+                                                            <!-- Selección múltiple de roles y usuarios -->
+                                                            <q-item-section v-if="action.name !== 'create'" side>
+                                                                <q-select dense filled
+                                                                    style="max-width: 400px; width: 400px;"
+                                                                    v-model="otherRolesAndUsersConditions[`${route.route_id}_${action.action_id}_${action.condition?.condition_id}`]"
+                                                                    @update:model-value="(newValue) => selectConditionOther(route.route_id, action.action_id, actionConditions[`${route.route_id}_${action.action_id}`], newValue)"
+                                                                    multiple :options="rolesOrUsersSelect" use-chips
+                                                                    :disable="actionConditions[`${route.route_id}_${action.action_id}`]?.name !== 'others' || !route_roles.includes(route.route_id) || !isActionSelected(route.route_id, action.action_id)"
+                                                                    stack-label label="Select User or Role">
+                                                                    <template v-slot:selected-item="scope">
+                                                                        <q-chip removable dense
+                                                                            @remove="scope.removeAtIndex(scope.index)"
+                                                                            v-if="scope.opt.type === 'role'"
+                                                                            :tabindex="scope.tabindex"
+                                                                            :color="scope.opt.color" text-color="white"
+                                                                            style="font-size: 12px; margin: 4px 2px; max-width: 100px"
+                                                                            icon="attribution">
+                                                                            <div class="ellipsis">
+                                                                                {{ scope.opt.label }}
+                                                                            </div>
+                                                                        </q-chip>
+                                                                        <q-chip removable dense
+                                                                            @remove="scope.removeAtIndex(scope.index)"
+                                                                            v-else :tabindex="scope.tabindex"
+                                                                            color="dark" text-color="secondary"
+                                                                            style="font-size: 12px; margin: 4px 2px; max-width: 100px">
+                                                                            <q-avatar>
+                                                                                <img :src="scope.opt.icon">
+                                                                            </q-avatar>
+                                                                            <div class="ellipsis">
+                                                                                {{ scope.opt.label }}
+                                                                            </div>
+                                                                        </q-chip>
+                                                                    </template>
+                                                                </q-select>
+                                                            </q-item-section>
+                                                        </q-item>
+                                                    </q-item-section>
+                                                </q-item>
+                                            </div>
+                                        </div>
+                                    </q-card-section>
+
+                                </q-card>
+                            </q-expansion-item>
+                        </div>
                     </q-card-section>
                 </q-card-section>
             </q-card>
@@ -240,7 +294,8 @@ import SubTitleSettingsPanel from 'components/AccountUser/SubTitleSettingsPanel.
 import { useRoleStore } from 'stores/role';
 import { useQuasar } from 'quasar';
 import { useI18n } from 'vue-i18n';
-
+import { useUserStore } from 'stores/user';
+const userStore = useUserStore();
 const { t } = useI18n();
 const $q = useQuasar();
 const roleStore = useRoleStore();
@@ -251,6 +306,10 @@ const props = defineProps({
         default: () => ({}),
     },
 });
+// Declaramos el objeto expanded
+const expanded = ref({});
+
+
 const colorOptions = ref([
     { label: 'Coral Red', value: 'role-color-1', color: '#FF6B6B' },
     { label: 'Aqua Mint', value: 'role-color-2', color: '#076ea9' },
@@ -272,10 +331,24 @@ const form = ref({
     description: '',
     color: '',
 });
-
-
+const columns = [
+    {
+        name: 'desc',
+        required: true,
+        label: 'Dessert (100g serving)',
+        align: 'left',
+        field: row => row.name,
+        format: val => `${val}`,
+        sortable: true
+    },
+    { name: 'calories', align: 'center', label: 'Calories', field: 'calories', sortable: true },
+    { name: 'fat', label: 'Fat (g)', field: 'fat', sortable: true },
+    { name: 'carbs', label: 'Carbs (g)', field: 'carbs' }
+]
+const selectedRolesOrUsers = ref([]);
 const routes = ref([]);
 const actions = ref([]);
+const rolesOrUsersSelect = ref([]);
 // const conditions = ref([]);
 const isEdit = ref(false);
 const search = ref('');
@@ -291,7 +364,11 @@ const selectedRoutes = ref([]); // Almacena los route_id seleccionados
 const selectedActions = ref([]); // Almacena las acciones seleccionadas
 const selectedConditions = ref({}); // Almacena la condición seleccionada= ref({}); // Almacena las condiciones seleccionadas para cada acción
 const actionConditions = ref({});
-const conditions = ref([]); // Almacena las condiciones
+const otherRolesAndUsersConditions = ref({});
+const conditions = ref([{ name: "all", title: "All", description: "Allows the user to access all resources.", condition_id: "2" }]); // Almacena las condiciones
+const rolesAndUsers = ref([]);
+// Estado para almacenar el ítem expandido
+const expandedItem = ref(null);
 
 const errors = ref({
     name: false,
@@ -367,6 +444,14 @@ const generateName = () => {
     form.value.name = normalizeText(form.value.title);
 };
 
+// Ordenar acciones, para que 'create' sea la primera
+const sortedActions = computed(() => {
+    return actions.value.slice().sort((a, b) => {
+        if (a.name === 'create') return -1
+        if (b.name === 'create') return 1
+        return 0
+    })
+})
 // Función para normalizar el texto
 const normalizeText = (text) => {
     return text
@@ -402,6 +487,29 @@ const toggleRoute = (route) => {
     console.log('routes_role', route_roles.value)
     console.log('action_roles', action_roles.value)
 };
+// Maneja la selección de la acción y establece la condición 'all' por defecto
+const handleActionSelection = (routeId, action, val) => {
+    toggleAction(routeId, action);
+
+    if (val) {
+        // Establece la condición en "All" al activar la acción
+        const defaultCondition = {
+            name: "all",
+            title: "All",
+            description: "Allows the user to access all resources.",
+            condition_id: "2"
+        }
+        const defaultConditionSelect = {
+            name: "all",
+            label: "All",
+            description: "Allows the user to access all resources.",
+            value: "2"
+        }
+        actionConditions.value[`${routeId}_${action.action_id}`] = defaultConditionSelect;
+        console.log('actionConditions',actionConditions.value[`${routeId}_${action.action_id}`])
+        selectCondition(routeId, action, defaultCondition)
+    }
+}
 
 // Verifica si una acción está seleccionada
 const isActionSelected = (route_id, action_id) => {
@@ -422,15 +530,15 @@ const toggleAction = (route_id, action) => {
         if (route && route.actions) {
             // Remove the action from the list of actions for this route
             route.actions = route.actions.filter(a => a.action_id !== action.action_id);
-
+            // Eliminar la condición si la acción es desactivada
+            delete actionConditions.value[`${route_id}_${action.action_id}`];
             // If there are no more actions in the route, you can choose to delete the property 'actions'
             if (route.actions.length === 0) {
                 delete route.actions;
             }
         }
 
-        // Optionally, remove the condition when the action is deselected
-        delete actionConditions.value[`${route_id}_${action.action_id}`];
+
 
     } else {
         var actionAdd = {
@@ -458,6 +566,7 @@ const toggleAction = (route_id, action) => {
             selectedRoutes.value[routeIndex].actions.push(actionAdd);
         }
     }
+    console.log('selectedRoutes.value', selectedRoutes.value)
 };
 // Función para alternar el estado de las acciones
 const selectCondition = (route_id, action, condition) => {
@@ -484,10 +593,93 @@ const selectCondition = (route_id, action, condition) => {
     // console.log('action_roles', action_roles.value)
     // console.log('actionConditions', actionConditions.value)
 };
+// Función para dar acceso al contenido creado por otros usuarios y roles
+const selectConditionOther = (route_id, action_id, condition, userAndRoles) => {
+    const route = selectedRoutes.value.find(route => route.route_id === route_id);
+    if (route && route.actions) {
+        // Encuentra la acción en las acciones de la ruta por action_id
+        const actionToUpdate = route.actions.find(a => a.action_id === action_id);
+        if (actionToUpdate && actionToUpdate.condition) {
+            const conditionToUpdate = actionToUpdate.condition.condition_id;
+
+            if (conditionToUpdate) {
+                const routeIndex = selectedRoutes.value.findIndex(route => route.route_id === route_id);
+                const actionIndex = selectedRoutes.value[routeIndex].actions.findIndex(action => action.action_id === action_id);
+
+                if (routeIndex !== -1) {
+                    // Si no existe el campo 'others', se crea
+                    if (!selectedRoutes.value[routeIndex].actions[actionIndex].condition.others) {
+                        selectedRoutes.value[routeIndex].actions[actionIndex].condition.others = [];
+                    }
+
+                    const currentOthers = selectedRoutes.value[routeIndex].actions[actionIndex].condition.others;
+
+                    // **Eliminar duplicados**: Primero limpiamos los duplicados en el nuevo arreglo
+                    userAndRoles.forEach(item => {
+                        const exists = currentOthers.some(other => other.id === item.value && other.type === item.type);
+                        if (!exists) {
+                            const other = {
+                                id: item.value,
+                                route_id: route_id,
+                                action_id: action_id,
+                                condition_id: conditionToUpdate,
+                                type: item.type,
+                                user_id: item.user_id,
+                                role_id: item.role_id,
+                                resource_type: selectedRoutes.value[routeIndex].name,
+                                resource_id: null
+                            };
+                            currentOthers.push(other);
+                        }
+                    });
+
+                    // **Remover elementos eliminados**: Comparar userAndRoles con currentOthers y quitar los que no están en userAndRoles
+                    selectedRoutes.value[routeIndex].actions[actionIndex].condition.others = currentOthers.filter(other =>
+                        userAndRoles.some(item => item.value === other.id && item.type === other.type)
+                    );
+                }
+            }
+        }
+    }
+    console.log('selectedRoutes', selectedRoutes.value);
+};
+
 // Estilo de dialog
 const dialogStyle = computed(() => {
-    return isMobile.value ? 'width: 100vw; max-width: 100vw; max-height: 100vh !important;height: 98vh;margin: 8px;' : 'width: 100vw;; max-width: 100vw;';
+    return isMobile.value ? 'width: 100vw; max-width: 100vw; max-height: 100vh !important;height: 98vh;margin: 8px;' : 'width: 1500px;; max-width: 100vw;';
 });
+
+// Función para cargar los roles y usuarios
+const fetchSelect = async () => {
+    // Cargar roles y usuarios desde el store
+    const allRoles = await roleStore.getRoles();
+    const allUsers = await userStore.getUsers();
+    console.log('allRoles', allRoles);
+    console.log('allUsers', allUsers);
+    // Mapeo de roles para el select
+    const mappedRoles = allRoles.map(item => ({
+        label: item.title,    // Lo que se muestra en el select
+        value: item.role_id,  // El valor que se selecciona (role_id)
+        color: item.color,   // Color para customizar el select (si aplica)
+        icon: item.icon,
+        type: 'role',
+        role_id: item.role_id,
+        user_id: null
+    }));
+
+    // Mapeo de usuarios para el select
+    const mappedUsers = allUsers.map(item => ({
+        icon: item.avatar,  // Avatar del usuario (si es necesario)
+        label: item.name,     // Lo que se muestra en el select
+        value: item.user_id,  // El valor que se selecciona (user_id)
+        type: 'user',
+        role_id: null,
+        user_id: item.user_id,
+    }));
+
+    // Combinar roles y usuarios en el mismo array
+    rolesOrUsersSelect.value = mappedRoles.concat(mappedUsers);
+};
 
 // Cargar roles y preparar el formulario al montar
 onMounted(async () => {
@@ -505,6 +697,7 @@ onMounted(async () => {
         label: 'all',
         value: 2,
     }
+    fetchSelect()
     if (role.value && role.value.role_id) {
         form.value = { ...role.value };
         isEdit.value = true;
@@ -632,6 +825,31 @@ const submit = async () => {
         });
         return;
     }
+    // Recorre las rutas seleccionadas
+    const routesWithNoActions = routes.value.filter(route => {
+        const isRouteSelected = route_roles.value.includes(route.route_id);
+
+        // Si la ruta está seleccionada, revisa si tiene al menos una acción seleccionada
+        if (isRouteSelected) {
+            const selectedActions = sortedActions.value.filter(action => {
+                return action_roles.value.includes(`${route.route_id}_${action.action_id}`);
+            });
+
+            // Si no tiene acciones seleccionadas, devuelve esta ruta
+            return selectedActions.length === 0;
+        }
+
+        return false;
+    });
+
+    // Si hay rutas sin acciones seleccionadas, muestra un mensaje de error
+    if (routesWithNoActions.length > 0) {
+        $q.notify({
+            type: 'negative',
+            message: t('roles.create.validation_no_actions'),
+        });
+        return;
+    }
 
     $q.loading.show();
     console.log('Those are the al permission of the role ', selectedRoutes.value);
@@ -639,6 +857,7 @@ const submit = async () => {
     if (isEdit.value) {
         // console.log('edit data ', form.value);
         delete form.value.avatars;
+        delete form.value.owner_id;
         delete form.value.totalUsers;
         delete form.value.__typename;
         await roleStore.updateRole(form.value).then(response => {
@@ -697,7 +916,7 @@ export default {
 
 @media (max-width: 855px) {
 
-    .form-modal {
+    .form-modal-role {
         padding: 0px 0px;
         display: flex;
         flex-direction: column;
@@ -732,8 +951,8 @@ export default {
 
 /* Estilo para pantallas pequeñas: ratio libre */
 @media (min-width: 855px) {
-    .form-modal {
-        padding: 16px 5%;
+    .form-modal-role {
+        padding: 16px 2%;
 
     }
 

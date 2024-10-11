@@ -29,9 +29,9 @@
                             :description="$t('users.account.password.description')" />
                         <InputTitleModal :title="$t('users.account.personal_phone.title')"
                             :description="$t('users.account.personal_phone.description')" />
-                        <InputTitleModal :title="$t('users.account.verified.title')"
+                        <InputTitleModal v-if="isEdit" :title="$t('users.account.verified.title')"
                             :description="$t('users.account.verified.description')" />
-                        <InputTitleModal :title="$t('users.account.state.title')"
+                        <InputTitleModal v-if="isEdit" :title="$t('users.account.state.title')"
                             :description="$t('users.account.state.description')" />
                         <InputTitleModal :title="$t('users.account.role.title')"
                             :description="$t('users.account.role.description')" />
@@ -79,7 +79,7 @@
 
                         <q-input :dense="isMobile" class="input-bottom" filled v-model="form.personal_phone"
                             :label="$t('Phone: (###) ### - ####')" type="tel" mask="(###) ### - ####" />
-                        <div class="btn-verified-edit input-bottom">
+                        <div class="btn-verified-edit input-bottom" v-if="isEdit">
                             <q-item class="q-pa-none" v-if="form.verified">
                                 <q-item-section avatar class="q-pa-none">
                                     <q-avatar>
@@ -103,7 +103,7 @@
                                 </q-item-section>
                             </q-item>
                         </div>
-                        <div class="btn-verified-edit input-bottom">
+                        <div class="btn-verified-edit input-bottom" v-if="isEdit">
                             <q-toggle size="lg" v-model="form.state" color="green"
                                 :label="form.state ? 'Active' : 'Inactive'" />
                         </div>
@@ -368,8 +368,8 @@ const submit = async () => {
         console.log('create data ', form.value);
         // Aquí va la lógica para crear el usuario
         try {
-            // Enviar datos del usuario
-
+            // Enviar datos del usuario, todos los usuarios nuevos estan activos por defecto
+            form.value.state = true
             const newUser = await userStore.createUser(form.value);
 
             // Si se cargó un avatar, enviarlo
@@ -384,10 +384,6 @@ const submit = async () => {
             close();
         } catch (error) {
             console.error(error);
-            $q.notify({
-                type: 'negative',
-                message: 'Error creating user',
-            });
         }
     }
 

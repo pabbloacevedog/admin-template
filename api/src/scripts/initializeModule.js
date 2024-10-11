@@ -141,6 +141,12 @@ export async function initializeModule(models) {
             name: 'all',
             title: 'All',
             description: 'Allows the user to access all resources.'
+        },
+        {
+            condition_id: 3,
+            name: 'others',
+            title: 'User or Role',
+            description: 'In addition to accessing its own data, the role can access the data of other users and other roles.'
         }
     ];
 
