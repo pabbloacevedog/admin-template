@@ -56,6 +56,7 @@ const PermissionInputType = new GraphQLInputObjectType({
         path: { type: GraphQLString },
         icon: { type: GraphQLString },
         module_id: { type: GraphQLString },
+        resource: { type: GraphQLString },
         actions: { type: new GraphQLList(ActionInputType) }  // Relación con Action
     }
 });

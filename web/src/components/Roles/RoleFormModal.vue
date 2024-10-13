@@ -235,10 +235,12 @@
                                                                     :disable="!isActionSelected(route.route_id, action.action_id)" />
                                                             </q-item-section>
                                                             <!-- Selección múltiple de roles y usuarios -->
-                                                            <q-item-section v-if="action.name !== 'create'" side>
+                                                            <q-item-section
+                                                                v-if="action.name !== 'create' && actionConditions[`${route.route_id}_${action.action_id}`]?.name !== 'resource'"
+                                                                side>
                                                                 <q-select dense filled
                                                                     style="max-width: 400px; width: 400px;"
-                                                                    v-model="otherRolesAndUsersConditions[`${route.route_id}_${action.action_id}_${action.condition?.condition_id}`]"
+                                                                    v-model="otherRolesAndUsersConditions[`${route.route_id}_${action.action_id}`]"
                                                                     @update:model-value="(newValue) => selectConditionOther(route.route_id, action.action_id, actionConditions[`${route.route_id}_${action.action_id}`], newValue)"
                                                                     multiple :options="rolesOrUsersSelect" use-chips
                                                                     :disable="actionConditions[`${route.route_id}_${action.action_id}`]?.name !== 'others' || !route_roles.includes(route.route_id) || !isActionSelected(route.route_id, action.action_id)"
@@ -258,11 +260,35 @@
                                                                         <q-chip removable dense
                                                                             @remove="scope.removeAtIndex(scope.index)"
                                                                             v-else :tabindex="scope.tabindex"
-                                                                            color="dark" text-color="secondary"
+                                                                            color="dark" text-color="white"
                                                                             style="font-size: 12px; margin: 4px 2px; max-width: 100px">
                                                                             <q-avatar>
                                                                                 <img :src="scope.opt.icon">
                                                                             </q-avatar>
+                                                                            <div class="ellipsis">
+                                                                                {{ scope.opt.label }}
+                                                                            </div>
+                                                                        </q-chip>
+                                                                    </template>
+                                                                </q-select>
+                                                            </q-item-section>
+                                                            <!-- Selección múltiple de recursos por resource_id -->
+                                                            <q-item-section
+                                                                v-if="action.name !== 'create' && actionConditions[`${route.route_id}_${action.action_id}`]?.name === 'resource'"
+                                                                side>
+                                                                <q-select dense filled
+                                                                    style="max-width: 400px; width: 400px;"
+                                                                    v-model="otherRolesAndUsersConditions[`${route.route_id}_${action.action_id}`]"
+                                                                    @update:model-value="(newValue) => selectConditionOther(route.route_id, action.action_id, actionConditions[`${route.route_id}_${action.action_id}`], newValue)"
+                                                                    multiple :options="resourcesSelect" use-chips
+                                                                    :disable="actionConditions[`${route.route_id}_${action.action_id}`]?.name !== 'resource' || !route_roles.includes(route.route_id) || !isActionSelected(route.route_id, action.action_id)"
+                                                                    stack-label label="Select resources">
+                                                                    <template v-slot:selected-item="scope">
+                                                                        <q-chip removable dense
+                                                                            @remove="scope.removeAtIndex(scope.index)"
+                                                                            :tabindex="scope.tabindex"
+                                                                            style="font-size: 12px; margin: 4px 2px; max-width: 100px"
+                                                                            icon="touch_app">
                                                                             <div class="ellipsis">
                                                                                 {{ scope.opt.label }}
                                                                             </div>
@@ -292,6 +318,7 @@
 import { ref, onMounted, computed } from 'vue';
 import SubTitleSettingsPanel from 'components/AccountUser/SubTitleSettingsPanel.vue';
 import { useRoleStore } from 'stores/role';
+import { useAuthStore } from 'stores/auth';
 import { useQuasar } from 'quasar';
 import { useI18n } from 'vue-i18n';
 import { useUserStore } from 'stores/user';
@@ -299,7 +326,7 @@ const userStore = useUserStore();
 const { t } = useI18n();
 const $q = useQuasar();
 const roleStore = useRoleStore();
-
+const authStore = useAuthStore();
 const props = defineProps({
     role: {
         type: Object,
@@ -349,6 +376,7 @@ const selectedRolesOrUsers = ref([]);
 const routes = ref([]);
 const actions = ref([]);
 const rolesOrUsersSelect = ref([]);
+const resourcesSelect = ref([]);
 // const conditions = ref([]);
 const isEdit = ref(false);
 const search = ref('');
@@ -367,6 +395,8 @@ const actionConditions = ref({});
 const otherRolesAndUsersConditions = ref({});
 const conditions = ref([{ name: "all", title: "All", description: "Allows the user to access all resources.", condition_id: "2" }]); // Almacena las condiciones
 const rolesAndUsers = ref([]);
+const allRoles = ref([]);
+const allUsers = ref([]);
 // Estado para almacenar el ítem expandido
 const expandedItem = ref(null);
 
@@ -506,7 +536,7 @@ const handleActionSelection = (routeId, action, val) => {
             value: "2"
         }
         actionConditions.value[`${routeId}_${action.action_id}`] = defaultConditionSelect;
-        console.log('actionConditions',actionConditions.value[`${routeId}_${action.action_id}`])
+        console.log('actionConditions', actionConditions.value[`${routeId}_${action.action_id}`])
         selectCondition(routeId, action, defaultCondition)
     }
 }
@@ -572,7 +602,7 @@ const toggleAction = (route_id, action) => {
 const selectCondition = (route_id, action, condition) => {
     // Find the route by route_id
     const route = selectedRoutes.value.find(route => route.route_id === route_id);
-
+    console.log('route', route)
     if (route && route.actions) {
         // Find the action in the route's actions by action_id
         const actionToUpdate = route.actions.find(a => a.action_id === action.action_id);
@@ -588,11 +618,48 @@ const selectCondition = (route_id, action, condition) => {
             actionToUpdate.condition = con;
         }
     }
+    //cargamos el select con los recursos
+    loadSelectResource(route.resource)
     // console.log('selectedRoutes', selectedRoutes.value)
     // console.log('selectedActions', selectedActions.value)
     // console.log('action_roles', action_roles.value)
     // console.log('actionConditions', actionConditions.value)
 };
+const loadSelectResource = async (resource) => {
+    console.log('loadSelectResource', resource)
+
+    if (resource === 'user') {
+        // Filtrar usuarios distintos a authStore.user.user_id
+        const filteredUsers = allUsers.value.filter(user => user.user_id !== authStore.user.user_id);
+        // Mapeo de usuarios para el select
+        const mappedUsers = filteredUsers.map(item => ({
+            icon: item.avatar,    // Avatar del usuario (si es necesario)
+            label: item.name,     // Lo que se muestra en el select
+            value: item.user_id,  // El valor que se selecciona (user_id)
+            type: 'user',
+            role_id: null,
+            user_id: item.user_id,
+            resource_id: item.user_id,
+        }));
+        resourcesSelect.value = mappedUsers
+    }// aqui se debben agregar manualmente todos los routes para cargar los recursos
+    else {
+        // Filtrar roles distintos a props.role.role_id
+        const filteredRoles = allRoles.value.filter(role => role.role_id !== props.role.role_id);
+        // Mapeo de roles para el select
+        const mappedRoles = filteredRoles.map(item => ({
+            label: item.title,    // Lo que se muestra en el select
+            value: item.role_id,  // El valor que se selecciona (role_id)
+            color: item.color,    // Color para customizar el select (si aplica)
+            icon: item.icon,
+            type: 'role',
+            role_id: item.role_id,
+            user_id: null,
+            resource_id: item.role_id,
+        }));
+        resourcesSelect.value = mappedRoles
+    }
+}
 // Función para dar acceso al contenido creado por otros usuarios y roles
 const selectConditionOther = (route_id, action_id, condition, userAndRoles) => {
     const route = selectedRoutes.value.find(route => route.route_id === route_id);
@@ -608,11 +675,11 @@ const selectConditionOther = (route_id, action_id, condition, userAndRoles) => {
 
                 if (routeIndex !== -1) {
                     // Si no existe el campo 'others', se crea
-                    if (!selectedRoutes.value[routeIndex].actions[actionIndex].condition.others) {
-                        selectedRoutes.value[routeIndex].actions[actionIndex].condition.others = [];
+                    if (!selectedRoutes.value[routeIndex].actions[actionIndex].condition.resourceAccess) {
+                        selectedRoutes.value[routeIndex].actions[actionIndex].condition.resourceAccess = [];
                     }
 
-                    const currentOthers = selectedRoutes.value[routeIndex].actions[actionIndex].condition.others;
+                    const currentOthers = selectedRoutes.value[routeIndex].actions[actionIndex].condition.resourceAccess;
 
                     // **Eliminar duplicados**: Primero limpiamos los duplicados en el nuevo arreglo
                     userAndRoles.forEach(item => {
@@ -627,14 +694,14 @@ const selectConditionOther = (route_id, action_id, condition, userAndRoles) => {
                                 user_id: item.user_id,
                                 role_id: item.role_id,
                                 resource_type: selectedRoutes.value[routeIndex].name,
-                                resource_id: null
+                                resource_id: item.resource_id? item.resource_id : null
                             };
                             currentOthers.push(other);
                         }
                     });
 
                     // **Remover elementos eliminados**: Comparar userAndRoles con currentOthers y quitar los que no están en userAndRoles
-                    selectedRoutes.value[routeIndex].actions[actionIndex].condition.others = currentOthers.filter(other =>
+                    selectedRoutes.value[routeIndex].actions[actionIndex].condition.resourceAccess = currentOthers.filter(other =>
                         userAndRoles.some(item => item.value === other.id && item.type === other.type)
                     );
                 }
@@ -652,38 +719,42 @@ const dialogStyle = computed(() => {
 // Función para cargar los roles y usuarios
 const fetchSelect = async () => {
     // Cargar roles y usuarios desde el store
-    const allRoles = await roleStore.getRoles();
-    const allUsers = await userStore.getUsers();
-    console.log('allRoles', allRoles);
-    console.log('allUsers', allUsers);
+    allRoles.value = await roleStore.getRoles();
+    allUsers.value = await userStore.getUsers();
+    // Filtrar roles distintos a props.role.role_id
+    const filteredRoles = allRoles.value.filter(role => role.role_id !== props.role.role_id);
+    // Filtrar usuarios distintos a authStore.user.user_id
+    const filteredUsers = allUsers.value.filter(user => user.user_id !== authStore.user.user_id);
     // Mapeo de roles para el select
-    const mappedRoles = allRoles.map(item => ({
+    const mappedRoles = filteredRoles.map(item => ({
         label: item.title,    // Lo que se muestra en el select
         value: item.role_id,  // El valor que se selecciona (role_id)
-        color: item.color,   // Color para customizar el select (si aplica)
+        color: item.color,    // Color para customizar el select (si aplica)
         icon: item.icon,
         type: 'role',
         role_id: item.role_id,
-        user_id: null
+        user_id: null,
+        resource_id: null,
     }));
-
     // Mapeo de usuarios para el select
-    const mappedUsers = allUsers.map(item => ({
-        icon: item.avatar,  // Avatar del usuario (si es necesario)
+    const mappedUsers = filteredUsers.map(item => ({
+        icon: item.avatar,    // Avatar del usuario (si es necesario)
         label: item.name,     // Lo que se muestra en el select
         value: item.user_id,  // El valor que se selecciona (user_id)
         type: 'user',
         role_id: null,
         user_id: item.user_id,
+        resource_id: null,
     }));
 
     // Combinar roles y usuarios en el mismo array
     rolesOrUsersSelect.value = mappedRoles.concat(mappedUsers);
 };
 
+
 // Cargar roles y preparar el formulario al montar
 onMounted(async () => {
-    await fetchRoles();
+    // await fetchRoles();
     roleConfig.value = await roleStore.getRoleConfigData();
     routes.value = roleConfig.value.routes;
     actions.value = roleConfig.value.actions;
@@ -697,7 +768,7 @@ onMounted(async () => {
         label: 'all',
         value: 2,
     }
-    fetchSelect()
+    await fetchSelect()
     if (role.value && role.value.role_id) {
         form.value = { ...role.value };
         isEdit.value = true;
@@ -734,11 +805,43 @@ const loadPermissionsForRole = async (dataRole) => {
             route.action.forEach(action => {
                 //se asigan las acciones a las rutas de la ui
                 action_roles.value = action_roles.value.concat(`${route.route_id}_${action.action_id}`);
+                let resourceAccess = [];
+                let resourceAccessModel = [];
+                action.condition.resourceAccess.forEach(resource => {
+                    resourceAccess.push({
+                        resource_id: resource.resource_id,
+                        resource_type: resource.resource_type,
+                        user_id: resource.user_id,
+                        role_id: resource.role_id,
+                        action_id: resource.action_id,
+                        condition_id: resource.condition_id,
+                    });
+                    // console.log('allUsers.value', allUsers.value)
+                    resourceAccessModel.push({
+                        resource_id: resource.resource_id,
+                        resource_type: resource.resource_type,
+                        user_id: resource.user_id,
+                        role_id: resource.role_id,
+                        action_id: resource.action_id,
+                        condition_id: resource.condition_id,
+                        label: resource.user_id
+                            ? allUsers.value.find(user => user.user_id === resource.user_id)?.name || 'User Not Found'
+                            : allRoles.value.find(role => role.role_id === resource.role_id)?.title || 'Role Not Found',  // Ajusta el nombre correcto
+                        value: resource.user_id ? resource.user_id : resource.role_id,
+                        icon: resource.user_id
+                            ? allUsers.value.find(user => user.user_id === resource.user_id)?.avatar || 'User Not Found'
+                            : allRoles.value.find(role => role.role_id === resource.role_id)?.title || 'Role Not Found',  // Ajusta el nombre correcto
+                        permission_id: resource.permission_id,
+                        color: resource.role_id ? allRoles.value.find(role => role.role_id === resource.role_id)?.color : null,
+                        type: resource.user_id ? 'user' : 'role',
+                    });
+                });
                 let condition = {
                     name: action.condition.name,
                     title: action.condition.title,
                     description: action.condition.description,
                     condition_id: action.condition.condition_id,
+                    resourceAccess: resourceAccess
                 };
                 const actionAdd = {
                     action_id: action.action_id,
@@ -748,6 +851,7 @@ const loadPermissionsForRole = async (dataRole) => {
                     title: action.title,
                     description: action.description
                 };
+                console.log('actionAdd', actionAdd)
                 //se asignan las condiciones a las acciones de la ui
                 actionConditions.value[`${route.route_id}_${action.action_id}`] = {
                     label: action.condition.title,    // Lo que se muestra en el select
@@ -755,6 +859,10 @@ const loadPermissionsForRole = async (dataRole) => {
                     name: action.condition.name,
                     condition_id: action.condition.condition_id,
                 }
+                // se asignan los accesos a recursos a las acciones de la ui
+                // otherRolesAndUsersConditions.value[`${route.route_id}_${action.action_id}`]  = resourceAccess;
+                otherRolesAndUsersConditions.value[`${route.route_id}_${action.action_id}`] = resourceAccessModel;
+                console.log('otherRolesAndUsersConditions', otherRolesAndUsersConditions.value)
                 // actionConditions.value = actionConditions.value.concat(`${route.route_id}_${action.action_id}`);
                 // If the route exists, update its actions
                 if (existingRouteIndex !== -1) {
@@ -787,16 +895,16 @@ const loadPermissionsForRole = async (dataRole) => {
     // Return the array with the assigned routes and actions
     return assignedRoutes;
 };
-// Función para obtener todos los roles
-const fetchRoles = async () => {
-    try {
-        const response = await roleStore.getAllRoles(search.value, pagination.value.page, pagination.value.rowsPerPage);
-        // Maneja la respuesta según tus necesidades, por ejemplo, actualiza una lista de roles
-        // console.log(response);
-    } catch (error) {
-        console.error('Error fetching roles:', error);
-    }
-};
+// // Función para obtener todos los roles
+// const fetchRoles = async () => {
+//     try {
+//         const response = await roleStore.getAllRoles(search.value, pagination.value.page, pagination.value.rowsPerPage);
+//         // Maneja la respuesta según tus necesidades, por ejemplo, actualiza una lista de roles
+//         // console.log(response);
+//     } catch (error) {
+//         console.error('Error fetching roles:', error);
+//     }
+// };
 
 // Cerrar y resetear el formulario
 const close = () => {

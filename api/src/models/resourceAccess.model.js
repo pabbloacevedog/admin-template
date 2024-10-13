@@ -32,7 +32,7 @@ const initializeResourceAccess = (sequelize) => {
             allowNull: false,  // Tipo de recurso (ej: 'service', 'document')
         },
         resource_id: {
-            type: DataTypes.INTEGER,
+            type: DataTypes.STRING,
             allowNull: true  // ID específico del recurso
         },
         permission_id: {

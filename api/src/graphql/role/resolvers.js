@@ -60,13 +60,13 @@ export const roleResolver = {
                             }, { transaction });
 
                             // Si la condición es 'others', insertar en ResourceAccess
-                            if (condition && condition.name === 'others') {
-                                const others = condition.others;
-                                for (const other of others) {
+                            if (condition && condition.name === 'others' || condition && condition.name === 'resource') {
+                                const resourceAccess = condition.resourceAccess;
+                                for (const other of resourceAccess) {
                                     await models.ResourceAccess.create({
                                         role_id: other.role_id || null,
                                         user_id: other.user_id || null,
-                                        route_id: other.route_id,
+                                        route_id: route_id,
                                         action_id: other.action_id,
                                         condition_id: other.condition_id || null,
                                         resource_type: other.resource_type,
@@ -75,6 +75,22 @@ export const roleResolver = {
                                     }, { transaction });
                                 }
                             }
+                            // // Su la condición es 'resource' y se agrega el recurso al acceso
+                            // if (condition && condition.name === 'resource') {
+                            //     const resources = condition.resources;
+                            //     for (const resource of resources) {
+                            //         await models.ResourceAccess.create({
+                            //             role_id: resource.role_id || null,
+                            //             user_id: resource.user_id || null,
+                            //             route_id: resource.route_id,
+                            //             action_id: resource.action_id,
+                            //             condition_id: resource.condition_id || null,
+                            //             resource_type: resource.resource_type,
+                            //             resource_id: resource.resource_id,
+                            //             permission_id: createdPermission.permission_id
+                            //         }, { transaction });
+                            //     }
+                            // }
                         }
                     }
                 }
@@ -89,92 +105,6 @@ export const roleResolver = {
                 throw error;
             }
         },
-
-        // Actualizar un rol existente
-        // updateRole: async (_, { roleId, input }, { user }) => {
-        //     // Verificar que el usuario tenga la acción de editar roles
-        //     await validatePermission(user.user_id, 'update', 'roles', roleId);
-
-        //     const { name, title, description, color, permission } = input;
-
-        //     const transaction = await models.sequelize.transaction();
-        //     try {
-        //         // Actualizar el rol
-        //         const role = await models.Role.findByPk(roleId);
-        //         if (!role) throwCustomError(ErrorTypes.ROLE_NOT_FOUND);
-
-        //         await role.update({
-        //             name,
-        //             title,
-        //             description,
-        //             color
-        //         }, { transaction });
-
-        //         // Actualizar los permisos asociados
-        //         if (permission && permission.length > 0) {
-        //             // Obtener todas las rutas que no son obligatorias
-        //             const nonObligatoryRoutes = await models.Route.findAll({
-        //                 attributes: ['route_id'],
-        //                 where: { obligatory: 0 },
-        //                 transaction
-        //             });
-
-        //             // Eliminar permisos solo de las rutas que no son obligatorias
-        //             await models.Permission.destroy({
-        //                 where: {
-        //                     role_id: roleId,
-        //                     route_id: nonObligatoryRoutes.map(route => route.route_id)
-        //                 },
-        //                 transaction
-        //             });
-
-        //             // Eliminar los permisos actuales
-        //             // await models.Permission.destroy({ where: { role_id: roleId }, transaction });
-
-        //             // Crear los nuevos permisos
-        //             for (const perm of permission) {
-        //                 const { route_id, actions } = perm;  // Aquí asumimos que cada permiso tiene una ruta y un array de acciones
-
-        //                 // Para cada acción dentro de la ruta
-        //                 for (const action of actions) {
-        //                     const { action_id, condition } = action;
-
-        //                     // Crear nuevo permiso por cada acción
-        //                     const permission = await models.Permission.create({
-        //                         role_id: roleId,
-        //                         route_id: route_id,
-        //                         action_id: action_id,  // Acción específica
-        //                         condition_id: condition ? condition.condition_id : null // Verifica si hay una condición
-        //                     }, { transaction });
-
-        //                     //Si la condicion es 'others', se inserta en la tabla ResourceAccess
-        //                     if (condition && condition.name === 'others') {
-        //                         const others = condition.others;
-        //                         for (const other of others) {
-        //                             await models.ResourceAccess.create({
-        //                                 role_id: other.role_id || null,
-        //                                 user_id: other.user_id || null,
-        //                                 route_id: other.route_id,
-        //                                 action_id: other.action_id,  // Acción específica
-        //                                 condition_id: other.condition_id || null,
-        //                                 resource_type: other.resource_type,  // Tipo de recurso (ej: 'service', 'document')
-        //                                 resource_id: other.resource_id,  // ID del recurso específico
-        //                                 permission_id: permission.permission_id
-        //                             }, { transaction });
-        //                         }
-        //                     }
-        //                 }
-        //             }
-        //         }
-
-        //         await transaction.commit();
-        //         const successMessage = getSuccessMessage('ROLE_UPDATED');
-        //         return { role, message: successMessage };
-        //     } catch (error) {
-        //         await transaction.rollback();
-        //         throw error;
-        //     }
-        // },
         // Actualizar un rol existente
         updateRole: async (_, { roleId, input }, { user }) => {
             // Verificar que el usuario tenga la acción de editar roles
@@ -248,21 +178,37 @@ export const roleResolver = {
                             }, { transaction });
 
                             // Si la condición es 'others', se inserta en la tabla ResourceAccess
-                            if (condition && condition.name === 'others') {
-                                const others = condition.others;
-                                for (const other of others) {
+                            if (condition && condition.name === 'others' || condition && condition.name === 'resource') {
+                                const resourceAccess = condition.resourceAccess;
+                                for (const other of resourceAccess) {
                                     await models.ResourceAccess.create({
                                         role_id: other.role_id || null,
                                         user_id: other.user_id || null,
-                                        route_id: other.route_id,
+                                        route_id: route_id,
                                         action_id: other.action_id,
                                         condition_id: other.condition_id || null,
                                         resource_type: other.resource_type,
-                                        resource_id: other.resource_id,
+                                        resource_id: other.resource_id || null,
                                         permission_id: permission.permission_id
                                     }, { transaction });
                                 }
                             }
+                            // // Su la condición es 'resource' y se agrega el recurso al acceso
+                            // if (condition && condition.name === 'resource') {
+                            //     const resources = condition.resources;
+                            //     for (const resource of resources) {
+                            //         await models.ResourceAccess.create({
+                            //             role_id: resource.role_id || null,
+                            //             user_id: resource.user_id || null,
+                            //             route_id: resource.route_id,
+                            //             action_id: resource.action_id,
+                            //             condition_id: resource.condition_id || null,
+                            //             resource_type: resource.resource_type,
+                            //             resource_id: resource.resource_id,
+                            //             permission_id: permission.permission_id
+                            //         }, { transaction });
+                            //     }
+                            // }
                         }
                     }
                 }
@@ -276,39 +222,6 @@ export const roleResolver = {
             }
         },
 
-
-        // Eliminar un rol
-        // deleteRole: async (_, { roleId }, { user }) => {
-        //     //validamos permisos antes de ejecutar la accion
-        //     await validatePermission(user.user_id, 'delete', 'roles', roleId);
-        //     // Buscar el rol
-        //     const role = await models.Role.findByPk(roleId);
-        //     if (!role) throwCustomError(ErrorTypes.ROLE_NOT_FOUND);
-
-        //     // Iniciar transacción
-        //     const transaction = await models.sequelize.transaction();
-        //     try {
-        //         // Eliminar los permisos relacionados con el rol
-        //         await models.Permission.destroy({
-        //             where: { role_id: roleId },
-        //             transaction
-        //         });
-
-        //         // Eliminar el rol
-        //         await role.destroy({ transaction });
-
-        //         // Confirmar la transacción
-        //         await transaction.commit();
-
-        //         // Retornar mensaje de éxito
-        //         const successMessage = getSuccessMessage('ROLE_DELETED');
-        //         return { message: successMessage };
-        //     } catch (error) {
-        //         // Si ocurre un error, hacer rollback de la transacción
-        //         await transaction.rollback();
-        //         throw error;
-        //     }
-        // },
         // Eliminar un rol
         deleteRole: async (_, { roleId }, { user }) => {
             // Validamos permisos antes de ejecutar la acción
@@ -371,9 +284,8 @@ export const roleResolver = {
             const roles = await models.Role.findAll();
             return roles;
         },
-
         getRoleById: async (_, { roleId }) => {
-            // Buscar el rol por ID con permisos, rutas, acciones y condiciones
+            // Buscar el rol por ID con permisos, rutas, acciones, condiciones y accesos a recursos
             const role = await models.Role.findOne({
                 where: { role_id: roleId },
                 include: [{
@@ -384,12 +296,15 @@ export const roleResolver = {
                             where: { public: 0, obligatory: 0 } // Filtro para las rutas
                         },
                         { model: models.Action },   // Incluir acciones asociadas
-                        { model: models.Condition } // Incluir condiciones asociadas
+                        { model: models.Condition }, // Incluir condiciones asociadas
+                        { // Incluir ResourceAccess solo si la condición es 'others' o 'resource'
+                            model: models.ResourceAccess,
+                            required: false // Para evitar filtrar los permisos sin ResourceAccess
+                        }
                     ]
                 }]
             });
-
-
+            // console.log('role', role.Permissions);
             if (!role) {
                 throw new Error("Role not found");
             }
@@ -398,7 +313,7 @@ export const roleResolver = {
             const permissionsMap = {};
 
             role.Permissions.forEach(permission => {
-                const { Route, Action, Condition } = permission;
+                const { Route, Action, Condition, ResourceAccesses } = permission;
 
                 // Crear o recuperar el permiso en el mapa
                 if (!permissionsMap[permission.permission_id]) {
@@ -428,16 +343,25 @@ export const roleResolver = {
                 if (existingAction) {
                     // Si la acción ya existe, añadir la condición
                     if (Condition) {
-                        // console.log('Condition: ', Condition);
                         existingAction.condition = {
                             condition_id: Condition.condition_id,
                             name: Condition.name,
                             title: Condition.title,
-                            description: Condition.description,
+                            description: Condition.description
                         };
+                        // Incluir ResourceAccess dentro de la condición si está presente
+                        if (ResourceAccesses && ResourceAccesses.length > 0) {
+                            existingAction.condition.resourceAccess = ResourceAccesses.map(resourceAccess => ({
+                                resource_id: resourceAccess.resource_id,
+                                resource_type: resourceAccess.resource_type,
+                                user_id: resourceAccess.user_id,
+                                role_id: resourceAccess.role_id,
+                                action_id: resourceAccess.action_id,
+                                condition_id: resourceAccess.condition_id
+                            }));
+                        }
                     }
                 } else {
-                    // console.log('Condition: ', Condition);
                     // Si la acción no existe, crear una nueva entrada para la acción
                     const newAction = {
                         action_id: Action.action_id,
@@ -449,9 +373,19 @@ export const roleResolver = {
                             condition_id: Condition.condition_id,
                             name: Condition.name,
                             title: Condition.title,
-                            description: Condition.description
+                            description: Condition.description,
+                            // Incluir ResourceAccess dentro de la condición si está presente
+                            resourceAccess: ResourceAccesses && ResourceAccesses.length > 0 ? ResourceAccesses.map(resourceAccess => ({
+                                resource_id: resourceAccess.resource_id,
+                                resource_type: resourceAccess.resource_type,
+                                user_id: resourceAccess.user_id,
+                                role_id: resourceAccess.role_id,
+                                action_id: resourceAccess.action_id,
+                                condition_id: resourceAccess.condition_id
+                            })) : []
                         } : {}
                     };
+
                     permissionsMap[permission.permission_id].route[Route.route_id].action.push(newAction);
                 }
             });
@@ -463,8 +397,6 @@ export const roleResolver = {
                     route: Object.values(permission.route) // Convertir las rutas a un array
                 };
             });
-
-            // console.log('permissionsArray: ', permissionsArray);
 
             // Estructura de respuesta
             const response = {
@@ -478,58 +410,170 @@ export const roleResolver = {
 
             return response;
         },
-        // Obtener roles con paginación, filtro, total de usuarios y sus avatares
-        getAllRoles: async (_, { filter, pagination }) => {
+        getAllRoles: async (_, { filter, pagination }, { user }) => {
             try {
-                const roles = await models.Role.findAll({
-                    where: {
+                console.log('user logueado', user)
+                const loggedInUserId = user.user_id; // Obtén el ID del usuario logueado
+                const loggedInUserRole = user.role_id; // Obtén el role del usuario logueado
+
+                // Busca el rol del usuario para verificar qué permisos tiene
+                const userRole = await models.Role.findOne({
+                    where: { role_id: loggedInUserRole },
+                    include: [{
+                        model: models.Permission,
+                        include: [
+                            { model: models.Action },
+                            { model: models.Condition }
+                        ]
+                    }]
+                });
+
+                if (!userRole) {
+                    throw new Error('No se encontró el rol del usuario logueado.');
+                }
+
+                // Filtra los permisos para obtener las acciones que puede realizar
+                const viewPermission = userRole.Permissions.find(permission => permission.Action.name === 'view');
+                const resourceAccessPermission = await models.ResourceAccess.findAll({
+                    where: { permission_id: viewPermission.permission_id },
+                });
+                console.log('resourceAccessPermission', resourceAccessPermission)
+                if (!viewPermission) {
+                    throw new Error('No tienes permiso para ver roles.');
+                }
+
+                // Define el filtro según la condición del permiso
+                let whereClause = {};
+                if (viewPermission.Condition.name === 'all') {
+                    whereClause = {
                         name: {
                             [Op.like]: `%${filter.search}%`
                         }
-                    },
+                    };
+                } else if (viewPermission.Condition.name === 'owner_only') {
+                    whereClause = {
+                        owner_id: loggedInUserId, // Solo roles creados por el usuario logueado
+                        name: {
+                            [Op.like]: `%${filter.search}%`
+                        }
+                    };
+                } else if (viewPermission.Condition.name === 'others') {
+                    const resourceAccessPermission = models.resourceAccess.findAll({
+                        where: { permission_id: viewPermission.permission_id },
+                    });
+                    console.log('resourceAccessPermission', resourceAccessPermission)
+                    whereClause = {
+                        role_id: {
+                            [Op.ne]: loggedInUserRole // Excluir roles del mismo usuario logueado
+                        },
+                        name: {
+                            [Op.like]: `%${filter.search}%`
+                        }
+                    };
+                } else if (viewPermission.Condition.name === 'resource') {
+                    const resourceAccessPermission = models.resourceAccess.findAll({
+                        where: { permission_id: viewPermission.permission_id },
+                    });
+                    console.log('resourceAccessPermission', resourceAccessPermission)
+                    // Implementa lógica para mostrar solo los roles con acceso a ciertos recursos
+                    whereClause = {
+                        resource_access: { [Op.eq]: true }, // Cambia esto según tu estructura
+                        name: {
+                            [Op.like]: `%${filter.search}%`
+                        }
+                    };
+                }
+
+                // Obtiene los roles con paginación
+                const roles = await models.Role.findAll({
+                    where: whereClause,
                     limit: pagination.rowsPerPage,
                     offset: (pagination.page - 1) * pagination.rowsPerPage,
-                    include: [
-                        {
-                            model: models.User, // Asegúrate de que la asociación entre Role y User esté definida
-                            attributes: ['avatar'], // Solo obtener el avatar de cada usuario
-                        }
-                    ],
+                    include: [{
+                        model: models.User,
+                        attributes: ['avatar'],
+                    }]
                 });
 
                 // Contar cuántos usuarios tienen cada role_id
                 const rolesWithUserCount = await Promise.all(roles.map(async (role) => {
                     const userCount = await models.User.count({
-                        where: {
-                            role_id: role.role_id
-                        }
+                        where: { role_id: role.role_id }
                     });
 
-                    // Incluir el total de usuarios y avatares dentro del objeto role
                     return {
-                        ...role.toJSON(), // Convertimos el role a JSON para manipularlo
+                        ...role.toJSON(),
                         totalUsers: userCount,
-                        avatars: role.Users.map(user => user.avatar) // Lista de avatares
+                        avatars: role.Users.map(user => user.avatar)
                     };
                 }));
 
                 // Obtener el total de roles (para la paginación)
                 const totalRoles = await models.Role.count({
-                    where: {
-                        name: {
-                            [Op.like]: `%${filter.search}%`
-                        }
-                    }
+                    where: whereClause
                 });
 
                 return {
-                    roles: rolesWithUserCount, // Ahora los roles incluyen el conteo de usuarios y sus avatares
+                    roles: rolesWithUserCount,
                     totalRoles
                 };
             } catch (error) {
                 throw new Error('Error al obtener los roles: ' + error.message);
             }
         },
+
+        // // Obtener roles con paginación, filtro, total de usuarios y sus avatares
+        // getAllRoles: async (_, { filter, pagination }) => {
+        //     try {
+        //         const roles = await models.Role.findAll({
+        //             where: {
+        //                 name: {
+        //                     [Op.like]: `%${filter.search}%`
+        //                 }
+        //             },
+        //             limit: pagination.rowsPerPage,
+        //             offset: (pagination.page - 1) * pagination.rowsPerPage,
+        //             include: [
+        //                 {
+        //                     model: models.User, // Asegúrate de que la asociación entre Role y User esté definida
+        //                     attributes: ['avatar'], // Solo obtener el avatar de cada usuario
+        //                 }
+        //             ],
+        //         });
+
+        //         // Contar cuántos usuarios tienen cada role_id
+        //         const rolesWithUserCount = await Promise.all(roles.map(async (role) => {
+        //             const userCount = await models.User.count({
+        //                 where: {
+        //                     role_id: role.role_id
+        //                 }
+        //             });
+
+        //             // Incluir el total de usuarios y avatares dentro del objeto role
+        //             return {
+        //                 ...role.toJSON(), // Convertimos el role a JSON para manipularlo
+        //                 totalUsers: userCount,
+        //                 avatars: role.Users.map(user => user.avatar) // Lista de avatares
+        //             };
+        //         }));
+
+        //         // Obtener el total de roles (para la paginación)
+        //         const totalRoles = await models.Role.count({
+        //             where: {
+        //                 name: {
+        //                     [Op.like]: `%${filter.search}%`
+        //                 }
+        //             }
+        //         });
+
+        //         return {
+        //             roles: rolesWithUserCount, // Ahora los roles incluyen el conteo de usuarios y sus avatares
+        //             totalRoles
+        //         };
+        //     } catch (error) {
+        //         throw new Error('Error al obtener los roles: ' + error.message);
+        //     }
+        // },
 
 
 

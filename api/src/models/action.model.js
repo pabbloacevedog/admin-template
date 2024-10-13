@@ -3,6 +3,7 @@ import { Model, DataTypes } from 'sequelize';
 class Action extends Model {
     static associate(models) {
         // this.belongsToMany(models.Role, { through: models.RoleAction, foreignKey: 'action_id' });
+        this.hasMany(models.Permission, { foreignKey: 'role_id' });
     }
 }
 

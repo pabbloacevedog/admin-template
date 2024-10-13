@@ -33,7 +33,8 @@
 
                                     <q-item-section class="q-pa-none" side v-if="!$q.platform.is.mobile">
                                         <q-btn :label="$t('roles.btn_create')" icon="attribution" color="primary"
-                                            class="btn-border-radius" @click="showCreateRoleModal" v-if="canCreateRef" />
+                                            class="btn-border-radius" @click="showCreateRoleModal"
+                                            v-if="canCreateRef" />
                                     </q-item-section>
                                 </q-item>
                             </template>
@@ -48,7 +49,9 @@
                                             <q-item clickable v-ripple style="padding: 2px 2px;">
                                                 <q-item-section class="text-h5">{{ props.row.title }}</q-item-section>
                                                 <q-item-section avatar class="text-h7">
-                                                    <q-avatar  text-color="white" style="border: 1px solid #fff !important;font-size: 32px;">{{ props.row.role_id }}</q-avatar>
+                                                    <q-avatar text-color="white"
+                                                        style="border: 1px solid #fff !important;font-size: 32px;">{{
+                                                        props.row.role_id }}</q-avatar>
                                                 </q-item-section>
                                             </q-item>
                                         </q-card-section>
@@ -56,22 +59,21 @@
                                             <q-item class="q-my-none q-mx-none"
                                                 style="padding: 2px 2px; min-height: 6vh;">
                                                 <q-item-section>
-                                                    <q-item-label style="font-size: 15px; color: #d7d7d7 !important;" >
-                                                        {{props.row.description }}
+                                                    <q-item-label style="font-size: 15px; color: #d7d7d7 !important;">
+                                                        {{ props.row.description }}
                                                     </q-item-label>
                                                 </q-item-section>
                                             </q-item>
                                             <!-- Aquí agregamos los avatares de los usuarios -->
-                                            <q-item class="q-my-sm"
-                                                style="padding: 2px 2px;">
+                                            <q-item class="q-my-sm" style="padding: 2px 2px;">
                                                 <q-item-section>
                                                     <q-item-label class="text-h7">
                                                         <div class="flex justify-start" v-if="props.row.totalUsers">
-                                                            <div  v-if="props.row.totalUsers > 1" class="text-h7">
-                                                                +{{props.row.totalUsers}} role users
+                                                            <div v-if="props.row.totalUsers > 1" class="text-h7">
+                                                                +{{ props.row.totalUsers }} role users
                                                             </div>
-                                                            <div  v-else  class="text-h7">
-                                                                +{{props.row.totalUsers}} role user
+                                                            <div v-else class="text-h7">
+                                                                +{{ props.row.totalUsers }} role user
                                                             </div>
                                                         </div>
                                                         <div class="flex justify-start text-h7" v-else>
@@ -93,8 +95,7 @@
                                                 <RoleActionsTable :resource="props.row" :edit="editRole"
                                                     :showDeleteModal="showDeleteRoleModal"
                                                     :showViewModal="showViewRoleModal"
-                                                    :color="getColorClass(props.row)"
-                                                    />
+                                                    :color="getColorClass(props.row)" />
                                             </q-item>
                                         </q-list>
                                     </q-card>
@@ -180,30 +181,48 @@ const availableActions = computed(() => {
 // Función para buscar usuarios, incluyendo filtros y paginación
 const fetchRoles = async () => {
 
-    const viewAction = availableActions.value.find(permission => permission.name === 'view');
+    // const viewAction = availableActions.value.find(permission => permission.name === 'view');
     // console.log(viewAction, 'viewAction')
     // Almacena la respuesta de los usuarios
     let response;
-
-    // Verifica la condición del permiso
-    if (viewAction && viewAction.condition.name === 'all') {
-        // Si la condición es 'all', traer todos los usuarios
-        response = await roleStore.getAllRoles(
-            search.value,
-            pagination.value.page,
-            pagination.value.rowsPerPage
-        );
-    } else if (viewAction && viewAction.condition.name === 'owner_only') {
-        // Si la condición es 'owner_only', traer solo los usuarios que ha creado el usuario actual
-        response = await roleStore.getRolesByOwner(
-            search.value,
-            pagination.value.page,
-            pagination.value.rowsPerPage
-        );
-    } else {
-        console.log("No tiene permisos para ver usuarios.");
-        return; // Salir si no hay permisos
-    }
+    response = await roleStore.getAllRoles(
+        search.value,
+        pagination.value.page,
+        pagination.value.rowsPerPage
+    );
+    // // Verifica la condición del permiso
+    // if (viewAction && viewAction.condition.name === 'all') {
+    //     // Si la condición es 'all', traer todos los usuarios
+    //     response = await roleStore.getAllRoles(
+    //         search.value,
+    //         pagination.value.page,
+    //         pagination.value.rowsPerPage
+    //     );
+    // } else if (viewAction && viewAction.condition.name === 'owner_only') {
+    //     // Si la condición es 'owner_only', traer solo los usuarios que ha creado el usuario actual
+    //     response = await roleStore.getRolesByOwner(
+    //         search.value,
+    //         pagination.value.page,
+    //         pagination.value.rowsPerPage
+    //     );
+    // } else if (viewAction && viewAction.condition.name === 'others') {
+    //     // Si la condición es 'others', traer solo los usuarios que ha creado el role o usuario al cual se le ha asignado el permiso
+    //     response = await roleStore.getRolesByOthers(
+    //         search.value,
+    //         pagination.value.page,
+    //         pagination.value.rowsPerPage
+    //     );
+    // } else if (viewAction && viewAction.condition.name === 'resource') {
+    //     // Si la condición es 'resource', traer solo los recursos que se le han asignado los permisos
+    //     response = await roleStore.getRolesResource(
+    //         search.value,
+    //         pagination.value.page,
+    //         pagination.value.rowsPerPage
+    //     );
+    // }else {
+    //     console.log("No tiene permisos para ver usuarios.");
+    //     return; // Salir si no hay permisos
+    // }
 
     // Almacena los usuarios y el total de usuarios en el estado
     roles.value = response.roles;

@@ -1,5 +1,19 @@
 import { GraphQLObjectType, GraphQLString, GraphQLList, GraphQLInputObjectType } from 'graphql';
 
+// ResourceAccessType
+const ResourceAccessType = new GraphQLObjectType({
+    name: 'ResourceAccess',
+    fields: () => ({
+        resource_id: { type: GraphQLString },
+        resource_type: { type: GraphQLString },
+        user_id: { type: GraphQLString },
+        role_id: { type: GraphQLString },
+        action_id: { type: GraphQLString },
+        condition_id: { type: GraphQLString },
+        permission_id: { type: GraphQLString },
+    })
+});
+
 // ConditionType
 const ConditionType = new GraphQLObjectType({
     name: 'Condition',
@@ -8,10 +22,13 @@ const ConditionType = new GraphQLObjectType({
         name: { type: GraphQLString },
         title: { type: GraphQLString },
         description: { type: GraphQLString },
+        resourceAccess: {
+            type: new GraphQLList(ResourceAccessType),
+        }
     })
 });
-const OtherInputType = new GraphQLInputObjectType({
-    name: 'OtherInputType',
+const ResourceAccessInputType = new GraphQLInputObjectType({
+    name: 'ResourceAccessInputType',
     fields: {
         role_id: { type: GraphQLString },
         route_id: { type: GraphQLString },
@@ -35,7 +52,7 @@ const ConditionInputType = new GraphQLInputObjectType({
         title: { type: GraphQLString },
         description: { type: GraphQLString },
         //agregar others como array
-        others: { type: new GraphQLList(OtherInputType) } // Definir 'others' como lista de objetos OtherInputType
+        resourceAccess: { type: new GraphQLList(ResourceAccessInputType) } // Definir 'others' como lista de objetos OtherInputType
     }
 });
 // ActionType
@@ -63,21 +80,6 @@ const ActionInputType = new GraphQLInputObjectType({
         condition: { type: ConditionInputType }  // Relación con Condition
     }
 });
-// Input para crear un los permisos del role
-// const RouteInputType = new GraphQLInputObjectType({
-//     name: 'RouteInputType',
-//     fields: {
-//         route_id: { type: GraphQLString },
-//         name: { type: GraphQLString },
-//         title: { type: GraphQLString },
-//         description: { type: GraphQLString },
-//         path: { type: GraphQLString },
-//         icon: { type: GraphQLString },
-//         module_id: { type: GraphQLString },
-//         actions: { type: new GraphQLList(ActionInputType) }  // Relación con Action
-//     }
-// });
-
 
 // RouteType
 const RouteType = new GraphQLObjectType({
@@ -90,7 +92,8 @@ const RouteType = new GraphQLObjectType({
         path: { type: GraphQLString },
         icon: { type: GraphQLString },
         module_id: { type: GraphQLString },
-        action: { type: new GraphQLList(ActionType) }  // Relación con Action
+        action: { type: new GraphQLList(ActionType) },  // Relación con Action
+        resource: { type: GraphQLString },
     })
 });
 

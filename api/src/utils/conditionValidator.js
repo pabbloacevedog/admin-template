@@ -36,35 +36,34 @@ const validateRule = async (userIdEditor, name, resource, resourceId) => {
             return true;
 
         case 'others':
-            const hasAccess = await hasUserOrRoleAccess(userIdEditor, resource, resourceId);
+            const hasAccess = await hasResourceAccess(userIdEditor, resource, resourceId);
             return hasAccess;
 
+        case 'resource':
+            const hasAccessResource = await hasResourceAccess(userIdEditor, resource, resourceId);
+            return hasAccessResource;
         default:
             throwCustomError(ErrorTypes.UNAUTHORIZED_ACTION);
     }
 };
-
-// Verifica si el usuario o rol tiene acceso al recurso
-async function hasUserOrRoleAccess(userIdEditor, resource, resourceId) {
+// Verifica si el role tiene acceso al recurso
+async function hasResourceAccess(userIdEditor, resource, resourceId) {
     // Primero, verifica si el usuario es el propietario del recurso
     const isOwner = await isUserOwner(userIdEditor, resource, resourceId);
     if (isOwner) return true;
-
     // Luego, verifica si el usuario o su rol tiene acceso adicional al recurso
-    const userRoles = await models.UserRole.findAll({
+    const roleId = await models.User.findOne({
         where: { user_id: userIdEditor },
         attributes: ['role_id']
     });
-
     const roleIds = userRoles.map(role => role.role_id);
-
     // Consulta para verificar si el usuario o su rol tienen acceso al recurso
     const result = await models.sequelize.query(
         `
         SELECT * FROM resource_access
         WHERE resource_id = :resourceId
         AND resource_type = :resource
-        AND (user_id = :userIdEditor OR role_id IN (:roleIds))
+        AND (user_id = :userIdEditor OR role_id = :roleId))
         LIMIT 1
         `,
         {
@@ -72,14 +71,49 @@ async function hasUserOrRoleAccess(userIdEditor, resource, resourceId) {
                 resourceId: resourceId,
                 resource: resource,
                 userIdEditor: userIdEditor,
-                roleIds: roleIds.length ? roleIds : [null] // Asegura que la consulta funcione incluso si no hay roles
+                roleId: roleId
             },
             type: QueryTypes.SELECT
         }
     );
-
     return result.length > 0; // Devuelve true si se encontró acceso adicional
 }
+// Verifica si el usuario o rol tiene acceso al recurso
+// async function hasUserOrRoleAccess(userIdEditor, resource, resourceId) {
+//     // Primero, verifica si el usuario es el propietario del recurso
+//     const isOwner = await isUserOwner(userIdEditor, resource, resourceId);
+//     if (isOwner) return true;
+
+//     // Luego, verifica si el usuario o su rol tiene acceso adicional al recurso
+//     const userRoles = await models.UserRole.findAll({
+//         where: { user_id: userIdEditor },
+//         attributes: ['role_id']
+//     });
+
+//     const roleIds = userRoles.map(role => role.role_id);
+
+//     // Consulta para verificar si el usuario o su rol tienen acceso al recurso
+//     const result = await models.sequelize.query(
+//         `
+//         SELECT * FROM resource_access
+//         WHERE resource_id = :resourceId
+//         AND resource_type = :resource
+//         AND (user_id = :userIdEditor OR role_id IN (:roleIds))
+//         LIMIT 1
+//         `,
+//         {
+//             replacements: {
+//                 resourceId: resourceId,
+//                 resource: resource,
+//                 userIdEditor: userIdEditor,
+//                 roleIds: roleIds.length ? roleIds : [null] // Asegura que la consulta funcione incluso si no hay roles
+//             },
+//             type: QueryTypes.SELECT
+//         }
+//     );
+
+//     return result.length > 0; // Devuelve true si se encontró acceso adicional
+// }
 
 
 // Verifica si el usuario es el propietario del recurso

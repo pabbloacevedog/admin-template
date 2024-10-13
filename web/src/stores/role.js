@@ -102,6 +102,7 @@ export const useRoleStore = defineStore("role", {
                             path
                             icon
                             module_id
+                            resource
                         }
                         actions {
                             action_id
@@ -126,7 +127,7 @@ export const useRoleStore = defineStore("role", {
                     fetchPolicy: 'network-only',
                 });
                 console.log('response', response);
-                const  resp = response.data.getRoleConfiguration;
+                const resp = response.data.getRoleConfiguration;
                 return resp;
             } catch (error) {
                 this.error = error.message;
@@ -190,6 +191,14 @@ export const useRoleStore = defineStore("role", {
                                         name
                                         title
                                         description
+                                        resourceAccess{
+                                            resource_id
+                                            resource_type
+                                            user_id
+                                            role_id
+                                            action_id
+                                            condition_id
+                                        }
                                     }
                                 }
                             }

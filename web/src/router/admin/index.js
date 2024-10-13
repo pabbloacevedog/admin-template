@@ -5,7 +5,7 @@ export default [
         meta: { requiresAuth: true, onlyWithoutAuth: false },
         children: [
             {
-                path: "account",
+                path: "",
                 name: "dashboard",
                 component: async () => await import("src/pages/admin/Dashboard.vue"),
             },

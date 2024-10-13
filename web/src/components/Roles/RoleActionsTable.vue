@@ -45,8 +45,6 @@ const fetchPermissions = async () => {
 };
 // Llamar a la función para obtener los permisos al montar el componente
 onMounted(fetchPermissions);
-console.log('canDelete', canDeleteRef)
-console.log('canUpdate', canUpdateRef)
 </script>
 <script>
 export default {

@@ -4,6 +4,7 @@ class Route extends Model {
     static associate(models) {
         // this.belongsToMany(models.Role, { through: models.RoleRoute, foreignKey: 'route_id' });
         this.belongsTo(models.Module, { foreignKey: 'module_id' });
+        this.hasMany(models.Permission, { foreignKey: 'role_id' });
     }
 }
 

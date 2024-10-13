@@ -147,6 +147,12 @@ export async function initializeModule(models) {
             name: 'others',
             title: 'User or Role',
             description: 'In addition to accessing its own data, the role can access the data of other users and other roles.'
+        },
+        {
+            condition_id: 4,
+            name: 'resource',
+            title: 'Resource',
+            description: 'In addition to accessing its own data, the role can access the data of an specific resource.'
         }
     ];
 

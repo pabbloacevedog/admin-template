@@ -322,7 +322,7 @@ export const authResolver = {
 
             // Excluir la contraseña del objeto user antes de devolverlo
             const { password, ...userWithoutPassword } = user.toJSON(); // Convertir a JSON y excluir la password
-            console.log('userWithoutPassword', userWithoutPassword);
+            // console.log('userWithoutPassword', userWithoutPassword);
             // Generar y firmar el token JWT_SECRET unica
             const token = jwt.sign(userWithoutPassword, JWT_SECRET, { expiresIn: JWT_EXPIRES });
 
@@ -358,7 +358,7 @@ export const authResolver = {
             });
             // Si no se encuentra el usuario, llamar a logout
             if (!userSettings) {
-                console.log('No se encuentra el usuario', res)
+                // console.log('No se encuentra el usuario', res)
                 res.clearCookie('token', {
                     httpOnly: true,
                     secure: process.env.NODE_ENV === 'production',
@@ -394,7 +394,7 @@ export const authResolver = {
             if (!permissions || permissions.length === 0) {
                 throwCustomError(ErrorTypes.NO_ACTIONS_FOR_ROLE);
             }
-            console.log('permissions', permissions);
+            // console.log('permissions', permissions);
             // Agrupar rutas y sus acciones, incluyendo las condiciones
             const routesWithActions = permissions.reduce((result, permission) => {
                 const { Route, Action, Condition } = permission;
@@ -424,6 +424,7 @@ export const authResolver = {
                         path: Route.path,
                         icon: Route.icon,
                         module_id: Route.module_id,
+                        resource: Route.resource,
                         action: [
                             {
                                 action_id: Action.action_id,

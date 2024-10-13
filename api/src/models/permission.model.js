@@ -6,6 +6,7 @@ class Permission extends Model {
         this.belongsTo(models.Route, { foreignKey: 'route_id' });
         this.belongsTo(models.Action, { foreignKey: 'action_id' });
         this.belongsTo(models.Condition, { foreignKey: 'condition_id' }); // Relación con las condiciones
+        this.hasMany(models.ResourceAccess, { foreignKey: 'permission_id' }); // Relación con los accesos a recursos
     }
 }
 
@@ -19,6 +20,10 @@ const initializePermission = (sequelize) => {
         role_id: {
             type: DataTypes.INTEGER,
             allowNull: false,
+            references: {
+                model: 'role', // Nombre de la tabla de roles
+                key: 'role_id',
+            }
         },
         route_id: {
             type: DataTypes.INTEGER,

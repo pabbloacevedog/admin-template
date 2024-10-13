@@ -32,7 +32,7 @@
 
                                     <q-item-section class="q-pa-none" side v-if="!$q.platform.is.mobile">
                                         <q-btn :label="$t('users.btn_create')" icon="group_add" color="primary"
-                                            class="btn-border-radius" @click="showCreateUserModal" v-if="canCreate()" />
+                                            class="btn-border-radius" @click="showCreateUserModal" v-if="canCreateRef" />
                                     </q-item-section>
                                 </q-item>
                             </template>
@@ -111,6 +111,8 @@ import ItemRoleTable from 'components/Users/ItemRoleTable.vue';
 import ItemActionsTable from 'components/General/ItemActionsTable.vue';
 import TitlePages from 'components/General/TitlePages.vue';
 import { useAuthStore } from 'stores/auth';
+import { useGlobalStore } from 'stores/global';
+const globalStore = useGlobalStore();
 const authStore = useAuthStore();
 const userStore = useUserStore();
 
@@ -128,7 +130,8 @@ const pagination = ref({
 const routeName = 'users'; // Cambia esto según el nombre de la ruta actual
 const actions = ref([]);
 const routes = ref([]);
-
+const canCreateRef = ref(false);
+const canViewRef = ref(false);
 const columns = ref([
     { name: 'name', label: 'User Name', align: 'left', field: 'name', sortable: true },
     { name: 'verified', label: 'Verified', align: 'left', field: 'verified', sortable: true },
@@ -190,7 +193,21 @@ const fetchUsers = async () => {
     // console.log('users: ', users.value);
     // console.log('pagination: ', pagination.value);
 };
-
+const fetchPermissions = async () => {
+    try {
+        console.log('fetchPermissions')
+        canCreateRef.value = await globalStore.canCreate(routeName);
+    } catch (error) {
+        console.error('Error fetching permissions:', error);
+    }
+};
+const canView = async (resource) => {
+    try {
+        return canViewRef.value = await globalStore.canView(resource, routeName);
+    } catch (error) {
+        console.error('Error fetching permissions:', error);
+    }
+};
 const onSearchChange = debounce(() => {
     if (search.value.length > 2 || search.value.length === 0) {
         fetchUsers();
@@ -254,6 +271,7 @@ onMounted(async () => {
         routes.value = await authStore.userRoutes();
         actions.value = availableActions.value;
         fetchUsers()
+        fetchPermissions()
         console.log('Available Actions:', actions.value);
     } catch (error) {
         console.error('Error fetching user:', error);
@@ -264,40 +282,10 @@ watch(
     (newValue) => {
         if (newValue === false) {
             fetchUsers();
+            fetchPermissions()
         }
     }
 );
-// Función para verificar si el usuario puede ver
-function canView(user) {
-    const viewPermission = availableActions.value.find(permission => permission.name === 'view');
-
-    if (!viewPermission) return false; // Si no tiene permiso de visualización, no puede ver
-
-    const condition = viewPermission.condition;
-    if (condition.name === 'all') {
-        return true; // Puede ver cualquier recurso
-    }
-
-    if (condition.name === 'owner_only') {
-        return userIsOwner(user); // Pasa el usuario como argumento
-    }
-
-    return false; // Por defecto, no puede ver
-}
-function canCreate(user) {
-    const createPermission = availableActions.value.find(permission => permission.name === 'create');
-
-    if (!createPermission) return false; // Si no tiene permiso de creación, no puede crear
-
-    return true; // Por defecto, no puede crear
-}
-
-// Implementa esta función según la lógica de tu aplicación
-function userIsOwner(user) {
-    // Lógica para determinar si el usuario actual es el propietario del recurso
-    // Por ejemplo, comparar IDs de usuario o cualquier otro método necesario
-    return user.user_id === authStore.user?.user_id || user.owner_id === authStore.user?.user_id; // Ajusta esto según tu lógica
-}
 </script>
 <script>
 export default {
