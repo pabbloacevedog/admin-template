@@ -46,9 +46,9 @@ const validatePermission = async (userIdEditor, actionName, routeName, resourceI
     }
     // Validar condiciones del permiso
     const permission = user.Role.Permissions.find(p => p.action_id === action.action_id && p.route_id === route.route_id);
-    // console.log('permission: ', permission)
+    console.log('permission: ', permission)
     if (permission) {
-        const conditionsValid = await validateConditions(userIdEditor, permission.condition_id, route.resource, resourceId);
+        const conditionsValid = await validateConditions(userIdEditor, permission, route.resource, resourceId);
         if (!conditionsValid) {
             throwCustomError(ErrorTypes.UNAUTHORIZED_ACTION); // Condiciones no cumplidas
         }

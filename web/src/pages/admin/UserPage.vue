@@ -5,7 +5,7 @@
             <div class="div-rounded-radius">
                 <q-card flat>
                     <q-card-section class="q-pa-none">
-                        <q-table class="q-px-none full-width" flat :rows="users" :columns="columns" row-key="name"
+                        <q-table class="q-px-none" flat :rows="users" :columns="columns" row-key="name"
                             :pagination="pagination" :rows-per-page-options="[5, 10, 15, 20]" hide-pagination>
                             <template v-slot:top>
                                 <q-item class="q-px-none full-width">
@@ -32,13 +32,14 @@
 
                                     <q-item-section class="q-pa-none" side v-if="!$q.platform.is.mobile">
                                         <q-btn :label="$t('users.btn_create')" icon="group_add" color="primary"
-                                            class="btn-border-radius" @click="showCreateUserModal" v-if="canCreateRef" />
+                                            class="btn-border-radius" @click="showCreateUserModal"
+                                            v-if="canCreateRef" />
                                     </q-item-section>
                                 </q-item>
                             </template>
 
                             <template v-slot:header="props">
-                                <q-tr :props="props" class="div-rounded-radius">
+                                <q-tr :props="props" class="div-rounded-radius q-pr-xl">
                                     <q-th v-for="col in props.cols" :key="col.name" :props="props" class="bg-second"
                                         auto-width>
                                         {{ col.label }}
@@ -63,24 +64,20 @@
                                         <ItemRoleTable :user="props.row" />
                                     </q-td>
                                     <q-td key="state" :props="props">
-                                        <q-chip  text-color="negative"
-                                            v-if="!props.row.state" label="Inactive" class="chip-user-inactive"
-                                            />
-                                        <q-chip text-color="positive" v-else
-                                            label="Active" class="chip-user-active" />
+                                        <q-chip text-color="negative" v-if="!props.row.state" label="Inactive"
+                                            class="chip-user-inactive" />
+                                        <q-chip text-color="positive" v-else label="Active" class="chip-user-active" />
                                     </q-td>
                                     <q-td key="actions" :props="props">
-                                        <ItemActionsTable :resource="props.row" :edit="editUser"
-                                            :showDeleteModal="showDeleteUserModal"
-                                            :showViewModal="showViewUserModal"
+                                        <ItemActionsTable :resource="props.row" :edit="editUser" :key="props.row.user_id"
+                                            :showDeleteModal="showDeleteUserModal" :showViewModal="showViewUserModal"
                                             :permissions="availableActions" />
                                     </q-td>
                                 </q-tr>
                             </template>
                         </q-table>
                     </q-card-section>
-
-                    <q-card-section class="q-px-none" v-if="pagination.rowsNumber > 0">
+                    <q-card-section class="q-px-none" v-if="pagesNumber > 0">
                         <div class="row justify-center">
                             <q-pagination v-model="pagination.page" :max="pagesNumber"
                                 @update:model-value="onPaginationChange" direction-links />
@@ -137,14 +134,14 @@ const columns = ref([
     { name: 'verified', label: 'Verified', align: 'left', field: 'verified', sortable: true },
     { name: 'personal_phone', label: 'Phone', align: 'left', field: 'personal_phone' },
     {
-        name: 'role', label: 'Role', align: 'left', field: 'role', sortable: true, sort: (a, b) => {
+        name: 'role', label: 'Role', align: 'right', field: 'role', sortable: true, sort: (a, b) => {
             const roleA = a.role_id ? parseInt(a.role_id, 10) : 0; // Cambia a.role_id según tu estructura de datos
             const roleB = b.role_id ? parseInt(b.role_id, 10) : 0; // Cambia b.role_id según tu estructura de datos
             return roleA - roleB;
         }
     },
-    { name: 'state', label: 'State', align: 'left', field: 'state' },
-    { name: 'actions', label: 'Acciones', align: 'center' },
+    { name: 'state', label: 'State', align: 'right', field: 'state' },
+    { name: 'actions', label: 'Acciones', align: 'right' },
 ]);
 
 const pagesNumber = computed(() => Math.ceil(totalUsers.value / pagination.value.rowsPerPage));
@@ -156,42 +153,16 @@ const availableActions = computed(() => {
 // Función para buscar usuarios, incluyendo filtros y paginación
 const fetchUsers = async () => {
     // console.log("Fetching users...");
-
-    // Llama a la función para encontrar la acción de 'view'
-    // const viewAction = findViewAction();
-    const viewAction = availableActions.value.find(permission => permission.name === 'view');
-    // console.log(viewAction, 'viewAction')
-    // Almacena la respuesta de los usuarios
     let response;
-
-    // Verifica la condición del permiso
-    if (viewAction && viewAction.condition.name === 'all') {
-        // Si la condición es 'all', traer todos los usuarios
-        response = await userStore.getAllUsers(
-            search.value,
-            pagination.value.page,
-            pagination.value.rowsPerPage
-        );
-    } else if (viewAction && viewAction.condition.name === 'owner_only') {
-        // Si la condición es 'owner_only', traer solo los usuarios que ha creado el usuario actual
-        response = await userStore.getUsersByOwner(
-            search.value,
-            pagination.value.page,
-            pagination.value.rowsPerPage
-        );
-    } else {
-        console.log("No tiene permisos para ver usuarios.");
-        return; // Salir si no hay permisos
-    }
+    response = await userStore.getAllUsers(
+        search.value,
+        pagination.value.page,
+        pagination.value.rowsPerPage
+    );
 
     // Almacena los usuarios y el total de usuarios en el estado
     users.value = response.users;
     totalUsers.value = response.totalUsers;
-
-    // Debugging logs
-    // console.log('totalUsers: ' + totalUsers.value);
-    // console.log('users: ', users.value);
-    // console.log('pagination: ', pagination.value);
 };
 const fetchPermissions = async () => {
     try {
@@ -304,23 +275,23 @@ export default {
 }
 
 @media (max-width: 768px) {
-	.title-table-users {
-		font-size: 16px !important;
-		font-weight: bold;
-		text-transform: none;
-	}
+    .title-table-users {
+        font-size: 16px !important;
+        font-weight: bold;
+        text-transform: none;
+    }
 }
 
 @media (min-width: 768px) {
-	.title-table-users {
-		font-size: 20px !important;
-		font-weight: bold;
-		text-transform: none;
-	}
+    .title-table-users {
+        font-size: 20px !important;
+        font-weight: bold;
+        text-transform: none;
+    }
 }
+
 .description-panel-users {
     font-size: 18px !important;
     text-transform: none;
 }
-
 </style>

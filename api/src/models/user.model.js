@@ -4,6 +4,7 @@ import { hashPassword } from '../utils/index.js';
 class User extends Model {
     static associate(models) {
         this.belongsTo(models.Role, { foreignKey: 'role_id' });
+        // this.belongsTo(models.User, { foreignKey: 'owner_id', as: 'Owner' });
     }
 }
 

@@ -54,3 +54,10 @@ export const getRoleById = {
     },
     resolve: roleResolver.Query.getRoleById
 };
+export const getRoleByOwnerId = {
+    type: RoleType,  // Retorna un solo usuario
+    args: {
+        ownerId: { type: new GraphQLNonNull(GraphQLString) }
+    },
+    resolve: roleResolver.Query.getRoleByOwnerId
+};

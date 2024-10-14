@@ -274,11 +274,11 @@ export const useUserStore = defineStore("user", {
             try {
                 const response = await apolloClient.mutate({
                     mutation: gql`
-                        mutation UploadAvatar(
+                        mutation UpdateAvatar(
                             $userId: String!
                             $avatar: Upload!
                         ) {
-                            UploadAvatar(userId: $userId, avatar: $avatar) {
+                            UpdateAvatar(userId: $userId, avatar: $avatar) {
                                 avatar
                             }
                         }
@@ -289,7 +289,7 @@ export const useUserStore = defineStore("user", {
                     },
                 });
                 console.log(response);
-                const { avatar } = response.data.UploadAvatar;
+                const { avatar } = response.data.UpdateAvatar;
                 // this.user.avatar = avatar; // Actualiza el avatar del usuario en el store
                 return avatar;
             } catch (error) {

@@ -1,6 +1,7 @@
 import { defineStore } from "pinia";
 import { apolloClient, gql } from "../plugins/apollo";
 import { navigateTo } from "../services/navigationService";
+import { useGlobalStore } from 'stores/global';
 export const useAuthStore = defineStore("auth", {
     state: () => ({
         email: null,
@@ -12,7 +13,8 @@ export const useAuthStore = defineStore("auth", {
         isUserFetched: false,
         userId: null,
         message: null,
-        isAuthenticated: false
+        isAuthenticated: false,
+        globalStore: useGlobalStore()
     }),
     actions: {
         async login(credentials) {
@@ -151,30 +153,6 @@ export const useAuthStore = defineStore("auth", {
                 throw error;
             }
         },
-        async userActions() {
-            const USERACTIONS_QUERY = gql`
-                query userActions {
-                    userActions {
-                        action_id
-                        name
-                        title
-                        description
-                    }
-                }
-            `;
-            try {
-                const response = await apolloClient.query({
-                    query: USERACTIONS_QUERY,
-                    fetchPolicy: "network-only",
-                });
-                const { userActions } = response.data;
-                this.actions = userActions;
-                return userActions;
-            } catch (error) {
-                this.error = error.message;
-                throw error;
-            }
-        },
         async userRoutes() {
             const USER_ROUTER_QUERY = gql`
                 query userRoutes {
@@ -185,6 +163,7 @@ export const useAuthStore = defineStore("auth", {
                         description
                         path
                         icon
+                        resource
                         module_id
                         action {
                             action_id
@@ -196,6 +175,14 @@ export const useAuthStore = defineStore("auth", {
                                 name
                                 title
                                 description
+                                resourceAccess{
+                                    resource_id
+                                    resource_type
+                                    user_id
+                                    role_id
+                                    action_id
+                                    condition_id
+                                }
                             }
                         }
                     }
@@ -254,7 +241,7 @@ export const useAuthStore = defineStore("auth", {
                         input: updatedUser,
                     },
                 });
-                const { user, message } =  response.data.updateAccount;
+                const { user, message } = response.data.updateAccount;
                 this.user = user; // Actualiza el estado con la respuesta
                 return message;
             } catch (error) {
@@ -497,6 +484,8 @@ export const useAuthStore = defineStore("auth", {
                     // Limpia el estado del usuario
                     this.user = null;
                     navigateTo("/login");
+                    // Restablecer el store global
+                    this.globalStore.resetStore();
                     return message;
                 }
             } catch (error) {

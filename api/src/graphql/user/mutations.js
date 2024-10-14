@@ -1,5 +1,6 @@
 // src/graphql/user/mutations.js
 import { GraphQLString, GraphQLNonNull, GraphQLInt } from 'graphql';
+import GraphQLUpload from "graphql-upload/GraphQLUpload.mjs";
 import { UserType, UserUpdateInputType, UpdateUserResponseType }  from './type.js'; // Asegúrate de tener definido el UserType
 import { userResolver } from './resolvers.js';
 
@@ -33,3 +34,12 @@ export const deleteUser = {
     },
     resolve: userResolver.Mutation.deleteUser
 };
+// Upload Single
+export const UpdateAvatar = {
+	type: new GraphQLNonNull(UserType),
+	args: {
+		userId: { type: GraphQLString },
+        avatar: { type: new GraphQLNonNull(GraphQLUpload), },
+    },
+	resolve: userResolver.Mutation.updateAvatar
+}

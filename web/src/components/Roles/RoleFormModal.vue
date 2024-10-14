@@ -137,7 +137,7 @@
                             <q-btn v-for="(colorOption, index) in colorOptions" :key="index" round
                                 :style="{ backgroundColor: colorOption.color, position: 'relative' }"
                                 :outline="form.color !== colorOption.value" :flat="form.color !== colorOption.value"
-                                @click="form.color = colorOption.value" class="q-mr-xs">
+                                @click="changeColor(colorOption.value)" class="q-mr-xs">
                                 <!-- Si el color está seleccionado, se muestra el ícono de verificación -->
                                 <q-icon v-if="form.color === colorOption.value" name="check" color="white"
                                     style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);" />
@@ -158,7 +158,7 @@
                     <q-card-section class="col-8 q-pt-lg" style="max-height: 80vh; overflow-y: auto; padding: 24px 0%;">
                         <div class="q-col-gutter-md q-mx-none q-my-md col-12" v-for="route in routes"
                             :key="route.route_id">
-                            <q-expansion-item v-model="expanded[route.route_id]"
+                            <q-expansion-item v-model="expanded[route.route_id]" @before-show="handleExpansion(route)"
                                 class="bg-first div-rounded-radius q-pa-none q-ml-xl" group="role_route">
                                 <template v-slot:header>
                                     <q-item class="q-pa-none" style="width: 100%;">
@@ -166,10 +166,10 @@
                                             <!-- Colocamos el checkbox antes del icono -->
                                             <div class="row items-center">
                                                 <q-checkbox size="md" @update:model-value="toggleRoute(route)"
-                                                    :color="role?.color" v-model="route_roles" :val="route.route_id"
+                                                    :color="colorRole" v-model="route_roles" :val="route.route_id"
                                                     class="q-mr-md" />
                                                 <!-- Icono de la ruta -->
-                                                <q-icon :name="route.icon" size="28px" :color="role?.color"
+                                                <q-icon :name="route.icon" size="28px" :color="colorRole"
                                                     class="q-mr-sm" />
                                                 <!-- Título de la ruta -->
                                                 <q-item-label>{{ route.title }}</q-item-label>
@@ -206,7 +206,7 @@
                                                                     :val="`${route.route_id}_${action.action_id}`"
                                                                     @update:model-value="(val) => handleActionSelection(route.route_id, action, val)"
                                                                     :disable="!route_roles.includes(route.route_id)"
-                                                                    v-model="action_roles" :color="role?.color" />
+                                                                    v-model="action_roles" :color="colorRole" />
                                                             </q-item-section>
 
                                                             <!-- Icono de la acción -->
@@ -214,7 +214,7 @@
                                                                 style="min-width: 48px;">
                                                                 <q-avatar>
                                                                     <q-icon :name="action.icon" size="24px"
-                                                                        :color="role?.color" />
+                                                                        :color="colorRole" />
                                                                 </q-avatar>
                                                             </q-item-section>
 
@@ -288,7 +288,7 @@
                                                                             @remove="scope.removeAtIndex(scope.index)"
                                                                             :tabindex="scope.tabindex"
                                                                             style="font-size: 12px; margin: 4px 2px; max-width: 100px"
-                                                                            icon="touch_app">
+                                                                            icon="source">
                                                                             <div class="ellipsis">
                                                                                 {{ scope.opt.label }}
                                                                             </div>
@@ -333,6 +333,7 @@ const props = defineProps({
         default: () => ({}),
     },
 });
+const colorRole = ref(props.role.color);
 // Declaramos el objeto expanded
 const expanded = ref({});
 
@@ -548,8 +549,11 @@ const isActionSelected = (route_id, action_id) => {
         action.route_id === route_id && action.action_id === action_id
     );
 };
-
-
+// Cambia el color de la acción
+const changeColor = (color) => {
+    form.value.color = color;
+    colorRole.value = color;
+}
 // Añade o remueve una acción cuando se hace toggle en el botón de acción
 const toggleAction = (route_id, action) => {
     if (isActionSelected(route_id, action.action_id)) {
@@ -625,6 +629,46 @@ const selectCondition = (route_id, action, condition) => {
     // console.log('action_roles', action_roles.value)
     // console.log('actionConditions', actionConditions.value)
 };
+const handleExpansion = (route) => {
+    console.log('handleExpansion', route)
+    if (route.resource) {
+        if (route.resource === 'user') {
+            // Si la ruta es 'user', se carga el select con los recursos 'users'
+            // Filtrar roles distintos a props.role.role_id
+
+            // Filtrar usuarios distintos a authStore.user.user_id
+            const filteredUsers = allUsers.value.filter(user => user.user_id !== authStore.user.user_id);
+
+            // Mapeo de usuarios para el select
+            const mappedResources = filteredUsers.map(item => ({
+                icon: item.avatar,    // Avatar del usuario (si es necesario)
+                label: item.name,     // Lo que se muestra en el select
+                value: item.user_id,  // El valor que se selecciona (user_id)
+                type: 'user',
+                role_id: null,
+                user_id: item.user_id,
+                resource_id: item.user_id,
+            }));
+            resourcesSelect.value = mappedResources;
+        }
+        else {
+            // Si la ruta es 'role', se carga el select con los recursos 'roles'
+            const filteredRoles = allRoles.value.filter(role => role.role_id !== props.role.role_id);
+            // Mapeo de roles para el select
+            const mappedResources = filteredRoles.map(item => ({
+                label: item.title,    // Lo que se muestra en el select
+                value: item.role_id,  // El valor que se selecciona (role_id)
+                color: item.color,    // Color para customizar el select (si aplica)
+                icon: item.icon,
+                type: 'role',
+                role_id: item.role_id,
+                user_id: null,
+                resource_id: item.role_id,
+            }));
+            resourcesSelect.value = mappedResources;
+        }
+    }
+}
 const loadSelectResource = async (resource) => {
     console.log('loadSelectResource', resource)
 
@@ -694,7 +738,7 @@ const selectConditionOther = (route_id, action_id, condition, userAndRoles) => {
                                 user_id: item.user_id,
                                 role_id: item.role_id,
                                 resource_type: selectedRoutes.value[routeIndex].name,
-                                resource_id: item.resource_id? item.resource_id : null
+                                resource_id: item.resource_id ? item.resource_id : null
                             };
                             currentOthers.push(other);
                         }
@@ -708,7 +752,7 @@ const selectConditionOther = (route_id, action_id, condition, userAndRoles) => {
             }
         }
     }
-    console.log('selectedRoutes', selectedRoutes.value);
+    // console.log('selectedRoutes', selectedRoutes.value);
 };
 
 // Estilo de dialog
@@ -860,8 +904,10 @@ const loadPermissionsForRole = async (dataRole) => {
                     condition_id: action.condition.condition_id,
                 }
                 // se asignan los accesos a recursos a las acciones de la ui
-                // otherRolesAndUsersConditions.value[`${route.route_id}_${action.action_id}`]  = resourceAccess;
-                otherRolesAndUsersConditions.value[`${route.route_id}_${action.action_id}`] = resourceAccessModel;
+                if(resourceAccessModel.length > 0){
+                    otherRolesAndUsersConditions.value[`${route.route_id}_${action.action_id}`] = resourceAccessModel;
+                }
+                // otherRolesAndUsersConditions.value[`${route.route_id}_${action.action_id}`] = resourceAccessModel;
                 console.log('otherRolesAndUsersConditions', otherRolesAndUsersConditions.value)
                 // actionConditions.value = actionConditions.value.concat(`${route.route_id}_${action.action_id}`);
                 // If the route exists, update its actions
@@ -883,12 +929,51 @@ const loadPermissionsForRole = async (dataRole) => {
                         path: route.path,
                         icon: route.icon,
                         module_id: route.module_id,
+                        resource: route.resource,
                         actions: [actionAdd] // Initialize with the current action
                     };
                     // Push the new route entry to assignedRoutes
                     assignedRoutes.push(newRouteEntry);
                 }
             });
+            console.log('route', route)
+            if (route.resource) {
+                if (route.resource === 'user') {
+                    // Si la ruta es 'user', se carga el select con los recursos 'users'
+                    // Filtrar roles distintos a props.role.role_id
+
+                    // Filtrar usuarios distintos a authStore.user.user_id
+                    const filteredUsers = allUsers.value.filter(user => user.user_id !== authStore.user.user_id);
+
+                    // Mapeo de usuarios para el select
+                    const mappedResources = filteredUsers.map(item => ({
+                        icon: item.avatar,    // Avatar del usuario (si es necesario)
+                        label: item.name,     // Lo que se muestra en el select
+                        value: item.user_id,  // El valor que se selecciona (user_id)
+                        type: 'user',
+                        role_id: null,
+                        user_id: item.user_id,
+                        resource_id: null,
+                    }));
+                    resourcesSelect.value = mappedResources;
+                }
+                else {
+                    //Si la ruta es 'role', se carga el select con los recursos 'roles'
+                    const filteredRoles = allRoles.value.filter(role => role.role_id !== props.role.role_id);
+                    // Mapeo de roles para el select
+                    const mappedResources = filteredRoles.map(item => ({
+                        label: item.title,    // Lo que se muestra en el select
+                        value: item.role_id,  // El valor que se selecciona (role_id)
+                        color: item.color,    // Color para customizar el select (si aplica)
+                        icon: item.icon,
+                        type: 'role',
+                        role_id: item.role_id,
+                        user_id: null,
+                        resource_id: null,
+                    }));
+                    resourcesSelect.value = mappedResources;
+                }
+            }
         });
     });
 

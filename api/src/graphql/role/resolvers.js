@@ -59,7 +59,7 @@ export const roleResolver = {
                                 condition_id: condition ? condition.condition_id : null // Verifica si hay una condición
                             }, { transaction });
 
-                            // Si la condición es 'others', insertar en ResourceAccess
+                            // Si la condición es 'others' o 'resource', insertar en ResourceAccess
                             if (condition && condition.name === 'others' || condition && condition.name === 'resource') {
                                 const resourceAccess = condition.resourceAccess;
                                 for (const other of resourceAccess) {
@@ -75,22 +75,6 @@ export const roleResolver = {
                                     }, { transaction });
                                 }
                             }
-                            // // Su la condición es 'resource' y se agrega el recurso al acceso
-                            // if (condition && condition.name === 'resource') {
-                            //     const resources = condition.resources;
-                            //     for (const resource of resources) {
-                            //         await models.ResourceAccess.create({
-                            //             role_id: resource.role_id || null,
-                            //             user_id: resource.user_id || null,
-                            //             route_id: resource.route_id,
-                            //             action_id: resource.action_id,
-                            //             condition_id: resource.condition_id || null,
-                            //             resource_type: resource.resource_type,
-                            //             resource_id: resource.resource_id,
-                            //             permission_id: createdPermission.permission_id
-                            //         }, { transaction });
-                            //     }
-                            // }
                         }
                     }
                 }
@@ -177,7 +161,7 @@ export const roleResolver = {
                                 condition_id: condition ? condition.condition_id : null
                             }, { transaction });
 
-                            // Si la condición es 'others', se inserta en la tabla ResourceAccess
+                            // Si la condición es 'others' o 'resource', se inserta en la tabla ResourceAccess
                             if (condition && condition.name === 'others' || condition && condition.name === 'resource') {
                                 const resourceAccess = condition.resourceAccess;
                                 for (const other of resourceAccess) {
@@ -193,22 +177,6 @@ export const roleResolver = {
                                     }, { transaction });
                                 }
                             }
-                            // // Su la condición es 'resource' y se agrega el recurso al acceso
-                            // if (condition && condition.name === 'resource') {
-                            //     const resources = condition.resources;
-                            //     for (const resource of resources) {
-                            //         await models.ResourceAccess.create({
-                            //             role_id: resource.role_id || null,
-                            //             user_id: resource.user_id || null,
-                            //             route_id: resource.route_id,
-                            //             action_id: resource.action_id,
-                            //             condition_id: resource.condition_id || null,
-                            //             resource_type: resource.resource_type,
-                            //             resource_id: resource.resource_id,
-                            //             permission_id: permission.permission_id
-                            //         }, { transaction });
-                            //     }
-                            // }
                         }
                     }
                 }
@@ -333,6 +301,7 @@ export const roleResolver = {
                         description: Route.description,
                         path: Route.path,
                         icon: Route.icon,
+                        resource: Route.resource,
                         module_id: Route.module_id,
                         action: []
                     };
@@ -410,6 +379,20 @@ export const roleResolver = {
 
             return response;
         },
+        getRoleByOwnerId: async (_, { ownerId }) => {
+            const user = await models.User.findByPk(ownerId);
+
+            // console.log('role', role.Permissions);
+            if (!user) {
+                throw new Error("Role not found");
+            }
+            // Estructura de respuesta
+            const response = {
+                role_id: user.role_id,
+            };
+
+            return response;
+        },
         getAllRoles: async (_, { filter, pagination }, { user }) => {
             try {
                 console.log('user logueado', user)
@@ -417,23 +400,45 @@ export const roleResolver = {
                 const loggedInUserRole = user.role_id; // Obtén el role del usuario logueado
 
                 // Busca el rol del usuario para verificar qué permisos tiene
+                // const userRole = await models.Role.findOne({
+                //     where: { role_id: loggedInUserRole },
+                //     include: [{
+                //         model: models.Permission,
+                //         include: [
+                //             { model: models.Action },
+                //             { model: models.Condition }
+                //         ]
+                //     }]
+                // });
                 const userRole = await models.Role.findOne({
                     where: { role_id: loggedInUserRole },
                     include: [{
                         model: models.Permission,
+                        required: true, // Esto hace un INNER JOIN
                         include: [
-                            { model: models.Action },
-                            { model: models.Condition }
+                            {
+                                model: models.Action,
+                                required: true // Esto también es un INNER JOIN
+                            },
+                            {
+                                model: models.Condition,
+                                required: true // INNER JOIN aquí también
+                            },
+                            {
+                                model: models.Route,
+                                where: { resource: 'role' }, // Filtro para la ruta específica
+                                required: true // INNER JOIN
+                            }
                         ]
                     }]
                 });
-
                 if (!userRole) {
                     throw new Error('No se encontró el rol del usuario logueado.');
                 }
 
                 // Filtra los permisos para obtener las acciones que puede realizar
                 const viewPermission = userRole.Permissions.find(permission => permission.Action.name === 'view');
+                // Obtener los permisos de acceso
                 const resourceAccessPermission = await models.ResourceAccess.findAll({
                     where: { permission_id: viewPermission.permission_id },
                 });
@@ -457,30 +462,56 @@ export const roleResolver = {
                             [Op.like]: `%${filter.search}%`
                         }
                     };
-                } else if (viewPermission.Condition.name === 'others') {
-                    const resourceAccessPermission = models.resourceAccess.findAll({
-                        where: { permission_id: viewPermission.permission_id },
-                    });
-                    console.log('resourceAccessPermission', resourceAccessPermission)
+                }
+                else if (viewPermission.Condition.name === 'others') {
+                    // Extraer los role_id y user_id de los permisos de acceso
+                    const roleIds = resourceAccessPermission.map(access => access.role_id);
+                    const userIds = resourceAccessPermission.map(access => access.user_id);
+
+                    // Asegúrate de que no hay `undefined` o `null` en roleIds y userIds
+                    const filteredRoleIds = roleIds.filter(id => id != null);
+                    const filteredUserIds = userIds.filter(id => id != null);
+
+                    // Agregar al whereClause los roles y usuarios
                     whereClause = {
-                        role_id: {
-                            [Op.ne]: loggedInUserRole // Excluir roles del mismo usuario logueado
-                        },
-                        name: {
-                            [Op.like]: `%${filter.search}%`
-                        }
+
+                        [Op.or]: [
+                            { owner_id: { [Op.in]: filteredUserIds } },  // Coincidencia con user.owner_id en userIds
+                            { role_id: { [Op.in]: filteredRoleIds } }    // Coincidencia con user.role_id en roleIds
+                        ],
+
+                        name: { [Op.like]: `%${filter.search}%` }  // Coincidencia parcial con el nombre
                     };
-                } else if (viewPermission.Condition.name === 'resource') {
-                    const resourceAccessPermission = models.resourceAccess.findAll({
-                        where: { permission_id: viewPermission.permission_id },
-                    });
-                    console.log('resourceAccessPermission', resourceAccessPermission)
-                    // Implementa lógica para mostrar solo los roles con acceso a ciertos recursos
+                }
+
+                // else if (viewPermission.Condition.name === 'others') {
+                //     // Extraer los role_id y user_id de los permisos de acceso
+                //     const roleIds = resourceAccessPermission.map(access => access.role_id);
+                //     const userIds = resourceAccessPermission.map(access => access.user_id);
+
+                //     // Agregar al whereClause los roles y usuarios
+                //     whereClause = {
+                //         [Op.and]: [
+                //             {
+                //                 [Op.or]: [
+                //                     { '$User.owner_id$': { [Op.in]: userIds } },  // Coincidencia con user.owner_id en userIds
+                //                     { '$User.role_id$': { [Op.in]: roleIds } }    // Coincidencia con user.role_id en roleIds
+                //                 ]
+                //             }
+                //         ],
+                //         name: { [Op.like]: `%${filter.search}%` }  // Coincidencia parcial con el nombre
+                //     };
+                // }
+
+                // Para el caso 'resource'
+                else if (viewPermission.Condition.name === 'resource') {
+                    // Extraer los resource_id de los permisos de acceso
+                    const resourceIds = resourceAccessPermission.map(access => access.resource_id);
+
+                    // Agregar al whereClause los resource_id
                     whereClause = {
-                        resource_access: { [Op.eq]: true }, // Cambia esto según tu estructura
-                        name: {
-                            [Op.like]: `%${filter.search}%`
-                        }
+                        role_id: { [Op.in]: resourceIds }, // Filtrar por resource_id
+                        name: { [Op.like]: `%${filter.search}%` } // Coincidencia con la búsqueda
                     };
                 }
 
@@ -518,66 +549,10 @@ export const roleResolver = {
                     totalRoles
                 };
             } catch (error) {
+                console.error('Error al obtener los roles:', error.stack); // Imprime el stack trace completo
                 throw new Error('Error al obtener los roles: ' + error.message);
             }
         },
-
-        // // Obtener roles con paginación, filtro, total de usuarios y sus avatares
-        // getAllRoles: async (_, { filter, pagination }) => {
-        //     try {
-        //         const roles = await models.Role.findAll({
-        //             where: {
-        //                 name: {
-        //                     [Op.like]: `%${filter.search}%`
-        //                 }
-        //             },
-        //             limit: pagination.rowsPerPage,
-        //             offset: (pagination.page - 1) * pagination.rowsPerPage,
-        //             include: [
-        //                 {
-        //                     model: models.User, // Asegúrate de que la asociación entre Role y User esté definida
-        //                     attributes: ['avatar'], // Solo obtener el avatar de cada usuario
-        //                 }
-        //             ],
-        //         });
-
-        //         // Contar cuántos usuarios tienen cada role_id
-        //         const rolesWithUserCount = await Promise.all(roles.map(async (role) => {
-        //             const userCount = await models.User.count({
-        //                 where: {
-        //                     role_id: role.role_id
-        //                 }
-        //             });
-
-        //             // Incluir el total de usuarios y avatares dentro del objeto role
-        //             return {
-        //                 ...role.toJSON(), // Convertimos el role a JSON para manipularlo
-        //                 totalUsers: userCount,
-        //                 avatars: role.Users.map(user => user.avatar) // Lista de avatares
-        //             };
-        //         }));
-
-        //         // Obtener el total de roles (para la paginación)
-        //         const totalRoles = await models.Role.count({
-        //             where: {
-        //                 name: {
-        //                     [Op.like]: `%${filter.search}%`
-        //                 }
-        //             }
-        //         });
-
-        //         return {
-        //             roles: rolesWithUserCount, // Ahora los roles incluyen el conteo de usuarios y sus avatares
-        //             totalRoles
-        //         };
-        //     } catch (error) {
-        //         throw new Error('Error al obtener los roles: ' + error.message);
-        //     }
-        // },
-
-
-
-
         // Obtener todas las rutas de la app
         getAllRoutesActionsConditions: async () => {
             try {

@@ -179,6 +179,7 @@ export const useRoleStore = defineStore("role", {
                                 description
                                 path
                                 icon
+                                resource
                                 module_id
                                 action {
                                     action_id

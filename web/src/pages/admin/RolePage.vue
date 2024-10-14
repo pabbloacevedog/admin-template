@@ -51,7 +51,7 @@
                                                 <q-item-section avatar class="text-h7">
                                                     <q-avatar text-color="white"
                                                         style="border: 1px solid #fff !important;font-size: 32px;">{{
-                                                        props.row.role_id }}</q-avatar>
+                                                            props.row.role_id }}</q-avatar>
                                                 </q-item-section>
                                             </q-item>
                                         </q-card-section>
@@ -70,10 +70,10 @@
                                                     <q-item-label class="text-h7">
                                                         <div class="flex justify-start" v-if="props.row.totalUsers">
                                                             <div v-if="props.row.totalUsers > 1" class="text-h7">
-                                                                +{{ props.row.totalUsers }} role users
+                                                                +{{ props.row.totalUsers }} users
                                                             </div>
                                                             <div v-else class="text-h7">
-                                                                +{{ props.row.totalUsers }} role user
+                                                                +{{ props.row.totalUsers }} user
                                                             </div>
                                                         </div>
                                                         <div class="flex justify-start text-h7" v-else>
@@ -83,16 +83,24 @@
 
                                                 </q-item-section>
                                                 <div class="flex justify-end">
-                                                    <q-avatar v-for="(rs, n) in props.row.avatars" :key="n" size="30px"
-                                                        class="overlapping" @click="selectRememberedUsers()"
+                                                    <!-- Mostrar solo los primeros 8 avatares -->
+                                                    <q-avatar v-for="(rs, n) in props.row.avatars.slice(0, 5)" :key="n"
+                                                        size="30px" class="overlapping" @click="selectRememberedUsers()"
                                                         :style="`right: ${n * 15}px`">
                                                         <img :src="rs">
                                                     </q-avatar>
+
+                                                    <!-- Mostrar un avatar adicional con el número de avatares restantes si hay más de 8 -->
+                                                    <q-avatar v-if="props.row.avatars.length > 5" size="30px"
+                                                        class="overlapping bg-white" :style="`right: ${5 * 15}px`" text-color="black">
+                                                        <span>+{{ props.row.avatars.length - 8 }}</span>
+                                                    </q-avatar>
                                                 </div>
+
                                             </q-item>
                                             <q-separator></q-separator>
                                             <q-item class="flex justify-center q-mt-sm q-mx-none">
-                                                <RoleActionsTable :resource="props.row" :edit="editRole"
+                                                <RoleActionsTable :resource="props.row" :edit="editRole" :key="props.row.role_id"
                                                     :showDeleteModal="showDeleteRoleModal"
                                                     :showViewModal="showViewRoleModal"
                                                     :color="getColorClass(props.row)" />
@@ -160,7 +168,7 @@ const columns = ref([
     { name: 'title', label: 'Título', align: 'left', field: 'title' },
     { name: 'description', label: 'Description', align: 'left', field: 'description' },
     { name: 'color', label: 'Color', align: 'left', field: 'color' },
-    { name: 'actions', label: 'Acciones', align: 'center' },
+    { name: 'actions', label: 'Acciones', align: 'right' },
 ]);
 const getCardClass = (row) => {
     // console.log('row', row)
