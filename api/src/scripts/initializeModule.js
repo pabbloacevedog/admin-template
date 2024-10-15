@@ -113,6 +113,13 @@ export async function initializeModule(models) {
             title: 'Delete',
             description: 'Enables the user to remove or permanently delete existing records or data from the system.',
             icon: 'delete'
+        },
+        {
+            accion_id: 5,
+            name: 'verify_manually',
+            title: 'Verify manually',
+            description: 'Allows you to verify users email manually.',
+            icon: 'verified_user'
         }
     ];
 

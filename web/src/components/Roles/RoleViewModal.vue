@@ -169,15 +169,10 @@ onMounted(async () => {
         // Verifica si dataRole tiene la estructura esperada
         if (dataRole.value) {
             const permissions = dataRole.value.permission; // Asegúrate de que estás accediendo correctamente
-            console.log('permissions', permissions);
-            console.log('dataRole', dataRole.value);
             tableData.value = await loadPermissionsForRole(dataRole.value);
-            console.log('tableData', tableData.value);
-
         } else {
             console.error('permissions is not an array or dataRole is undefined:', dataRole.value);
         }
-        console.log('tableData', tableData.value);
     } catch (error) {
         console.error('Error fetching role:', error);
     }

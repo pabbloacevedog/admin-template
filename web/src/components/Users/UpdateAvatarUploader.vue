@@ -1,5 +1,5 @@
 <template>
-    <div class="text-start">
+    <div class="ftext-end">
         <q-avatar :size="size_avatar" class="avatar-user">
             <img :src="user?.avatar" alt="User Avatar" v-if="user?.avatar"/>
             <q-icon v-else name="account_circle" color="second" size="2.1em" />
@@ -57,7 +57,6 @@ const selectFile = () => {
 const handleFileChange = async (event) => {
     const file = event.target.files[0]
     if (file) {
-        console.log('Archivo seleccionado:', file)
         showCropper.value = true
         image.value = URL.createObjectURL(file);
         nameAvatar.value = file.name
@@ -65,7 +64,6 @@ const handleFileChange = async (event) => {
 }
 const sendAvatarApi = async (fileAvatar) => {
     await userStore.uploadAvatarUser(fileAvatar, user.value.user_id).then((response) => {
-        console.log('response: ' + response);
         // Actualiza el avatar en el objeto user
         user.value = { ...user.value, avatar: response };
 
@@ -85,14 +83,11 @@ const sendAvatarApi = async (fileAvatar) => {
 }
 const saveCroppedImage = async () => {
     const { canvas } = croppedImage.value.getResult();
-    console.log('canvas', canvas)
     if (canvas) {
         const img = canvas.toBlob(blob => {
             const fileAvatar = new File([blob], nameAvatar.value, { type: "image/jpeg" });
-            console.log(fileAvatar, 'fileAvatar')
             sendAvatarApi(fileAvatar)
         }, "image/jpeg");
-        console.log(img, 'img')
     }
 }
 </script>

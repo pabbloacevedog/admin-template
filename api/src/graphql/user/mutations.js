@@ -43,3 +43,11 @@ export const UpdateAvatar = {
     },
 	resolve: userResolver.Mutation.updateAvatar
 }
+// Verificar cuenta manualmente
+export const verifyAccountManually = {
+    type: new GraphQLNonNull(UserType),
+    args: {
+        userId: { type: GraphQLString },
+    },
+    resolve: userResolver.Mutation.verifyAccountManually,
+};

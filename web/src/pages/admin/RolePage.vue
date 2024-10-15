@@ -91,10 +91,10 @@
                                                     </q-avatar>
 
                                                     <!-- Mostrar un avatar adicional con el número de avatares restantes si hay más de 8 -->
-                                                    <q-avatar v-if="props.row.avatars.length > 5" size="30px"
+                                                    <!-- <q-avatar v-if="props.row.avatars.length > 5" size="30px"
                                                         class="overlapping bg-white" :style="`right: ${5 * 15}px`" text-color="black">
                                                         <span>+{{ props.row.avatars.length - 8 }}</span>
-                                                    </q-avatar>
+                                                    </q-avatar> -->
                                                 </div>
 
                                             </q-item>
@@ -127,7 +127,7 @@
         <RoleDeleteModal v-if="roleStore.show_modal_delete" :role="selectedRole" @close="closeModalDelete" />
         <RoleViewModal v-if="roleStore.show_modal_view" :role="selectedRole" @close="closeModalView" />
         <q-page-sticky position="bottom-right" :offset="[18, 18]" v-if="$q.platform.is.mobile">
-            <q-btn fab icon="group_add" color="primary" @click="showCreateRoleModal" class="shadow-9" />
+            <q-btn fab icon="add" color="primary" @click="showCreateRoleModal" class="shadow-9" />
         </q-page-sticky>
     </q-page>
 </template>
@@ -171,12 +171,10 @@ const columns = ref([
     { name: 'actions', label: 'Acciones', align: 'right' },
 ]);
 const getCardClass = (row) => {
-    // console.log('row', row)
     // Asegúrate de que el color en la fila es válido y retorna la clase adecuada
     return row.color ? `bg-${row.color}` : 'bg-primary'; // Si no hay color, usa 'bg-primary' como clase por defecto
 };
 const getColorClass = (row) => {
-    // console.log('row', row)
     // Asegúrate de que el color en la fila es válido y retorna la clase adecuada
     return row.color ? `text-${row.color}` : 'bg-primary'; // Si no hay color, usa 'bg-primary' como clase por defecto
 };
@@ -188,9 +186,6 @@ const availableActions = computed(() => {
 });
 // Función para buscar usuarios, incluyendo filtros y paginación
 const fetchRoles = async () => {
-
-    // const viewAction = availableActions.value.find(permission => permission.name === 'view');
-    // console.log(viewAction, 'viewAction')
     // Almacena la respuesta de los usuarios
     let response;
     response = await roleStore.getAllRoles(
@@ -198,41 +193,6 @@ const fetchRoles = async () => {
         pagination.value.page,
         pagination.value.rowsPerPage
     );
-    // // Verifica la condición del permiso
-    // if (viewAction && viewAction.condition.name === 'all') {
-    //     // Si la condición es 'all', traer todos los usuarios
-    //     response = await roleStore.getAllRoles(
-    //         search.value,
-    //         pagination.value.page,
-    //         pagination.value.rowsPerPage
-    //     );
-    // } else if (viewAction && viewAction.condition.name === 'owner_only') {
-    //     // Si la condición es 'owner_only', traer solo los usuarios que ha creado el usuario actual
-    //     response = await roleStore.getRolesByOwner(
-    //         search.value,
-    //         pagination.value.page,
-    //         pagination.value.rowsPerPage
-    //     );
-    // } else if (viewAction && viewAction.condition.name === 'others') {
-    //     // Si la condición es 'others', traer solo los usuarios que ha creado el role o usuario al cual se le ha asignado el permiso
-    //     response = await roleStore.getRolesByOthers(
-    //         search.value,
-    //         pagination.value.page,
-    //         pagination.value.rowsPerPage
-    //     );
-    // } else if (viewAction && viewAction.condition.name === 'resource') {
-    //     // Si la condición es 'resource', traer solo los recursos que se le han asignado los permisos
-    //     response = await roleStore.getRolesResource(
-    //         search.value,
-    //         pagination.value.page,
-    //         pagination.value.rowsPerPage
-    //     );
-    // }else {
-    //     console.log("No tiene permisos para ver usuarios.");
-    //     return; // Salir si no hay permisos
-    // }
-
-    // Almacena los usuarios y el total de usuarios en el estado
     roles.value = response.roles;
     totalRoles.value = response.totalRoles;
 };
@@ -290,7 +250,6 @@ const closeModalView = () => {
 };
 const fetchPermissions = async () => {
     try {
-        console.log('fetchPermissions')
         canCreateRef.value = await globalStore.canCreate(routeName);
     } catch (error) {
         console.error('Error fetching permissions:', error);
@@ -303,7 +262,6 @@ onMounted(async () => {
         actions.value = availableActions.value;
         fetchRoles()
         fetchPermissions()
-        // console.log('Available Actions:', actions.value);
     } catch (error) {
         console.error('Error fetching role:', error);
     }

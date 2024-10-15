@@ -32,6 +32,7 @@ import { useQuasar } from 'quasar';
 import { Cropper } from 'vue-advanced-cropper';
 import 'vue-advanced-cropper/dist/style.css';
 import 'vue-advanced-cropper/dist/theme.bubble.css';
+import auth from 'src/router/auth';
 const $q = useQuasar();
 const authStore = useAuthStore();
 const fileInput = ref(null);
@@ -46,11 +47,18 @@ const props = defineProps({
 const selectFile = () => {
     fileInput.value.click();
 };
+//actualiza los campos nuevos del usuario en el localstorage
+const updateUserInLocalStorage = (updatedUser) => {
+    let users = JSON.parse(localStorage.getItem('rememberedUsers')) || [];
+    users = users.map(user =>
+        user.email === updatedUser.email ? { ...user, ...updatedUser } : user
+    );
+    localStorage.setItem('rememberedUsers', JSON.stringify(users));
+};
 const user = ref(authStore.user);
 const handleFileChange = async (event) => {
     const file = event.target.files[0]
     if (file) {
-        console.log('Archivo seleccionado:', file)
         showCropper.value = true
         image.value = URL.createObjectURL(file);
         nameAvatar.value = file.name
@@ -58,10 +66,14 @@ const handleFileChange = async (event) => {
 }
 const sendAvatarApi = async (fileAvatar) => {
     await authStore.uploadAvatar(fileAvatar).then((response) => {
-        console.log('response: ' + response);
         // Actualiza el avatar en el objeto user
         user.value = { ...user.value, avatar: response };
-
+        const new_data = {
+            email: user.value.email,
+            name: user.value.name,
+            avatar: response
+        }
+        updateUserInLocalStorage(new_data);
         showCropper.value = false
         nameAvatar.value = null
         $q.notify({
@@ -79,14 +91,11 @@ const sendAvatarApi = async (fileAvatar) => {
 }
 const saveCroppedImage = async () => {
     const { canvas } = croppedImage.value.getResult();
-    console.log('canvas', canvas)
     if (canvas) {
         const img = canvas.toBlob(blob => {
             const fileAvatar = new File([blob], nameAvatar.value, { type: "image/jpeg" });
-            console.log(fileAvatar, 'fileAvatar')
             sendAvatarApi(fileAvatar)
         }, "image/jpeg");
-        console.log(img, 'img')
     }
 }
 </script>

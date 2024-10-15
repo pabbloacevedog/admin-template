@@ -113,11 +113,11 @@ module.exports = configure(function (/* ctx */) {
         devServer: {
             open: true,
             hot: true,
-            host: 'localhost', // Asegúrate de que sea tu IP
+            host: '192.168.50.115', // Asegúrate de que sea tu IP
             port: 9000,
             proxy: {
                 '/graphql': {
-                    target: 'http://localhost:5001', // Ajusta al puerto de tu backend
+                    target: 'http://192.168.50.115:5001', // Ajusta al puerto de tu backend
                     changeOrigin: true,
                     ws: true, // Habilita WebSocket proxy
                 },

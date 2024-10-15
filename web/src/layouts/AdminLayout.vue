@@ -65,7 +65,6 @@ const logOut = async () => {
         avatar: user.value.avatar
     });
     await authStore.logOut().then(response => {
-        console.log('response: ' + response)
         $q.notify({
             type: 'positive',
             message: response,

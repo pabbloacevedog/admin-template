@@ -62,7 +62,6 @@ export const changePassword = {
     resolve: authResolver.Mutation.changePassword
 };
 
-
 export const updateAccount = {
     type: UpdateUserResponseType, // Cambia esto al tipo de respuesta que has definido
     args: {

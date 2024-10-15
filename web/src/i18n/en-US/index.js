@@ -143,6 +143,7 @@ export default {
         edit: {
             title: "Update data user",
             description: "Complete all data user",
+            verify_manually: "Verify manually",
             upload_avatar: "Avatar update successfully",
             btn_action: "Update",
             btn_cancel: "Cancel"

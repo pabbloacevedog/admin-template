@@ -187,7 +187,6 @@ const onSubmit = async () => {
     try {
         const user = await authStore.login({ email: email.value, password: password.value });
         // Guardar usuario en localStorage
-        console.log(user, 'userlogin')
         const userData = { email: user.email, avatar: user.avatar, name: user.name };
         saveUserInLocalStorage(userData);
         $q.notify({

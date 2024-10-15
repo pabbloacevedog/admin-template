@@ -101,6 +101,11 @@
                                     <q-item-label class="text-weight-bold">No
                                         {{ $t('users.account.verified.title') }}</q-item-label>
                                 </q-item-section>
+                                <q-item-section side class="q-pr-xs">
+                                    <q-btn v-if="canVerifyManually" style="font-size: 13px;"
+                                        :label="$t('users.edit.verify_manually')" color="positive" icon="verified_user"
+                                        class="btn-border-radius" @click="verifyAccountManually(form.user_id)" />
+                                </q-item-section>
                             </q-item>
                         </div>
                         <div class="btn-verified-edit input-bottom" v-if="isEdit">
@@ -148,6 +153,12 @@ import { useUserStore } from 'stores/user';
 import { useRoleStore } from 'stores/role';
 import { useQuasar } from 'quasar';
 import { useI18n } from 'vue-i18n';
+import { useGlobalStore } from 'stores/global';
+import { useAuthStore } from 'src/stores/auth';
+import { useRoute } from 'vue-router';
+const route = useRoute();
+const globalStore = useGlobalStore();
+const authStore = useAuthStore()
 const { t } = useI18n();
 const $q = useQuasar();
 const roleStore = useRoleStore();
@@ -170,6 +181,8 @@ const selectedRole = ref(
 
 ); // nuevo ref para el select
 const user = ref(props.user);
+const canVerifyManually = ref(false);
+const routeName = route.name; // Capturar el nombre de la ruta
 const form = ref({
     user_id: '',
     name: '',
@@ -272,7 +285,8 @@ onMounted(async () => {
                 label: user.value.role.title,
                 value: Number(user.value.role.role_id),
             }
-
+            //Validar si el usuario puede verificar email
+            canVerifyManually.value = await globalStore.canVerifyManually(routeName);
             isEdit.value = true;
         } else {
             resetForm();
@@ -286,26 +300,61 @@ onMounted(async () => {
 // Cargar los roles desde la store
 const fetchRoles = async () => {
     const result = await roleStore.getRoles();
-    roles.value = result.map(role => ({
-        label: role.title,    // Lo que se muestra en el select
-        value: Number(role.role_id),  // El valor que se selecciona (role_id)
-        color: role.color,
-    }));
-    if (user.value) {
-        selectedRole.value.color = roles.value.find(r => r.value === Number(user.value.role.role_id)).color;
+    const loggedInUserRoleId = Number(authStore.user.role.role_id);
+    // Si el usuario no es admin (role_id !== 1), excluye el rol de admin (role_id = 1)
+    if (loggedInUserRoleId != 1) {
+        const rolesFilter = result.filter(role => role.role_id != 1);
+        roles.value = rolesFilter.map(role => ({
+            label: role.title,    // Lo que se muestra en el select
+            value: Number(role.role_id),  // El valor que se selecciona (role_id)
+            color: role.color,
+        }));
     }
-    else{
+    else {
+        roles.value = result.map(role => ({
+            label: role.title,    // Lo que se muestra en el select
+            value: Number(role.role_id),  // El valor que se selecciona (role_id)
+            color: role.color,
+        }));
+    }
 
-        selectedRole.value = roles.value.find(r => r.value === Number(1));
-        console.log('selectedRole', selectedRole.value)
+    // Asigna el color y role_id a selectedRole dependiendo del usuario o el primer rol disponible
+    if (user.value) {
+        selectedRole.value = roles.value.find(r => r.value === Number(user.value.role.role_id));
+        if (selectedRole.value) {
+            selectedRole.value.color = selectedRole.value.color;  // Asignar el color
+        }
+    } else {
+        // Solo asigna el rol de admin si el usuario logueado es admin
+        if (loggedInUserRoleId === 1) {
+            selectedRole.value = roles.value.find(r => r.value === 1);  // Asigna admin si es admin
+        } else {
+            // Asignar otro rol por defecto si no es admin
+            selectedRole.value = roles.value[0]; // Primer rol disponible (que no es admin)
+        }
     }
 };
+
+
+
 // Cerrar y resetear el formulario
 const close = () => {
     userStore.show_modal_user = false;
     resetForm();
 };
+const verifyAccountManually = async (userId) => {
+    try {
+        const response = await userStore.verifyAccountManually(userId);
+        form.value = { ...form.value, verified: true }; // Actualiza el formulario
+        $q.notify({
+            type: 'positive',
+            message: response,
+        });
 
+    } catch (error) {
+        console.log('error catch: ' + error)
+    }
+}
 // Resetear el formulario
 const resetForm = () => {
     form.value = {
@@ -342,7 +391,6 @@ const submit = async () => {
 
 
     if (isEdit.value) {
-        console.log('edit data ', form.value);
         // Si edit_pass es true, eliminamos la propiedad password antes de enviar los datos, significa que la password no fue
         if (edit_pass.value) {
             delete form.value.password;
@@ -354,7 +402,6 @@ const submit = async () => {
         delete form.value.verified;
         delete form.value.__typename;
         await userStore.updateUser(form.value).then(response => {
-            console.log('response: ' + response)
             $q.notify({
                 type: 'positive',
                 message: response,
@@ -365,7 +412,6 @@ const submit = async () => {
         });
         // Aquí va la lógica para editar el usuario
     } else {
-        console.log('create data ', form.value);
         // Aquí va la lógica para crear el usuario
         try {
             // Enviar datos del usuario, todos los usuarios nuevos estan activos por defecto

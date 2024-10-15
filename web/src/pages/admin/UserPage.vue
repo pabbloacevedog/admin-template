@@ -166,7 +166,6 @@ const fetchUsers = async () => {
 };
 const fetchPermissions = async () => {
     try {
-        console.log('fetchPermissions')
         canCreateRef.value = await globalStore.canCreate(routeName);
     } catch (error) {
         console.error('Error fetching permissions:', error);
@@ -243,7 +242,6 @@ onMounted(async () => {
         actions.value = availableActions.value;
         fetchUsers()
         fetchPermissions()
-        console.log('Available Actions:', actions.value);
     } catch (error) {
         console.error('Error fetching user:', error);
     }

@@ -89,12 +89,12 @@ const saveChanges = async () => {
     delete form.value.__typename;
     await authStore.updateUserSettings(form.value).then(response => {
         console.log('response: ' + response)
-        // const new_data = {
-        //     email: form.value.email,
-        //     name: form.value.name,
-        //     avatar: authStore.user.avatar
-        // }
-        // // updateUserInLocalStorage(new_data);
+        const new_data = {
+            email: form.value.email,
+            name: form.value.name,
+            avatar: authStore.user.avatar
+        }
+        updateUserInLocalStorage(new_data);
         // form.value = { avatar: authStore.user.avatar, ...form.value }
         // authStore.updateUserStore(form.value)
         $q.notify({
@@ -116,6 +116,7 @@ const updateUserInLocalStorage = (updatedUser) => {
     );
     localStorage.setItem('rememberedUsers', JSON.stringify(users));
 };
+
 </script>
 
 <script>

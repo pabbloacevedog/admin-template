@@ -156,7 +156,6 @@ const onSubmit = async () => {
     }
     $q.loading.show()
     await authStore.register({ name: name.value, email: email.value, password: password.value }).then(response => {
-        console.log('response: ' + response)
         $q.notify({
             type: 'positive',
             message: response,

@@ -2,7 +2,7 @@
 
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import crypto from 'crypto';
+import crypto, { verify } from 'crypto';
 import models from '../../models/index.js';
 import { sendEmail } from '../../utils/emailService.js';
 import { JWT_EXPIRES, JWT_SECRET, CLIENT, BASE_URL } from '../../config/config.js';
@@ -290,7 +290,8 @@ export const authResolver = {
                 await transaction.rollback();
                 throw error;
             }
-        }
+        },
+
     },
 
     Query: {
@@ -371,81 +372,6 @@ export const authResolver = {
                 user: userWithoutPassword,
             };
         },
-        // Obtener Routes, acciones y condiciones asociadas al rol del usuario en la tabla de permisos
-        // userRoutes: async (_, __, { user }) => {
-        //     if (!user) throwCustomError(ErrorTypes.UNAUTHORIZED);
-
-        //     // Buscar las rutas, acciones y condiciones asociadas al rol del usuario en la tabla de permisos
-        //     const permissions = await models.Permission.findAll({
-        //         where: { role_id: user.role_id },
-        //         include: [
-        //             {
-        //                 model: models.Route,
-        //             },
-        //             {
-        //                 model: models.Action,
-        //             },
-        //             {
-        //                 model: models.Condition,
-        //             },
-        //         ],
-        //     });
-        //     if (!permissions || permissions.length === 0) {
-        //         throwCustomError(ErrorTypes.NO_ACTIONS_FOR_ROLE);
-        //     }
-        //     // console.log('permissions', permissions);
-        //     // Agrupar rutas y sus acciones, incluyendo las condiciones
-        //     const routesWithActions = permissions.reduce((result, permission) => {
-        //         const { Route, Action, Condition } = permission;
-
-        //         // Si la ruta ya está en el resultado, añadimos la acción y condición
-        //         const existingRoute = result.find(route => route.route_id === Route.route_id);
-        //         if (existingRoute) {
-        //             existingRoute.action.push({
-        //                 action_id: Action.action_id,
-        //                 name: Action.name,
-        //                 title: Action.title,
-        //                 description: Action.description,
-        //                 condition: Condition ? {
-        //                     condition_id: Condition.condition_id,
-        //                     name: Condition.name,
-        //                     title: Condition.title,
-        //                     description: Condition.description
-        //                 } : null,
-        //             });
-        //         } else {
-        //             // Si no existe, creamos una nueva entrada para la ruta con sus acciones
-        //             result.push({
-        //                 route_id: Route.route_id,
-        //                 name: Route.name,
-        //                 title: Route.title,
-        //                 description: Route.description,
-        //                 path: Route.path,
-        //                 icon: Route.icon,
-        //                 module_id: Route.module_id,
-        //                 resource: Route.resource,
-        //                 action: [
-        //                     {
-        //                         action_id: Action.action_id,
-        //                         name: Action.name,
-        //                         title: Action.title,
-        //                         description: Action.description,
-        //                         condition: Condition ? {
-        //                             condition_id: Condition.condition_id,
-        //                             name: Condition.name,
-        //                             title: Condition.title,
-        //                             description: Condition.description
-        //                         } : null,
-        //                     }
-        //                 ]
-        //             });
-        //         }
-
-        //         return result;
-        //     }, []);
-        //     // console.log('routesWithActions', routesWithActions)
-        //     return routesWithActions;
-        // },
         // Obtener Routes, acciones, condiciones y ResourceAccess asociados al rol del usuario en la tabla de permisos
         userRoutes: async (_, __, { user }) => {
             if (!user) throwCustomError(ErrorTypes.UNAUTHORIZED);

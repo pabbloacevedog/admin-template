@@ -297,6 +297,26 @@ export const useUserStore = defineStore("user", {
                 throw error;
             }
         },
+        async verifyAccountManually(userId) {
+            const VERIFY_ACCOUNT_MANUALLY_MUTATION = gql`
+                mutation VerifyAccountManually($userId: String!) {
+                    verifyAccountManually(userId: $userId) {
+                        message
+                    }
+                }
+            `;
+            try {
+                const response = await apolloClient.mutate({
+                    mutation: VERIFY_ACCOUNT_MANUALLY_MUTATION,
+                    variables: { userId },
+                });
+                const { message } = response.data.verifyAccountManually;
+                return message;
+            } catch (error) {
+                this.error = error.message;
+                throw error;
+            }
+        },  
         clearError() {
             this.error = null;
         },

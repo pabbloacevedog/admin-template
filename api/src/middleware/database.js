@@ -6,7 +6,7 @@ import { Sequelize } from 'sequelize'
 dotenv.config()
 
 import { DB_HOST, DB_USER, DB_PASS, DB_NAME } from '../config/config.js';
-console.log(DB_HOST, 'localhost')
+console.log(DB_HOST, '192.168.50.115')
 // Load database config
 const config = {
 	host: DB_HOST,

@@ -51,6 +51,19 @@ export const useGlobalStore = defineStore("global", {
                 throw error;
             }
         },
+        async canVerifyManually(routeName) {
+            try {
+                const availableActions = await this.getAvailableActions(routeName);
+                const createPermission = availableActions.find(permission => permission.name === 'verify_manually');
+
+                if (!createPermission) return false; // Si no tiene permiso de creación, no puede crear
+
+                return true; // Por defecto, puede crear si tiene el permiso
+            } catch (error) {
+                this.error = error.message;
+                throw error;
+            }
+        },
         async canView(resource, routeName) {
             try {
                 const availableActions = await this.getAvailableActions(routeName);
@@ -75,7 +88,17 @@ export const useGlobalStore = defineStore("global", {
                 const deletePermission = availableActions.find(permission => permission.name === 'delete');
 
                 if (!deletePermission) return false; // Si no tiene permiso de creación, no puede crear
+                // Datos del usuario autenticado
+                const { user_id: authUserId, role: { role_id: authRoleId } } = this.authStore.user;
+                // Validar si el usuario está intentando eliminarse a sí mismo
+                if (routeName === 'users' && resource.user_id === authUserId) {
+                    return false; // No puede eliminarse a sí mismo
+                }
 
+                // Validar si el usuario está intentando eliminar su propio rol
+                if (routeName === 'roles' && resource.role_id === authRoleId) {
+                    return false; // No puede eliminar su propio rol
+                }
                 const condition = deletePermission.condition;
                 if (condition.name === 'all') return true;
                 if (condition.name === 'owner_only') return this.isOwner(resource);
@@ -126,12 +149,8 @@ export const useGlobalStore = defineStore("global", {
                 const userIds = resourceAccessPermission.map(access => access.user_id);
 
                 if (resource.owner_id === '1') return false;
-                console.log('roleIds', roleIds);
-                console.log('userIds', userIds);
                 // Consultar el role_id del owner del recurso
                 const role_id = await this.getRoleByOwnerId(resource.owner_id);
-                console.log('role_id del owner:', role_id);
-                console.log('accesso a: ', resource)
                 // Verificar si el role_id o el owner_id tienen permisos de acceso
                 return roleIds.includes(role_id) || userIds.includes(resource.owner_id);
             } catch (error) {

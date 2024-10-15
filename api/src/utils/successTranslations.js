@@ -16,6 +16,7 @@ const successTranslations = {
         ROLE_CREATED: 'Role created successfully.',
         ROLE_UPDATED: 'Role updated successfully.',
         ROLE_DELETED: 'Role deleted successfully.',
+        VERIFY_ACCOUNT_MANUALLY: 'Account verified successfully.',
     },
     es: {
         USER_CREATED: 'Usuario creado con éxito.',
@@ -31,6 +32,7 @@ const successTranslations = {
         USER_CREATED_VERIFY_EMAIL:'Cuenta creada con exito, valida tu email para continuar.',
         SUCCESS_VERIFY_EMAIL:'Cuenta verificada con exito, puede iniciar sesión con sus credenciales.',
         USER_DATA_UPDATE_SUCCESS:'Datos actualizados correctamente.',
+        VERIFY_ACCOUNT_MANUALLY: 'Cuenta verificada con éxito.',
     },
     // Agrega más idiomas si es necesario
 };

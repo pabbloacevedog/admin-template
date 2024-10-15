@@ -1,7 +1,7 @@
 // src/graphql/user/resolvers.js
 import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
-import { Op } from 'sequelize';
+import { Op, QueryTypes } from 'sequelize';
 import models from '../../models/index.js';
 import { sendEmail } from '../../utils/emailService.js';
 import validatePermission from '../../utils/permissionValidator.js';
@@ -166,6 +166,28 @@ export const userResolver = {
                 await transaction.rollback();
                 throw error;
             }
+        },
+        verifyAccountManually: async (_, { userId }, { user }) => {
+            // Verificar que el usuario tenga la acción de editar usuarios
+            await validatePermission(user.user_id, 'update', 'users', userId);
+            const transaction = await models.sequelize.transaction();
+            try {
+                // Verificar que el usuario esté en la base de datos
+                const userEdit = await models.User.findByPk(userId);
+                if (!userEdit) throwCustomError(ErrorTypes.USER_NOT_FOUND);
+                // Actualizar el usuario
+                await userEdit.update({
+                    verified: true,
+                    verification_code: null,
+                    verification_code_expiry: null,
+                }, { transaction });
+                await transaction.commit();
+                const successMessage = getSuccessMessage('VERIFY_ACCOUNT_MANUALLY');
+                return { message: successMessage };
+            } catch (error) {
+                await transaction.rollback();
+                throw error;
+            }
         }
     },
 
@@ -186,20 +208,19 @@ export const userResolver = {
                 const loggedInUserRole = user.role_id; // Rol del usuario logueado
 
                 // Obtener el rol del usuario para verificar permisos
-                // Obtener el rol del usuario para verificar permisos
                 const userRole = await models.Role.findOne({
                     where: { role_id: loggedInUserRole },
                     include: [{
                         model: models.Permission,
-                        required: true, // Esto hace un INNER JOIN
+                        required: true, // INNER JOIN
                         include: [
                             {
                                 model: models.Action,
-                                required: true // Esto también es un INNER JOIN
+                                required: true // INNER JOIN
                             },
                             {
                                 model: models.Condition,
-                                required: true // INNER JOIN aquí también
+                                required: true // INNER JOIN
                             },
                             {
                                 model: models.Route,
@@ -210,12 +231,10 @@ export const userResolver = {
                     }]
                 });
 
-
-
                 if (!userRole) {
                     throw new Error('No se encontró el rol del usuario logueado.');
                 }
-                console.log('userRole', userRole.Permissions)
+
                 // Filtrar los permisos para la acción "view"
                 const viewPermission = userRole.Permissions.find(permission => permission.Action.name === 'view');
                 if (!viewPermission) throwCustomError(ErrorTypes.UNAUTHORIZED_ACTION);
@@ -224,50 +243,105 @@ export const userResolver = {
                 const resourceAccessPermission = await models.ResourceAccess.findAll({
                     where: { permission_id: viewPermission.permission_id },
                 });
-                console.log('viewPermission.Condition', viewPermission)
+
+                console.log('viewPermission.Condition', viewPermission);
+
                 // Construir el whereClause según las condiciones del permiso
                 let whereClause = {};
-                if (viewPermission.Condition.name === 'all') {
-                    // El usuario puede ver todos los usuarios
-                    whereClause = {
-                        name: {
-                            [Op.like]: `%${filter.search}%`
+                const searchCondition = {
+                    name: {
+                        [Op.like]: `%${filter.search}%`
+                    }
+                };
+
+                if (viewPermission.Condition.name === 'others') {
+                    // Ver usuarios de otros roles o usuarios según los permisos de acceso
+                    const roleIds = resourceAccessPermission.map(access => access.role_id);
+                    const userIds = resourceAccessPermission.map(access => access.user_id);
+
+                    const users = await models.sequelize.query(`
+                        SELECT
+                        us.user_id,
+                        us.name,
+                        us.username,
+                        us.email,
+                        us.personal_phone,
+                        us.state,
+                        us.verified,
+                        us.avatar,
+                        us.owner_id,
+                        r.role_id,
+                        r.name as role_name,
+                        r.title,
+                        r.description,
+                        r.color,
+                        r.owner_id as role_owner_id
+                        FROM user us
+                        INNER JOIN user usu ON us.owner_id = usu.user_id
+                        LEFT JOIN role r ON us.role_id = r.role_id
+                        WHERE (usu.owner_id IN (:userIds) OR usu.role_id IN (:roleIds))
+                        AND us.name LIKE :search
+                        LIMIT :limit OFFSET :offset
+                    `, {
+                        replacements: {
+                            userIds,
+                            roleIds,
+                            search: `%${filter.search}%`,
+                            limit: pagination.rowsPerPage,
+                            offset: (pagination.page - 1) * pagination.rowsPerPage,
+                        },
+                        type: QueryTypes.SELECT,
+                    });
+
+
+                    const usersReturn = users.map(user => {
+                        return {
+                            user_id: user.user_id,
+                            name: user.name,
+                            username: user.username,
+                            email: user.email,
+                            personal_phone: user.personal_phone,
+                            avatar: user.avatar,
+                            role_id: user.role_id,
+                            verified: user.verified,
+                            state: user.state,
+                            owner_id: user.owner_id,
+                            Role: {
+                                role_id: user.role_id,
+                                name: user.role_name,
+                                title: user.title,
+                                description: user.description,
+                                color: user.color,
+                                owner_id: user.role_owner_id
+                            }
                         }
+                    });
+                    // Contar el total de usuarios (para paginación)
+                    const totalUsers = await models.sequelize.query(`
+                        SELECT COUNT(*) as totalUsers
+                        FROM user us
+                        INNER JOIN user usu ON us.owner_id = usu.user_id
+                        WHERE usu.owner_id IN (:userIds) OR usu.role_id IN (:roleIds)
+                    `, {
+                        replacements: { userIds, roleIds},
+                        type: QueryTypes.SELECT,
+                    });
+                    const totalUsersCount = totalUsers[0].totalUsers;
+
+                    return {
+                        users: usersReturn,
+                        totalUsers: totalUsersCount
                     };
+
                 } else if (viewPermission.Condition.name === 'owner_only') {
                     // Solo puede ver usuarios creados por él mismo
                     whereClause = {
-                        owner_id: loggedInUserId, // Solo usuarios creados por el usuario logueado
-                        name: {
-                            [Op.like]: `%${filter.search}%`
-                        }
+                        ...searchCondition,
+                        owner_id: loggedInUserId // Solo usuarios creados por el usuario logueado
                     };
-                } else if (viewPermission.Condition.name === 'others') {
-                    // Ver usuarios de otros roles o usuarios según los permisos de acceso
-                    const roleIds = resourceAccessPermission.map(access => access.role_id);
-                    console.log('roleIds', roleIds);
-                    const userIds = resourceAccessPermission.map(access => access.user_id);
-                    console.log('userIds', userIds);
-                    // whereClause = {
-                    //     [Op.or]: [
-                    //         { role_id: { [Op.in]: roleIds } }, // Coincidencia con roles
-                    //         { user_id: { [Op.in]: userIds } }  // Coincidencia con usuarios
-                    //     ],
-                    //     user_id: { [Op.ne]: loggedInUserId }, // Excluir el propio usuario
-                    //     name: {
-                    //         [Op.like]: `%${filter.search}%`
-                    //     }
-                    // };
-                    whereClause = {
-                        [Op.or]: [
-                            { owner_id: { [Op.in]: ownerIds } }, // Condición para owner_id
-                            { '$owner.role.role_id$': { [Op.in]: roleIds } } // Condición para role_id del owner (usando alias)
-                        ],
-                        // user_id: { [Op.ne]: loggedInUserId }, // Excluir el propio usuario
-                        name: {
-                            [Op.like]: `%${filter.search}%` // Filtro de búsqueda en nombre
-                        }
-                    };
+                } else if (viewPermission.Condition.name === 'all') {
+                    // El usuario puede ver todos los usuarios
+                    whereClause = searchCondition;
 
                 } else if (viewPermission.Condition.name === 'resource') {
                     // Acceso basado en recursos específicos
@@ -275,9 +349,7 @@ export const userResolver = {
 
                     whereClause = {
                         user_id: { [Op.in]: resourceIds }, // Filtrar por resource_id
-                        name: {
-                            [Op.like]: `%${filter.search}%`
-                        }
+                        ...searchCondition // Agrega el filtro de búsqueda
                     };
                 }
 
@@ -293,48 +365,16 @@ export const userResolver = {
                 const totalUsers = await models.User.count({
                     where: whereClause
                 });
-
+                console.log('usersReturn', users);
                 return {
                     users,
                     totalUsers
                 };
             } catch (error) {
-                console.error('Error al obtener los roles:', error.stack); // Imprime el stack trace completo
-                throw new Error('Error al obtener los roles: ' + error.message);
+                console.error('Error al obtener los usuarios:', error.stack); // Imprime el stack trace completo
+                throw new Error('Error al obtener los usuarios: ' + error.message);
             }
         },
-
-        // getAllUsers: async (_, { filter, pagination }) => {
-        //     try {
-        //         // Lógica para obtener usuarios de la base de datos, por ejemplo con Sequelize
-        //         const users = await models.User.findAll({
-        //             // Aplica la paginación y filtros aquí
-        //             where: {
-        //                 name: {
-        //                     [Op.like]: `%${filter.search}%`
-        //                 }
-        //             },
-        //             limit: pagination.rowsPerPage,
-        //             offset: (pagination.page - 1) * pagination.rowsPerPage,
-        //             include: [models.Role] // Si también necesitas incluir el rol
-        //         });
-
-        //         const totalUsers = await models.User.count({
-        //             where: {
-        //                 name: {
-        //                     [Op.like]: `%${filter.search}%`
-        //                 }
-        //             }
-        //         });
-
-        //         return {
-        //             users,
-        //             totalUsers
-        //         };
-        //     } catch (error) {
-        //         throw new Error('Error al obtener los usuarios' + error);
-        //     }
-        // },
         getUsersByOwner: async (_, { filter, pagination }, { user }) => {
             try {
                 // Definir condiciones de búsqueda

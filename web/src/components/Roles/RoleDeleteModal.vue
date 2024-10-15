@@ -90,7 +90,6 @@ const props = defineProps({
         required: true,
     },
 });
-console.log('props', props)
 const emits = defineEmits(['close']);
 
 const $q = useQuasar();
