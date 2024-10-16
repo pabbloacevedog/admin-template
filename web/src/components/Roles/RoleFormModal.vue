@@ -219,7 +219,7 @@
                             color="primary" class="btn-border-radius" @click="submit" />
                     </div>
                 </q-card-section>
-                <q-card-section class="q-py-none" v-else horizontal>
+                <q-card-section class="q-py-none" v-else :horizontal="isLargeScreen">
                     <q-card-section class="col-4 q-pr-md q-pl-none q-pb-none q-pt-sm" style="padding: 24px 0%;">
                         <div caption class="q-mt-md q-mb-md " v-if="isEdit" style="font-size: 16px;">
                             {{ $t('roles.edit.instruction') }}
@@ -253,7 +253,7 @@
                                 {{ errors.colorMsg }}
                             </div>
 
-                            <div class="q-pt-lg" v-if="!isMobile">
+                            <div class="q-pt-lg" v-if="isLargeScreen">
                                 <q-btn :label="$t('roles.create.btn_cancel')" outline color="primary"
                                     class="btn-border-radius q-mr-lg" @click="close" />
                                 <q-btn :label="isEdit ? $t('roles.edit.btn_action') : $t('roles.create.btn_action')"
@@ -265,7 +265,7 @@
                         <div class="q-col-gutter-md q-mx-none q-my-md col-12" v-for="route in routes"
                             :key="route.route_id">
                             <q-expansion-item v-model="expanded[route.route_id]" @before-show="handleExpansion(route)"
-                                class="bg-first div-rounded-radius q-pa-none q-ml-lg" group="role_route">
+                            :class="[{ 'q-ml-lg': isLargeScreen }, 'bg-first div-rounded-radius q-pa-none']" group="role_route">
                                 <template v-slot:header>
                                     <q-item class="q-pa-none" style="width: 100%;">
                                         <div class="row items-center justify-between" style="width: 100%;">
@@ -415,36 +415,6 @@
                                                                     </q-item-section>
                                                                 </q-item>
                                                             </q-item-section>
-                                                            <!-- <q-item-section v-if="action.name == 'assign_role'" dense style="max-height: 48px;  height: 48px !important;  padding: 0px !important;" class="full-width" side>
-                                                                <q-item class="q-pa-none full-width" dense>
-                                                                    <q-item-section side class="full-width" dense style="padding: 0px !important;">
-                                                                        <q-select dense filled
-                                                                            class="full-width"
-                                                                            v-model="otherRolesAndUsersConditions[`${route.route_id}_${action.action_id}`]"
-                                                                            @update:model-value="(newValue) => selectConditionOther(route.route_id, action.action_id, actionConditions[`${route.route_id}_${action.action_id}`], newValue)"
-                                                                            multiple :options="rolesOrUsersSelect"
-                                                                            use-chips
-                                                                            :disable="actionConditions[`${route.route_id}_${action.action_id}`]?.name !== 'assign_role' || !route_roles.includes(route.route_id) || !isActionSelected(route.route_id, action.action_id)"
-                                                                            stack-label label="Select Role to assign">
-                                                                            <template v-slot:selected-item="scope">
-                                                                                <q-chip removable dense
-                                                                                    @remove="scope.removeAtIndex(scope.index)"
-                                                                                    v-if="scope.opt.type === 'role'"
-                                                                                    :tabindex="scope.tabindex"
-                                                                                    :color="scope.opt.color"
-                                                                                    text-color="white"
-                                                                                    style="font-size: 12px; margin: 4px 2px; max-width: 100px"
-                                                                                    icon="attribution">
-                                                                                    <div class="ellipsis">
-                                                                                        {{ scope.opt.label }}
-                                                                                    </div>
-                                                                                </q-chip>
-                                                                            </template>
-                                                                        </q-select>
-                                                                    </q-item-section>
-                                                                </q-item>
-
-                                                            </q-item-section> -->
                                                         </q-item>
                                                     </q-item-section>
                                                 </q-item>
@@ -456,6 +426,12 @@
                             </q-expansion-item>
                         </div>
                     </q-card-section>
+                    <div class="q-pt-lg row justify-center" v-if="!isLargeScreen">
+                        <q-btn :label="$t('roles.create.btn_cancel')" outline color="primary"
+                            class="btn-border-radius q-mr-lg" @click="close" />
+                        <q-btn :label="isEdit ? $t('roles.edit.btn_action') : $t('roles.create.btn_action')"
+                            color="primary" class="btn-border-radius" @click="submit" />
+                    </div>
                 </q-card-section>
             </q-card>
 
@@ -601,7 +577,10 @@ const includesRouteId = (route_id) => {
 const generateName = () => {
     form.value.name = normalizeText(form.value.title);
 };
-
+// Computed para detectar el ancho de la pantalla
+const isLargeScreen = computed(() => {
+    return $q.screen.width > 1024; // Definir si la pantalla es mayor a 800px
+});
 // Ordenar acciones, para que 'create' sea la primera
 const sortedActions = computed(() => {
     return actions.value.slice().sort((a, b) => {
