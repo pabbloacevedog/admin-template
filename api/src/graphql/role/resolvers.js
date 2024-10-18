@@ -3,6 +3,7 @@ import throwCustomError, { ErrorTypes } from '../../helpers/error-handler.helper
 import { getSuccessMessage } from '../../helpers/success-handler.helper.js';
 import validatePermission from '../../utils/permissionValidator.js';
 import { Op, QueryTypes } from 'sequelize';
+import { logActivity } from '../../utils/logActivity.js'; // Importar la función de logging
 
 export const roleResolver = {
     Mutation: {
@@ -82,6 +83,7 @@ export const roleResolver = {
                 // Confirmar la transacción
                 await transaction.commit();
                 const successMessage = getSuccessMessage('ROLE_CREATED');
+                await logActivity(user.user_id, 'Create Role', newRole.name, null, newRole);
                 return { role_id: newRole.role_id, message: successMessage };
             } catch (error) {
                 // Revertir la transacción en caso de error
@@ -101,7 +103,13 @@ export const roleResolver = {
                 // Actualizar el rol
                 const role = await models.Role.findByPk(roleId);
                 if (!role) throwCustomError(ErrorTypes.ROLE_NOT_FOUND);
-
+                // Guardar los datos antiguos
+                const oldData = {
+                    name: role.name,
+                    title: role.title,
+                    description: role.description,
+                    color: role.color
+                };
                 await role.update({
                     name,
                     title,
@@ -183,6 +191,7 @@ export const roleResolver = {
 
                 await transaction.commit();
                 const successMessage = getSuccessMessage('ROLE_UPDATED');
+                await logActivity(user.user_id, 'Update Role', role.name, oldData, role);
                 return { role, message: successMessage };
             } catch (error) {
                 await transaction.rollback();
@@ -198,7 +207,12 @@ export const roleResolver = {
             // Buscar el rol
             const role = await models.Role.findByPk(roleId);
             if (!role) throwCustomError(ErrorTypes.ROLE_NOT_FOUND);
-
+            const oldData = {
+                name: role.name,
+                title: role.title,
+                description: role.description,
+                color: role.color
+            };
             // Iniciar transacción
             const transaction = await models.sequelize.transaction();
             try {
@@ -232,7 +246,7 @@ export const roleResolver = {
 
                 // Confirmar la transacción
                 await transaction.commit();
-
+                await logActivity(user.user_id, 'Delete Role', role.name, oldData, role);
                 // Retornar mensaje de éxito
                 const successMessage = getSuccessMessage('ROLE_DELETED');
                 return { message: successMessage };

@@ -9,6 +9,8 @@ import { JWT_EXPIRES, JWT_SECRET, CLIENT, BASE_URL } from '../../config/config.j
 import throwCustomError, { ErrorTypes } from '../../helpers/error-handler.helper.js';
 import { getSuccessMessage } from '../../helpers/success-handler.helper.js';
 import { createWriteStream, existsSync, mkdirSync } from 'fs';
+import { verifyAttempts, recordFailedAttempt, resetFailedAttempts } from '../../utils/verifyAttempts.js'
+import { logActivity } from '../../utils/logActivity.js'; // Importar la función de logging
 import path from 'path'; // Importa path para manejar rutas de manera segura
 
 export const authResolver = {
@@ -48,6 +50,8 @@ export const authResolver = {
                 });
                 // Confirmar la transacción
                 await transaction.commit();
+                // Log the activity
+                await logActivity(newUser.user_id, 'signup', name, null, newUser);
                 const successMessage = getSuccessMessage('USER_CREATED_VERIFY_EMAIL');
                 return { email: newUser.email, message: successMessage };
             } catch (error) {
@@ -85,17 +89,17 @@ export const authResolver = {
             }
         },
         // Verificar el token de correo electrónico
-        verifyEmailAdmin: async (_, { userId }) => {
+        verifyEmailAdmin: async (_, { userId }, { user }) => {
             // Buscar el usuario con el userId de verificación
             console.log('Verificar el userId', userId);
-            const user = await models.User.findOne({ where: { user_id: userId } });
+            const userVerify = await models.User.findOne({ where: { user_id: userId } });
             console.log('Verificar el user', user);
-            if (!user) throwCustomError(ErrorTypes.INVALID_VERIFY_CODE);
+            if (!userVerify) throwCustomError(ErrorTypes.INVALID_VERIFY_CODE);
 
             const transaction = await models.sequelize.transaction();
             try {
                 // Actualizar el estado del usuario como verificado
-                await user.update({
+                await userVerify.update({
                     verified: true,
                     verification_email: null, // Limpiamos el código
                     verification_email_expires: null,
@@ -103,6 +107,8 @@ export const authResolver = {
                 await transaction.commit();
                 const successMessage = getSuccessMessage('SUCCESS_VERIFY_EMAIL');
                 console.log('successMessage', successMessage);
+                // Log the activity
+                await logActivity(user.user_id, 'Verify Email', userVerify.name, userVerify, userVerify);
                 return { email: user.email, message: successMessage };
             } catch (error) {
                 await transaction.rollback();
@@ -135,6 +141,7 @@ export const authResolver = {
                     text: message,
                 });
                 await transaction.commit();
+                await logActivity(user.user_id, 'Forgot Password', user.name, null, user);
                 const successMessage = getSuccessMessage('VERIFY_CODE_SENT');
                 return { message: successMessage };
             } catch (error) {
@@ -183,6 +190,7 @@ export const authResolver = {
                 }, { transaction });
                 await transaction.commit();
                 const successMessage = getSuccessMessage('PASSWORD_UPDATED');
+                await logActivity(user.user_id, 'Reset Password', user.name, null, user);
                 return { message: successMessage };
             } catch (error) {
                 await transaction.rollback();
@@ -211,6 +219,7 @@ export const authResolver = {
                 }, { transaction });
                 await transaction.commit();
                 const successMessage = getSuccessMessage('PASSWORD_UPDATED');
+                await logActivity(user.user_id, 'Change Password', user.name, null, user);
                 return { message: successMessage };
             } catch (error) {
                 await transaction.rollback();
@@ -234,6 +243,7 @@ export const authResolver = {
             const transaction = await models.sequelize.transaction();
             try {
                 // Actualizamos los campos proporcionados
+                const us = await models.User.findByPk(userId);
                 await dataUser.update({
                     name: input.name || dataUser.name,
                     username: input.username || dataUser.username,
@@ -244,6 +254,7 @@ export const authResolver = {
                 }, { transaction });
                 await transaction.commit();
                 const successMessage = getSuccessMessage('USER_DATA_UPDATE_SUCCESS');
+                await logActivity(userId, 'Update Account', dataUser.name, us, dataUser);
                 return { user: dataUser.get(), message: successMessage };
 
             } catch (error) {
@@ -285,6 +296,7 @@ export const authResolver = {
                 user.avatar = url_avatar; // Guarda la ruta del archivo en la base de datos
                 await user.save({ transaction });
                 await transaction.commit();
+                await logActivity(userId, 'Upload Avatar', user.name, user, user);
                 return { avatar: url_avatar }; // Devuelve la nueva URL del avatar
             } catch (error) {
                 await transaction.rollback();
@@ -296,37 +308,69 @@ export const authResolver = {
 
     Query: {
         // Login
-        login: async (_, { email, password: userPassword }, { res }) => {
-            // console.log('password', password);
+        // login: async (_, { email, password: userPassword }, { res }) => {
+        //     // console.log('password', password);
 
-            // Buscar el usuario por email y obtener el role.name
+        //     // Buscar el usuario por email y obtener el role.name
+        //     const user = await models.User.findOne({
+        //         where: { email },
+        //         include: [
+        //             {
+        //                 model: models.Role,
+        //             },
+        //         ],
+        //         // attributes: { exclude: ['role_id'] } // Opcional: Excluye el role_id si no lo necesitas
+        //     });
+        //     // Verificar si el correo electrónico está registrado en la base de datos
+        //     if (!user) throwCustomError(ErrorTypes.BAD_USER_INPUT);
+
+        //     // Verificar si el correo electrónico está verificado
+        //     if (!user.verified) throwCustomError(ErrorTypes.EMAIL_NOT_VERIFIED);
+        //     // Verificar si el estado de la cuenta
+        //     if (!user.state) throwCustomError(ErrorTypes.USER_INACTIVE);
+        //     // Verificar si la contraseña es correcta
+        //     const passwordMatch = await bcrypt.compare(userPassword, user.password);
+        //     if (!passwordMatch) throwCustomError(ErrorTypes.BAD_USER_PASSWORD);
+
+        //     // Excluir la contraseña del objeto user antes de devolverlo
+        //     const { password, ...userWithoutPassword } = user.toJSON(); // Convertir a JSON y excluir la password
+        //     // console.log('userWithoutPassword', userWithoutPassword);
+        //     // Generar y firmar el token JWT_SECRET unica
+        //     const token = jwt.sign(userWithoutPassword, JWT_SECRET, { expiresIn: JWT_EXPIRES });
+
+        //     // Si hay respuesta y cookies, establecer la cookie
+        //     if (res && res.cookie) {
+        //         res.cookie('token', token, {
+        //             httpOnly: true,
+        //             secure: process.env.NODE_ENV === 'production',
+        //             sameSite: 'Strict',
+        //         });
+        //     }
+
+        //     return {
+        //         user: userWithoutPassword,
+        //         // actions,
+        //         // routes
+        //     };
+        // },
+        login: async (_, { email, password: userPassword }, { res, req }) => {
+            const ipAddr = req.ip;
+
+            await verifyAttempts(email, ipAddr, res);
+
             const user = await models.User.findOne({
                 where: { email },
-                include: [
-                    {
-                        model: models.Role,
-                    },
-                ],
-                // attributes: { exclude: ['role_id'] } // Opcional: Excluye el role_id si no lo necesitas
+                include: [{ model: models.Role }],
             });
-            // Verificar si el correo electrónico está registrado en la base de datos
-            if (!user) throwCustomError(ErrorTypes.BAD_USER_INPUT);
 
-            // Verificar si el correo electrónico está verificado
-            if (!user.verified) throwCustomError(ErrorTypes.EMAIL_NOT_VERIFIED);
-            // Verificar si el estado de la cuenta
-            if (!user.state) throwCustomError(ErrorTypes.USER_INACTIVE);
-            // Verificar si la contraseña es correcta
-            const passwordMatch = await bcrypt.compare(userPassword, user.password);
-            if (!passwordMatch) throwCustomError(ErrorTypes.BAD_USER_PASSWORD);
+            if (!user || !user.verified || !user.state || !(await bcrypt.compare(userPassword, user.password))) {
+                await recordFailedAttempt(user ? email : null, ipAddr);
+                throwCustomError(user ? ErrorTypes.BAD_USER_PASSWORD : ErrorTypes.BAD_USER_INPUT);
+            }
 
-            // Excluir la contraseña del objeto user antes de devolverlo
-            const { password, ...userWithoutPassword } = user.toJSON(); // Convertir a JSON y excluir la password
-            // console.log('userWithoutPassword', userWithoutPassword);
-            // Generar y firmar el token JWT_SECRET unica
+            const { password, ...userWithoutPassword } = user.toJSON();
             const token = jwt.sign(userWithoutPassword, JWT_SECRET, { expiresIn: JWT_EXPIRES });
 
-            // Si hay respuesta y cookies, establecer la cookie
             if (res && res.cookie) {
                 res.cookie('token', token, {
                     httpOnly: true,
@@ -335,13 +379,12 @@ export const authResolver = {
                 });
             }
 
+            await resetFailedAttempts(email, ipAddr);
+
             return {
                 user: userWithoutPassword,
-                // actions,
-                // routes
             };
         },
-
         // Obtener configuración de usuario
         userSettings: async (_, { userId }, { user, res }) => {
             if (!user || user.user_id !== userId) throwCustomError(ErrorTypes.UNAUTHORIZED);

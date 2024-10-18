@@ -50,6 +50,7 @@ export const userResolver = {
                 // Confirmar la transacción
                 await transaction.commit();
                 const successMessage = getSuccessMessage('USER_CREATED_VERIFY_EMAIL');
+                await logActivity(user.user_id, 'Create User', newUser.name, null, newUser);
                 return { user_id: newUser.user_id, message: successMessage };
             } catch (error) {
                 // Revertir la transacción en caso de error
@@ -66,6 +67,17 @@ export const userResolver = {
             await validatePermission(user.user_id, 'update', 'users', userId);
             console.log('input', input);
             const usertoedit = await models.User.findByPk(userId);
+            const oldData = {
+                name: usertoedit.name,
+                username: usertoedit.username,
+                email: usertoedit.email,
+                personal_phone: usertoedit.personal_phone,
+                state: usertoedit.state,
+                verified: usertoedit.verified,
+                avatar: usertoedit.avatar,
+                owner_id: usertoedit.owner_id,
+                role_id: usertoedit.role_id
+            };
             if (!usertoedit) throwCustomError(ErrorTypes.USER_NOT_FOUND);
             const transaction = await models.sequelize.transaction();
             try {
@@ -95,6 +107,7 @@ export const userResolver = {
                 }, { transaction });
                 await transaction.commit();
                 const successMessage = getSuccessMessage('USER_DATA_UPDATE_SUCCESS');
+                await logActivity(user.user_id, 'Update User', usertoedit.name, oldData, usertoedit);
                 return { user: usertoedit.get(), message: successMessage };
 
             } catch (error) {
@@ -119,6 +132,7 @@ export const userResolver = {
 
                 // Retornar mensaje de éxito
                 const successMessage = getSuccessMessage('USER_DELETED');
+                await logActivity(user.user_id, 'Delete User', dataUser.name, dataUser, { user_id: 'deleted' });
                 return { message: successMessage };
             } catch (error) {
                 // Si ocurre un error, hacer rollback de la transacción
@@ -161,6 +175,7 @@ export const userResolver = {
                 user.avatar = url_avatar; // Guarda la ruta del archivo en la base de datos
                 await user.save({ transaction });
                 await transaction.commit();
+                await logActivity(user.user_id, 'Upload Avatar', user.name, user, user);
                 return { avatar: url_avatar }; // Devuelve la nueva URL del avatar
             } catch (error) {
                 await transaction.rollback();
@@ -183,6 +198,7 @@ export const userResolver = {
                 }, { transaction });
                 await transaction.commit();
                 const successMessage = getSuccessMessage('VERIFY_ACCOUNT_MANUALLY');
+                await logActivity(user.user_id, 'Verify Account Manually', userEdit.name, userEdit, userEdit);
                 return { message: successMessage };
             } catch (error) {
                 await transaction.rollback();

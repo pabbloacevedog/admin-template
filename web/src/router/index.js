@@ -70,13 +70,11 @@ export default route(function (/* { store, ssrContext } */) {
                 return next();
             }
         } else if (onlyWithoutAuth) {
-
+            // Si el usuario está autenticado y trata de acceder a una ruta lo envia al admin
             if (await authStore.isAuth()) {
                 return next({ path: "/admin" });
             }
-            // Si el usuario está autenticado y trata de acceder a una ruta que solo es accesible sin autenticación
-            // Evita redirigir a la ruta solicitada y quédate en la ruta actual
-            return next(); // Evita que cambie de ruta
+            return next(); // cambia de ruta si no es auth
         } else {
             // console.log("to",to);
             // debugger
